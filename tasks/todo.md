@@ -4,7 +4,7 @@ Vertical slices, each end-to-end & test-verified. One commit per task on `main`.
 ⛳ = human review point (auto-mode continues through these; interrupt anytime).
 
 ## Phase A — Walking skeleton
-- [ ] **A1** Scaffold & tooling — uv project, package, CLI stubs, `.gitignore`, `.env.example`
+- [x] **A1** Scaffold & tooling — uv project, package, CLI stubs, `.gitignore`, `.env.example`
 - [ ] **A2** Skeleton: feed → manifest → HTML (offline e2e test)
 - [ ] ⛳ **Checkpoint 1** — pipeline walks; review skeleton HTML + architecture
 
