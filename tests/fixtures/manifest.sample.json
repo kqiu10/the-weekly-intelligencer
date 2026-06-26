@@ -1,0 +1,55 @@
+{
+  "issue": {
+    "date": "2026-06-26",
+    "title": "The Week Intelligencer",
+    "subtitle": "A weekly briefing on AI and the work it's reshaping",
+    "volume": 1,
+    "number": 1
+  },
+  "dimensions": [
+    {
+      "name": "Frontier Labs",
+      "blurb": "What the leading labs shipped this week",
+      "summary_mode": "rewrite",
+      "items": [
+        {
+          "title": "A New Frontier Model Lands",
+          "url": "https://example.com/a",
+          "source": "example.com",
+          "published": "2026-06-24",
+          "image": "assets/2026-06-26/lead.jpg",
+          "raw_text": "",
+          "summary": "The lab unveiled its latest system, claiming gains on reasoning benchmarks and a lower price.",
+          "origin": "feed"
+        },
+        {
+          "title": "Open Weights, Open Questions",
+          "url": "https://example.com/b",
+          "source": "example.org",
+          "published": "2026-06-23",
+          "image": "assets/2026-06-26/b.jpg",
+          "raw_text": "",
+          "summary": "A rival released model weights, reigniting the openness debate.",
+          "origin": "feed"
+        }
+      ]
+    },
+    {
+      "name": "AI Spending",
+      "blurb": "Money flowing into compute",
+      "summary_mode": "synthesize",
+      "items": [
+        {
+          "title": "Capex Climbs Again",
+          "url": "https://example.com/c",
+          "source": "example.net",
+          "published": "2026-06-22",
+          "image": null,
+          "raw_text": "",
+          "summary": "Hyperscalers raised capital-expenditure guidance for the year, citing AI demand.",
+          "origin": "search"
+        }
+      ]
+    }
+  ]
+}

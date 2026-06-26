@@ -19,6 +19,16 @@ def _today() -> str:
     return _dt.date.today().isoformat()
 
 
+def issue_volume_number(first_issue_date: str | None, issue_date: str) -> tuple[int, int]:
+    """Compute (volume, number) where a volume spans 52 weekly issues."""
+    if not first_issue_date:
+        return 1, 1
+    first = _dt.date.fromisoformat(first_issue_date)
+    current = _dt.date.fromisoformat(issue_date)
+    weeks = max((current - first).days // 7, 0)
+    return weeks // 52 + 1, weeks % 52 + 1
+
+
 def _gather_dimension(dim: Dimension, *, discover_og: bool) -> DimensionContent:
     items: list[Item] = []
     for source in dim.sources:
@@ -46,6 +56,14 @@ def _gather_dimension(dim: Dimension, *, discover_og: bool) -> DimensionContent:
 def build_manifest(
     config: Config, *, date: str | None = None, discover_og: bool = False
 ) -> Manifest:
-    issue = Issue(date=date or _today(), title=config.publication.title)
+    date_str = date or _today()
+    volume, number = issue_volume_number(config.publication.first_issue_date, date_str)
+    issue = Issue(
+        date=date_str,
+        title=config.publication.title,
+        subtitle=config.publication.subtitle,
+        volume=volume,
+        number=number,
+    )
     dimensions = [_gather_dimension(d, discover_og=discover_og) for d in config.dimensions]
     return Manifest(issue=issue, dimensions=dimensions)

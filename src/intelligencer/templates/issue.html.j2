@@ -9,24 +9,50 @@
 <body>
   <header class="masthead">
     <h1 class="masthead-title">{{ issue.title }}</h1>
-    <p class="masthead-date">{{ issue.date }}</p>
+    {% if issue.subtitle %}<p class="masthead-subtitle">{{ issue.subtitle }}</p>{% endif %}
+    <div class="masthead-rule">
+      <span>Vol. {{ issue.volume }}, No. {{ issue.number }}</span>
+      <span>{{ issue.date }}</span>
+    </div>
   </header>
-  <main>
+
+  {% set lead = dimensions[0].items[0] if dimensions and dimensions[0].items else None %}
+  {% if lead %}
+  <article class="lead">
+    <p class="kicker">{{ dimensions[0].name }}</p>
+    {% if lead.image %}<img class="lead-image" src="{{ lead.image }}" alt="">{% endif %}
+    <h2 class="lead-title"><a href="{{ lead.url }}">{{ lead.title }}</a></h2>
+    {% if lead.summary %}<p class="lead-summary">{{ lead.summary }}</p>
+    {% elif lead.raw_text %}<p class="lead-summary">{{ lead.raw_text }}</p>{% endif %}
+    {% if lead.source %}<p class="item-source">{{ lead.source }}</p>{% endif %}
+  </article>
+  {% endif %}
+
+  <main class="sections">
     {% for dim in dimensions %}
+    {% set outer = loop %}
     <section class="dimension">
-      <h2 class="dimension-name">{{ dim.name }}</h2>
+      <h3 class="dimension-name">{{ dim.name }}</h3>
       {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
-      {% for item in dim.items %}
-      <article class="item">
-        {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
-        <h3 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h3>
-        {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
-        {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
-        {% if item.source %}<p class="item-source">{{ item.source }}</p>{% endif %}
-      </article>
-      {% endfor %}
+      <div class="items">
+        {% for item in dim.items %}
+        {% if not (outer.first and loop.first) %}
+        <article class="item">
+          {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
+          <h4 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h4>
+          {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
+          {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
+          {% if item.source %}<p class="item-source">{{ item.source }}</p>{% endif %}
+        </article>
+        {% endif %}
+        {% endfor %}
+      </div>
     </section>
     {% endfor %}
   </main>
+
+  <footer class="colophon">
+    <p>{{ issue.title }} · Vol. {{ issue.volume }}, No. {{ issue.number }} · {{ issue.date }}</p>
+  </footer>
 </body>
 </html>
