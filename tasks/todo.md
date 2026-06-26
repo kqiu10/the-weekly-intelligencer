@@ -15,7 +15,7 @@ Vertical slices, each end-to-end & test-verified. One commit per task on `main`.
 - [ ] ⛳ **Checkpoint 2** — review the complete zero-token issue before the agentic layer
 
 ## Phase C — Agentic layer (Claude-in-session)
-- [ ] **C1** `api` source (newsapi) — key from `.env`, **hard 100/day cap**, response cache, mocked tests
+- [x] **C1** `api` source (newsapi) — key from `.env`, **hard 100/day cap**, response cache, mocked tests
 - [ ] **C2** `SKILL.md` orchestrator + search + rewrite/synthesize *(no unit test — manual verify)*
 - [ ] ⛳ **Checkpoint 3** — review a real live weekly issue (quality / attribution / cost)
 

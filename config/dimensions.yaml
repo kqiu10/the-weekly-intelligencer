@@ -46,3 +46,9 @@ dimensions:
     summary: raw
     sources:
       - { type: search, query: "TikTok Instagram AI viral trend this week" }
+
+  - name: "AI in the News"
+    blurb: "Wire coverage across many outlets (NewsAPI)"
+    summary: rewrite
+    sources:
+      - { type: api, provider: newsapi, query: "artificial intelligence" }
