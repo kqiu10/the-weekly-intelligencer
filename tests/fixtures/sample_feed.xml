@@ -8,6 +8,7 @@
       <title>First Headline</title>
       <link>http://example.com/first</link>
       <description>Summary of the first story.</description>
+      <enclosure url="http://example.com/first.jpg" type="image/jpeg" length="12345"/>
       <pubDate>Wed, 24 Jun 2026 10:00:00 GMT</pubDate>
     </item>
     <item>

@@ -11,10 +11,10 @@ import feedparser
 import httpx
 from bs4 import BeautifulSoup
 
-logger = logging.getLogger(__name__)
+from .images import image_from_feed_entry
+from .net import DEFAULT_TIMEOUT, USER_AGENT
 
-USER_AGENT = "TheWeekIntelligencer/0.1 (+https://github.com/the-week-intelligencer)"
-DEFAULT_TIMEOUT = 10.0
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -24,6 +24,7 @@ class FeedItem:
     source: str
     published: str | None
     raw_text: str
+    image: str | None = None
 
 
 def _read_bytes(url: str, timeout: float) -> bytes:
@@ -62,6 +63,7 @@ def fetch_feed(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> list[FeedItem]:
                 source=(urlparse(link).netloc if link else "") or feed_title,
                 published=entry.get("published") or entry.get("updated"),
                 raw_text=_clean(entry.get("summary", "")),
+                image=image_from_feed_entry(entry),
             )
         )
     return items

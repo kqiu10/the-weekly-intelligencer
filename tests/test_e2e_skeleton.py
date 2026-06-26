@@ -26,3 +26,7 @@ def test_skeleton_feed_to_html(tmp_path):
     assert manifest.issue.title in html
     assert "First Headline" in html
     assert "http://example.com/first" in html
+
+    # feed-embedded preview image is rendered (hotlink mode = remote URL kept)
+    assert "<img" in html
+    assert "http://example.com/first.jpg" in html

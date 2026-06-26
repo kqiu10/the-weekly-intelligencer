@@ -9,7 +9,7 @@ Vertical slices, each end-to-end & test-verified. One commit per task on `main`.
 - [ ] ⛳ **Checkpoint 1** — pipeline walks; review skeleton HTML + architecture
 
 ## Phase B — Deterministic product (zero tokens)
-- [ ] **B1** og:image fetch + cache, rendered in HTML
+- [x] **B1** og:image fetch + cache, rendered in HTML
 - [ ] **B2** Multi-dimension + full NYT broadsheet + golden test
 - [ ] **B3** Config validation + `raw` summaries + fail-soft
 - [ ] ⛳ **Checkpoint 2** — review the complete zero-token issue before the agentic layer

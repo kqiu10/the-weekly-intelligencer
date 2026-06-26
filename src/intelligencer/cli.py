@@ -42,7 +42,7 @@ def _cmd_fetch(args: argparse.Namespace) -> int:
     from .gather import build_manifest
 
     cfg = load_config(args.config)
-    manifest = build_manifest(cfg)
+    manifest = build_manifest(cfg, discover_og=True)
     path = manifest.write(MANIFEST_PATH)
     n = sum(len(d.items) for d in manifest.dimensions)
     print(f"wrote {path} ({n} items across {len(manifest.dimensions)} dimensions)")
@@ -56,7 +56,7 @@ def _cmd_render(args: argparse.Namespace) -> int:
 
     cfg = load_config(args.config)
     manifest = Manifest.read(MANIFEST_PATH)
-    out = render_issue(manifest, cfg.output.dir)
+    out = render_issue(manifest, cfg.output.dir, images=cfg.output.images)
     print(f"wrote {out}")
     if getattr(args, "open_after", False):
         import webbrowser

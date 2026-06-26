@@ -18,6 +18,7 @@
       {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
       {% for item in dim.items %}
       <article class="item">
+        {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
         <h3 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h3>
         {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
         {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
