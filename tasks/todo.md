@@ -16,7 +16,7 @@ Vertical slices, each end-to-end & test-verified. One commit per task on `main`.
 
 ## Phase C — Agentic layer (Claude-in-session)
 - [x] **C1** `api` source (newsapi) — key from `.env`, **hard 100/day cap**, response cache, mocked tests
-- [ ] **C2** `SKILL.md` orchestrator + search + rewrite/synthesize *(no unit test — manual verify)*
+- [x] **C2** `SKILL.md` orchestrator + search + rewrite/synthesize *(no unit test — manual verify)*
 - [ ] ⛳ **Checkpoint 3** — review a real live weekly issue (quality / attribution / cost)
 
 ## Phase D — Polish & handoff
