@@ -44,13 +44,9 @@ def _clean(text: str) -> str:
 
 
 def fetch_feed(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> list[FeedItem]:
-    """Fetch + parse one RSS/Atom feed. Fail-soft: returns ``[]`` on any error."""
-    try:
-        content = _read_bytes(url, timeout)
-    except Exception as exc:  # noqa: BLE001 - fail soft on any fetch error
-        logger.warning("feed fetch failed for %s: %s", url, exc)
-        return []
-
+    """Fetch + parse one RSS/Atom feed. Raises on a read/network error so the caller
+    can record a fail-soft note; returns ``[]`` for an empty/unparseable feed."""
+    content = _read_bytes(url, timeout)
     parsed = feedparser.parse(content)
     feed_title = parsed.feed.get("title", "") if parsed.feed else ""
     items: list[FeedItem] = []

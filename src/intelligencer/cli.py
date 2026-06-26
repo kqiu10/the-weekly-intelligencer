@@ -65,7 +65,25 @@ def _cmd_render(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_validate(args: argparse.Namespace) -> int:
+    from .config import load_config, validate_config
+
+    cfg = load_config(args.config)
+    errors, warnings = validate_config(cfg)
+    for w in warnings:
+        print(f"warning: {w}", file=sys.stderr)
+    for e in errors:
+        print(f"error: {e}", file=sys.stderr)
+    if errors:
+        return 1
+    print(f"config OK: {len(cfg.dimensions)} dimensions ({len(warnings)} warnings)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
+    from dotenv import load_dotenv
+
+    load_dotenv()
     parser = build_parser()
     args = parser.parse_args(argv)
     if not args.command:
@@ -75,6 +93,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_fetch(args)
     if args.command == "render":
         return _cmd_render(args)
+    if args.command == "validate":
+        return _cmd_validate(args)
     print(f"'{args.command}' is not implemented yet.", file=sys.stderr)
     return 2
 

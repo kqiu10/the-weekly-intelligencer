@@ -34,6 +34,7 @@
     <section class="dimension">
       <h3 class="dimension-name">{{ dim.name }}</h3>
       {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
+      {% for note in dim.notes %}<p class="dimension-note">{{ note }}</p>{% endfor %}
       <div class="items">
         {% for item in dim.items %}
         {% if not (outer.first and loop.first) %}

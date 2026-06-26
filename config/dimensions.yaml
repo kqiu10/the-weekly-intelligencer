@@ -1,0 +1,48 @@
+publication:
+  title: "The Week Intelligencer"
+  subtitle: "A weekly briefing on AI and the work it's reshaping"
+  first_issue_date: "2026-06-26"
+  timezone: "Asia/Singapore"
+
+output:
+  dir: "./dist"
+  images: cache                    # cache (download alongside) | hotlink (source URL)
+  open_after_render: false
+
+defaults:
+  summary: rewrite                 # raw | rewrite | synthesize
+  max_items: 5
+
+providers:                         # settings for keyed `api` sources (keys live in .env)
+  newsapi:
+    key_env: NEWSAPI_KEY
+    daily_request_limit: 100       # hard cap (individual plan)
+    cache_ttl_hours: 12
+
+dimensions:
+  - name: "Frontier Labs"
+    blurb: "What the leading AI labs shipped this week"
+    summary: rewrite
+    max_items: 6
+    sources:
+      - { type: feed, url: "https://openai.com/blog/rss.xml" }
+      - { type: feed, url: "https://www.anthropic.com/rss.xml" }
+      - { type: search, query: "frontier AI lab model release this week" }
+
+  - name: "China AI"
+    blurb: "Model releases and policy out of China"
+    summary: rewrite
+    sources:
+      - { type: search, query: "China AI model release news this week" }
+
+  - name: "AI Spending & Capex"
+    blurb: "Money flowing into compute and infrastructure"
+    summary: synthesize
+    sources:
+      - { type: search, query: "AI datacenter capex spending this week" }
+
+  - name: "Social Platform AI Trends"
+    blurb: "What's going viral in AI on social"
+    summary: raw
+    sources:
+      - { type: search, query: "TikTok Instagram AI viral trend this week" }

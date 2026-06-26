@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
+
+VALID_SOURCE_TYPES = {"feed", "api", "search"}
+VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
 
 
 @dataclass
@@ -118,3 +122,40 @@ def load_config(path: str | Path) -> Config:
         providers=data.get("providers", {}) or {},
         path=path,
     )
+
+
+def validate_config(config: Config) -> tuple[list[str], list[str]]:
+    """Return (errors, warnings). Errors block the build; warnings do not."""
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    if not config.dimensions:
+        errors.append("no dimensions defined")
+
+    seen: set[str] = set()
+    for dim in config.dimensions:
+        if dim.name in seen:
+            errors.append(f"duplicate dimension name: {dim.name!r}")
+        seen.add(dim.name)
+        if not dim.sources:
+            errors.append(f"dimension {dim.name!r} has no sources")
+        if dim.summary not in VALID_SUMMARY_MODES:
+            errors.append(f"dimension {dim.name!r}: unknown summary {dim.summary!r}")
+        for src in dim.sources:
+            if src.type not in VALID_SOURCE_TYPES:
+                errors.append(f"dimension {dim.name!r}: unknown source type {src.type!r}")
+            if src.type == "api":
+                provider = config.providers.get(src.provider or "")
+                if not provider:
+                    errors.append(
+                        f"dimension {dim.name!r}: api provider {src.provider!r} "
+                        "not defined under providers"
+                    )
+                else:
+                    key_env = provider.get("key_env")
+                    if key_env and not os.environ.get(key_env):
+                        warnings.append(
+                            f"api provider {src.provider!r}: env {key_env} not set — "
+                            "these sources will be skipped"
+                        )
+    return errors, warnings

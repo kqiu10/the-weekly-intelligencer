@@ -25,6 +25,7 @@ class DimensionContent:
     blurb: str = ""
     summary_mode: str = "rewrite"
     items: list[Item] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -50,6 +51,7 @@ class Manifest:
                     "blurb": d.blurb,
                     "summary_mode": d.summary_mode,
                     "items": [asdict(it) for it in d.items],
+                    "notes": d.notes,
                 }
                 for d in self.dimensions
             ],
@@ -67,6 +69,7 @@ class Manifest:
                     blurb=d.get("blurb", ""),
                     summary_mode=d.get("summary_mode", "rewrite"),
                     items=items,
+                    notes=d.get("notes", []),
                 )
             )
         return cls(issue=issue, dimensions=dims)

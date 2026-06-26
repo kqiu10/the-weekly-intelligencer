@@ -11,7 +11,7 @@ Vertical slices, each end-to-end & test-verified. One commit per task on `main`.
 ## Phase B — Deterministic product (zero tokens)
 - [x] **B1** og:image fetch + cache, rendered in HTML
 - [x] **B2** Multi-dimension + full NYT broadsheet + golden test
-- [ ] **B3** Config validation + `raw` summaries + fail-soft
+- [x] **B3** Config validation + `raw` summaries + fail-soft
 - [ ] ⛳ **Checkpoint 2** — review the complete zero-token issue before the agentic layer
 
 ## Phase C — Agentic layer (Claude-in-session)

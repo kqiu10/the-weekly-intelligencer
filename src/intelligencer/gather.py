@@ -1,18 +1,23 @@
 """Assemble a manifest from config by gathering each dimension's sources.
 
 Deterministic ``feed`` sources only here. ``api`` (C1) and ``search`` (the SKILL.md
-orchestrator) are wired in later tasks. When ``discover_og`` is set, items lacking a
-feed-embedded image fall back to fetching the article page's og:image.
+orchestrator) are wired in later tasks. A dead source is skipped with a visible note;
+``raw`` dimensions use the feed text verbatim as the summary (no Claude needed). When
+``discover_og`` is set, items lacking a feed-embedded image fall back to the article
+page's og:image.
 """
 
 from __future__ import annotations
 
 import datetime as _dt
+import logging
 
 from .config import Config, Dimension
 from .feeds import fetch_feed
 from .images import fetch_og_image_url
 from .manifest import DimensionContent, Issue, Item, Manifest
+
+logger = logging.getLogger(__name__)
 
 
 def _today() -> str:
@@ -31,9 +36,16 @@ def issue_volume_number(first_issue_date: str | None, issue_date: str) -> tuple[
 
 def _gather_dimension(dim: Dimension, *, discover_og: bool) -> DimensionContent:
     items: list[Item] = []
+    notes: list[str] = []
     for source in dim.sources:
         if source.type == "feed" and source.url:
-            for fi in fetch_feed(source.url):
+            try:
+                feed_items = fetch_feed(source.url)
+            except Exception as exc:  # noqa: BLE001 - fail soft, surface a note
+                logger.warning("feed unavailable %s: %s", source.url, exc)
+                notes.append(f"A source was unavailable and was skipped: {source.url}")
+                continue
+            for fi in feed_items:
                 image = fi.image
                 if not image and discover_og and fi.url:
                     image = fetch_og_image_url(fi.url)
@@ -49,8 +61,20 @@ def _gather_dimension(dim: Dimension, *, discover_og: bool) -> DimensionContent:
                     )
                 )
         # api / search sources are handled in later tasks
+
     items = items[: dim.max_items]
-    return DimensionContent(name=dim.name, blurb=dim.blurb, summary_mode=dim.summary, items=items)
+    if dim.summary == "raw":
+        for item in items:
+            if not item.summary:
+                item.summary = item.raw_text
+
+    return DimensionContent(
+        name=dim.name,
+        blurb=dim.blurb,
+        summary_mode=dim.summary,
+        items=items,
+        notes=notes,
+    )
 
 
 def build_manifest(
