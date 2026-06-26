@@ -20,4 +20,4 @@ Vertical slices, each end-to-end & test-verified. One commit per task on `main`.
 - [ ] ⛳ **Checkpoint 3** — review a real live weekly issue (quality / attribution / cost)
 
 ## Phase D — Polish & handoff
-- [ ] **D1** README + sample + flip SPEC → Approved + final lint/test
+- [x] **D1** README + sample + flip SPEC → Approved + final lint/test

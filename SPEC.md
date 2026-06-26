@@ -5,7 +5,7 @@
 > The Anthropic API is never used — all LLM/web work runs inside the Claude Code
 > session under the existing subscription; deterministic work runs in Python scripts.
 
-- **Status:** Draft for sign-off
+- **Status:** Approved (v1) — implemented
 - **Created:** 2026-06-26
 - **Owner:** ck
 - **Location:** `/Users/ck/workspace/the-week-intelligencer/`
@@ -156,11 +156,14 @@ the-week-intelligencer/
 │   ├── feeds.py                    # RSS/Atom + api fetch/parse
 │   ├── images.py                   # og:image extraction + optional caching
 │   ├── manifest.py                 # manifest schema + (de)serialize
-│   └── render.py                   # manifest → self-contained HTML (Jinja2)
-│
-├── templates/
-│   ├── issue.html.j2               # NYT broadsheet template (Jinja2)
-│   └── intelligencer.css           # NYT styling (inlined into <head> at render)
+│   ├── gather.py                   # config → manifest (feeds + NewsAPI)
+│   ├── net.py                      # shared HTTP constants
+│   ├── render.py                   # manifest → self-contained HTML (Jinja2)
+│   ├── providers/
+│   │   └── newsapi.py              # NewsAPI source: hard daily cap + cache
+│   └── templates/
+│       ├── issue.html.j2           # NYT broadsheet template (Jinja2)
+│       └── intelligencer.css       # NYT styling (inlined at render)
 │
 ├── samples/
 │   └── 2026-06-26.html             # golden example issue (for tests + preview)
