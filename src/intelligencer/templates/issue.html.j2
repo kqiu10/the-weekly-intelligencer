@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ issue.title }} — {{ issue.date }}</title>
+  <style>{{ css | safe }}</style>
+</head>
+<body>
+  <header class="masthead">
+    <h1 class="masthead-title">{{ issue.title }}</h1>
+    <p class="masthead-date">{{ issue.date }}</p>
+  </header>
+  <main>
+    {% for dim in dimensions %}
+    <section class="dimension">
+      <h2 class="dimension-name">{{ dim.name }}</h2>
+      {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
+      {% for item in dim.items %}
+      <article class="item">
+        <h3 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h3>
+        {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
+        {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
+        {% if item.source %}<p class="item-source">{{ item.source }}</p>{% endif %}
+      </article>
+      {% endfor %}
+    </section>
+    {% endfor %}
+  </main>
+</body>
+</html>

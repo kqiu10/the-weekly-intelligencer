@@ -1,15 +1,17 @@
 """Command-line interface for The Week Intelligencer.
 
-Subcommands are wired up across build tasks:
-  * ``fetch``    — gather deterministic sources into a manifest (A2+)
-  * ``render``   — render a manifest into a self-contained HTML issue (A2+)
-  * ``validate`` — validate the configuration file (B3)
+Subcommands:
+  * ``fetch``    — gather deterministic sources into ``out/manifest.json``
+  * ``render``   — render the manifest into a self-contained HTML issue
+  * ``validate`` — validate the configuration file (implemented in B3)
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+
+MANIFEST_PATH = "out/manifest.json"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -35,13 +37,44 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _cmd_fetch(args: argparse.Namespace) -> int:
+    from .config import load_config
+    from .gather import build_manifest
+
+    cfg = load_config(args.config)
+    manifest = build_manifest(cfg)
+    path = manifest.write(MANIFEST_PATH)
+    n = sum(len(d.items) for d in manifest.dimensions)
+    print(f"wrote {path} ({n} items across {len(manifest.dimensions)} dimensions)")
+    return 0
+
+
+def _cmd_render(args: argparse.Namespace) -> int:
+    from .config import load_config
+    from .manifest import Manifest
+    from .render import render_issue
+
+    cfg = load_config(args.config)
+    manifest = Manifest.read(MANIFEST_PATH)
+    out = render_issue(manifest, cfg.output.dir)
+    print(f"wrote {out}")
+    if getattr(args, "open_after", False):
+        import webbrowser
+
+        webbrowser.open(out.resolve().as_uri())
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if not args.command:
         parser.print_help()
         return 1
-    # Subcommand dispatch is implemented in later tasks.
+    if args.command == "fetch":
+        return _cmd_fetch(args)
+    if args.command == "render":
+        return _cmd_render(args)
     print(f"'{args.command}' is not implemented yet.", file=sys.stderr)
     return 2
 

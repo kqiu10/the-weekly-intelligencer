@@ -1,0 +1,13 @@
+publication:
+  title: "The Week Intelligencer"
+  subtitle: "Skeleton issue"
+
+output:
+  dir: "./dist"
+
+dimensions:
+  - name: "Frontier Labs"
+    blurb: "Test dimension"
+    max_items: 5
+    sources:
+      - { type: feed, url: "file://sample_feed.xml" }   # relative → resolved against this file

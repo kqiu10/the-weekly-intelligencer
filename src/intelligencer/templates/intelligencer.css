@@ -1,0 +1,36 @@
+:root { --ink: #121212; --muted: #666; --rule: #ccc; }
+* { box-sizing: border-box; }
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  line-height: 1.5;
+}
+.masthead {
+  text-align: center;
+  border-bottom: 3px double var(--ink);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.masthead-title { font-size: 3rem; letter-spacing: 0.02em; margin: 0; font-weight: 900; }
+.masthead-date { color: var(--muted); font-variant: small-caps; margin: 0.25rem 0 0; }
+.dimension { margin: 2rem 0; }
+.dimension-name {
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.25rem;
+}
+.dimension-blurb { color: var(--muted); font-style: italic; margin-top: 0.25rem; }
+.item { margin: 1rem 0; }
+.item-title { font-size: 1.2rem; margin: 0 0 0.25rem; }
+.item-title a { color: var(--ink); text-decoration: none; }
+.item-title a:hover { text-decoration: underline; }
+.item-summary { margin: 0.25rem 0; }
+.item-source {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

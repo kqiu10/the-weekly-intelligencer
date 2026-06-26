@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Example AI Feed</title>
+    <link>http://example.com</link>
+    <description>Test feed for the walking skeleton.</description>
+    <item>
+      <title>First Headline</title>
+      <link>http://example.com/first</link>
+      <description>Summary of the first story.</description>
+      <pubDate>Wed, 24 Jun 2026 10:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Second Headline</title>
+      <link>http://example.com/second</link>
+      <description>Summary of the &lt;b&gt;second&lt;/b&gt; story.</description>
+      <pubDate>Tue, 23 Jun 2026 09:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
