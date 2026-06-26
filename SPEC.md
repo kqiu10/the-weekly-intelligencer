@@ -203,6 +203,12 @@ defaults:
   summary: rewrite                 # raw | rewrite | synthesize   (per-dimension override)
   max_items: 5
 
+providers:                         # settings for keyed `api` sources (never put keys here)
+  newsapi:
+    key_env: NEWSAPI_KEY           # key is read from this env var (.env / shell), not config
+    daily_request_limit: 100       # HARD cap (individual plan); requests beyond it are skipped
+    cache_ttl_hours: 12            # reuse cached responses within this window to save quota
+
 dimensions:
   - name: "Frontier Labs"
     blurb: "What the leading labs shipped this week"
@@ -211,7 +217,7 @@ dimensions:
     sources:
       - { type: feed,   url: "https://openai.com/blog/rss.xml" }      # deterministic
       - { type: feed,   url: "https://www.anthropic.com/rss.xml" }    # deterministic
-      - { type: api,    provider: newsapi, query: "AI model release", key_env: NEWSAPI_KEY }
+      - { type: api,    provider: newsapi, query: "AI model release" }   # key+limits from providers.newsapi
       - { type: search, query: "frontier AI lab news this week" }     # Claude web search
 
   - name: "AI Spending & Capex"
@@ -247,8 +253,10 @@ dimensions:
 
 ### Validation rules
 - Every dimension needs ≥1 source and a unique `name`.
-- `api` sources naming a `key_env` must find that env var, or the source is skipped with
-  a warning (the issue still builds).
+- An `api` source's `provider` must exist under `providers`; its `key_env` must resolve to
+  a non-empty value, or the source is skipped with a warning (the issue still builds).
+- `daily_request_limit` is a hard cap, enforced across runs via a persistent daily counter;
+  when reached, remaining `api` requests are skipped fail-soft.
 - `output.dir` is created if missing.
 - Unknown `type`/`summary` values fail validation loudly.
 
@@ -279,8 +287,8 @@ week's Intelligencer issue"* (or invoke the skill by name). The skill runs
 
 - **Python 3.12+**, full type hints, `ruff` + `black`, small single-purpose modules.
 - **Stdlib-first**; minimal runtime deps: `feedparser`, `httpx`, `pyyaml`,
-  `selectolax` (or `beautifulsoup4`) for `og:image`, `jinja2` for HTML render. No LLM
-  SDK — the LLM is the session.
+  `beautifulsoup4` for `og:image`, `jinja2` for HTML render, `python-dotenv` to load
+  `.env`. No LLM SDK — the LLM is the session.
 - **Fail-soft:** one dead feed, missing image, or absent API key never aborts the issue;
   it logs a warning and continues. The issue is best-effort but always builds.
 - **Network discipline:** every HTTP call has a timeout, a retry-with-backoff, and a
@@ -341,6 +349,9 @@ week's Intelligencer issue"* (or invoke the skill by name). The skill runs
 - **Never generate or insert AI imagery** — article preview images only.
 - **Never hotlink** images when `images: cache` is set.
 - **Never call the Anthropic API** — all LLM work is the Claude Code session.
+- **Never exceed a provider's `daily_request_limit`** (NewsAPI individual plan = 100/day,
+  hard cap). Count across runs; when the cap is hit, skip remaining `api` requests with a
+  warning rather than risk an overage.
 
 ---
 
