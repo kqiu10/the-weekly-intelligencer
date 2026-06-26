@@ -39,3 +39,29 @@ def test_raw_summary_uses_feed_text():
     )
     item = build_manifest(cfg).dimensions[0].items[0]
     assert item.summary and item.summary == item.raw_text
+
+
+def test_og_discovery_only_probes_kept_items(monkeypatch):
+    from pathlib import Path
+
+    import intelligencer.gather as gather
+    from intelligencer.config import Config, Dimension, Output, Publication, Source
+
+    fixtures = Path(__file__).parent / "fixtures"
+    calls: list[str] = []
+    monkeypatch.setattr(gather, "fetch_og_image_url", lambda url, **k: calls.append(url) or None)
+    cfg = Config(
+        publication=Publication(title="T"),
+        output=Output(),
+        dimensions=[
+            Dimension(
+                name="D",
+                max_items=2,
+                sources=[Source(type="feed", url=f"file://{fixtures / 'feed_many.xml'}")],
+            )
+        ],
+    )
+    manifest = build_manifest(cfg, discover_og=True)
+    assert len(manifest.dimensions[0].items) == 2
+    # feed has 5 entries; og:image must be probed only for the 2 kept items
+    assert len(calls) <= 2

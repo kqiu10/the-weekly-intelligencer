@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Many Entries Feed</title>
+    <link>http://example.com</link>
+    <description>More entries than max_items, none with images.</description>
+    <item><title>Entry 1</title><link>http://example.com/1</link><description>d1</description></item>
+    <item><title>Entry 2</title><link>http://example.com/2</link><description>d2</description></item>
+    <item><title>Entry 3</title><link>http://example.com/3</link><description>d3</description></item>
+    <item><title>Entry 4</title><link>http://example.com/4</link><description>d4</description></item>
+    <item><title>Entry 5</title><link>http://example.com/5</link><description>d5</description></item>
+  </channel>
+</rss>

@@ -61,16 +61,13 @@ def _gather_dimension(
                 notes.append(f"A source was unavailable and was skipped: {source.url}")
                 continue
             for fi in feed_items:
-                image = fi.image
-                if not image and discover_og and fi.url:
-                    image = fetch_og_image_url(fi.url)
                 items.append(
                     Item(
                         title=fi.title,
                         url=fi.url,
                         source=fi.source,
                         published=fi.published,
-                        image=image,
+                        image=fi.image,
                         raw_text=fi.raw_text,
                         origin="feed",
                     )
@@ -86,6 +83,13 @@ def _gather_dimension(
         # search sources are filled by the SKILL.md orchestrator
 
     items = items[: dim.max_items]
+
+    # Discover og:images only for the items we keep — never probe a whole feed archive.
+    if discover_og:
+        for item in items:
+            if not item.image and item.origin == "feed" and item.url:
+                item.image = fetch_og_image_url(item.url)
+
     if dim.summary == "raw":
         for item in items:
             if not item.summary:
