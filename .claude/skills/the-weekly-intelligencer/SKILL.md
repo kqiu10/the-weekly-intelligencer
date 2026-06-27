@@ -30,7 +30,7 @@ publisher, date, or preview image. Each item you add must have this exact shape:
 ```json
 {"title": "...", "url": "https://...", "source": "domain.com",
  "published": "YYYY-MM-DD", "image": "https://... or null",
- "raw_text": "", "summary": "", "origin": "search"}
+ "raw_text": "", "summary": "", "origin": "search", "group": ""}
 ```
 
 Only use an `image` URL that is the article's real preview image (`og:image`). If you
@@ -51,9 +51,14 @@ schema exactly:
 
 ```
 issue:      { date, title, subtitle, week }
-dimensions: [ { name, blurb, summary_mode, items: [ ... ], notes: [ ... ] } ]
-item:       { title, url, source, published, image, raw_text, summary, origin }
+dimensions: [ { name, blurb, summary_mode, layout, items: [ ... ], notes: [ ... ] } ]
+item:       { title, url, source, published, image, raw_text, summary, origin, group }
 ```
+
+If a dimension's `layout` is `by-source`, items are rendered grouped by their `group`
+field (one labeled row per source) — set `group` on any item you add there, and a
+source that yields nothing is simply skipped. For the default `grid` layout, leave
+`group` as `""`.
 
 ## 5. Render
 Run `uv run intelligencer render` (add `--open` to open it). Report the output path,

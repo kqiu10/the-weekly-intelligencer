@@ -49,6 +49,47 @@
           "origin": "search"
         }
       ]
+    },
+    {
+      "name": "Frontier AI Research Labs",
+      "blurb": "What the strongest labs shipped this week",
+      "summary_mode": "rewrite",
+      "layout": "by-source",
+      "items": [
+        {
+          "title": "OpenAI ships a faster model",
+          "url": "https://openai.com/index/faster-model",
+          "source": "openai.com",
+          "published": "2026-06-25",
+          "image": null,
+          "raw_text": "",
+          "summary": "OpenAI released a cheaper, faster flagship.",
+          "origin": "feed",
+          "group": "OpenAI"
+        },
+        {
+          "title": "OpenAI opens a research preview",
+          "url": "https://openai.com/index/research-preview",
+          "source": "openai.com",
+          "published": "2026-06-24",
+          "image": null,
+          "raw_text": "",
+          "summary": "A limited preview opened to developers.",
+          "origin": "feed",
+          "group": "OpenAI"
+        },
+        {
+          "title": "DeepMind details a new agent",
+          "url": "https://deepmind.google/blog/new-agent",
+          "source": "deepmind.google",
+          "published": "2026-06-23",
+          "image": null,
+          "raw_text": "",
+          "summary": "Google DeepMind described an agent that plans over long horizons.",
+          "origin": "feed",
+          "group": "Google DeepMind"
+        }
+      ]
     }
   ]
 }

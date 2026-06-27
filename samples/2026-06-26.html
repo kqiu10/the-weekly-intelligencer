@@ -87,6 +87,42 @@ a { color: inherit; }
   margin: 0.3rem 0 0;
 }
 
+/* by-source ("lab roundup") layout: one labeled row per source */
+.labs { margin-top: 0.25rem; }
+.lab {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 1.25rem;
+  border-top: 1px solid var(--hair);
+  padding: 0.9rem 0;
+}
+.lab:first-child { border-top: none; }
+.lab-name {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin: 0.1rem 0 0;
+  align-self: start;
+}
+.lab-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+.item-link {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7rem;
+  margin: 0.35rem 0 0;
+  word-break: break-all;            /* long Google News URLs wrap, never overflow */
+}
+.item-link a { color: var(--accent); text-decoration: none; }
+.item-link a:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  .lab { grid-template-columns: 1fr; gap: 0.45rem; }
+}
+
 .colophon {
   border-top: 4px double var(--rule);
   margin-top: 2rem;
@@ -127,6 +163,7 @@ a { color: inherit; }
       <h3 class="dimension-name">Frontier Labs</h3>
       <p class="dimension-blurb">What the leading labs shipped this week</p>
       
+      
       <div class="items">
         
         
@@ -142,12 +179,14 @@ a { color: inherit; }
         
         
       </div>
+      
     </section>
     
     
     <section class="dimension">
       <h3 class="dimension-name">AI Spending</h3>
       <p class="dimension-blurb">Money flowing into compute</p>
+      
       
       <div class="items">
         
@@ -162,6 +201,57 @@ a { color: inherit; }
         
         
       </div>
+      
+    </section>
+    
+    
+    <section class="dimension">
+      <h3 class="dimension-name">Frontier AI Research Labs</h3>
+      <p class="dimension-blurb">What the strongest labs shipped this week</p>
+      
+      
+      <div class="labs">
+        
+        <div class="lab">
+          <h4 class="lab-name">OpenAI</h4>
+          <div class="lab-items">
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://openai.com/index/faster-model">OpenAI ships a faster model</a></h5>
+              <p class="item-summary">OpenAI released a cheaper, faster flagship.</p>
+              
+              <p class="item-link"><a href="https://openai.com/index/faster-model">https://openai.com/index/faster-model</a></p>
+            </article>
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://openai.com/index/research-preview">OpenAI opens a research preview</a></h5>
+              <p class="item-summary">A limited preview opened to developers.</p>
+              
+              <p class="item-link"><a href="https://openai.com/index/research-preview">https://openai.com/index/research-preview</a></p>
+            </article>
+            
+          </div>
+        </div>
+        
+        <div class="lab">
+          <h4 class="lab-name">Google DeepMind</h4>
+          <div class="lab-items">
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://deepmind.google/blog/new-agent">DeepMind details a new agent</a></h5>
+              <p class="item-summary">Google DeepMind described an agent that plans over long horizons.</p>
+              
+              <p class="item-link"><a href="https://deepmind.google/blog/new-agent">https://deepmind.google/blog/new-agent</a></p>
+            </article>
+            
+          </div>
+        </div>
+        
+      </div>
+      
     </section>
     
   </main>

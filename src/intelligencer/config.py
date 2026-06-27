@@ -10,6 +10,7 @@ import yaml
 
 VALID_SOURCE_TYPES = {"feed", "api", "search"}
 VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
+VALID_LAYOUTS = {"grid", "by-source"}
 
 
 @dataclass
@@ -18,6 +19,7 @@ class Source:
     url: str | None = None
     query: str | None = None
     provider: str | None = None
+    label: str | None = None  # by-source layout: the row heading (e.g. a lab name)
 
 
 @dataclass
@@ -26,6 +28,8 @@ class Dimension:
     blurb: str = ""
     summary: str = "rewrite"  # raw | rewrite | synthesize
     max_items: int = 5
+    layout: str = "grid"  # grid | by-source
+    max_per_source: int | None = None  # by-source: cap items shown per source
     sources: list[Source] = field(default_factory=list)
 
 
@@ -100,14 +104,23 @@ def load_config(path: str | Path) -> Config:
                     url=url,
                     query=s.get("query"),
                     provider=s.get("provider"),
+                    label=s.get("label"),
                 )
             )
+        layout = d.get("layout", "grid")
+        raw_mps = d.get("max_per_source")
+        # by-source defaults to 2 items per source unless told otherwise.
+        max_per_source = (
+            int(raw_mps) if raw_mps is not None else (2 if layout == "by-source" else None)
+        )
         dimensions.append(
             Dimension(
                 name=d.get("name", "Untitled"),
                 blurb=d.get("blurb", ""),
                 summary=d.get("summary", default_summary),
                 max_items=int(d.get("max_items", default_max)),
+                layout=layout,
+                max_per_source=max_per_source,
                 sources=sources,
             )
         )
@@ -139,9 +152,16 @@ def validate_config(config: Config) -> tuple[list[str], list[str]]:
             errors.append(f"dimension {dim.name!r} has no sources")
         if dim.summary not in VALID_SUMMARY_MODES:
             errors.append(f"dimension {dim.name!r}: unknown summary {dim.summary!r}")
+        if dim.layout not in VALID_LAYOUTS:
+            errors.append(f"dimension {dim.name!r}: unknown layout {dim.layout!r}")
         for src in dim.sources:
             if src.type not in VALID_SOURCE_TYPES:
                 errors.append(f"dimension {dim.name!r}: unknown source type {src.type!r}")
+            if dim.layout == "by-source" and src.type in ("feed", "api") and not src.label:
+                warnings.append(
+                    f"dimension {dim.name!r}: a {src.type} source has no label; "
+                    "its row will be unlabeled"
+                )
             if src.type == "api":
                 provider = config.providers.get(src.provider or "")
                 if not provider:

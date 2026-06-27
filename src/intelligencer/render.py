@@ -11,11 +11,28 @@ from .manifest import Manifest
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 
 
+def _groupby_order(items, attr):
+    """Group items by ``attr`` preserving first-seen order (unlike Jinja's
+    sorting ``groupby``). Returns ``[(key, [items]), ...]``; empty groups never
+    appear, so a source that produced nothing is skipped for free."""
+    groups: list[tuple[str, list]] = []
+    index: dict[str, int] = {}
+    for it in items:
+        key = getattr(it, attr, "") or ""
+        if key not in index:
+            index[key] = len(groups)
+            groups.append((key, []))
+        groups[index[key]][1].append(it)
+    return groups
+
+
 def _env() -> Environment:
-    return Environment(
+    env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(["html", "xml", "j2"]),
     )
+    env.filters["groupby_order"] = _groupby_order
+    return env
 
 
 def render_html(manifest: Manifest) -> str:

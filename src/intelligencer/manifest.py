@@ -17,6 +17,7 @@ class Item:
     raw_text: str = ""
     summary: str = ""
     origin: str = "feed"  # feed | api | search
+    group: str = ""  # by-source layout: which source/lab this item belongs to
 
 
 @dataclass
@@ -24,6 +25,7 @@ class DimensionContent:
     name: str
     blurb: str = ""
     summary_mode: str = "rewrite"
+    layout: str = "grid"  # grid | by-source
     items: list[Item] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
 
@@ -49,6 +51,7 @@ class Manifest:
                     "name": d.name,
                     "blurb": d.blurb,
                     "summary_mode": d.summary_mode,
+                    "layout": d.layout,
                     "items": [asdict(it) for it in d.items],
                     "notes": d.notes,
                 }
@@ -67,6 +70,7 @@ class Manifest:
                     name=d["name"],
                     blurb=d.get("blurb", ""),
                     summary_mode=d.get("summary_mode", "rewrite"),
+                    layout=d.get("layout", "grid"),
                     items=items,
                     notes=d.get("notes", []),
                 )

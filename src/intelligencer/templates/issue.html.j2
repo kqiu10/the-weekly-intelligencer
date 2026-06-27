@@ -16,7 +16,7 @@
     </div>
   </header>
 
-  {% set lead = dimensions[0].items[0] if dimensions and dimensions[0].items else None %}
+  {% set lead = dimensions[0].items[0] if dimensions and dimensions[0].items and dimensions[0].layout != "by-source" else None %}
   {% if lead %}
   <article class="lead">
     <p class="kicker">{{ dimensions[0].name }}</p>
@@ -35,6 +35,26 @@
       <h3 class="dimension-name">{{ dim.name }}</h3>
       {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
       {% for note in dim.notes %}<p class="dimension-note">{{ note }}</p>{% endfor %}
+      {% if dim.layout == "by-source" %}
+      <div class="labs">
+        {% for label, group_items in dim.items | groupby_order('group') %}
+        <div class="lab">
+          {% if label %}<h4 class="lab-name">{{ label }}</h4>{% endif %}
+          <div class="lab-items">
+            {% for item in group_items %}
+            <article class="item">
+              {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
+              <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h5>
+              {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
+              {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
+              <p class="item-link"><a href="{{ item.url }}">{{ item.url }}</a></p>
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
       <div class="items">
         {% for item in dim.items %}
         {% if not (outer.first and loop.first) %}
@@ -48,6 +68,7 @@
         {% endif %}
         {% endfor %}
       </div>
+      {% endif %}
     </section>
     {% endfor %}
   </main>

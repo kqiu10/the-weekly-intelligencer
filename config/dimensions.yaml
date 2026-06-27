@@ -19,26 +19,19 @@ providers:                         # settings for keyed `api` sources (keys live
     cache_ttl_hours: 12
 
 dimensions:
-  - name: "Frontier Labs"
-    blurb: "What the leading AI labs shipped this week"
+  - name: "Frontier AI Research Labs"
+    blurb: "What the world's strongest AI labs — OpenAI, Google DeepMind, Anthropic, xAI, DeepSeek, Alibaba Qwen, and Meta — built, funded, and announced this week"
     summary: rewrite
-    max_items: 6
-    sources:
-      - { type: feed, url: "https://openai.com/blog/rss.xml" }
-      - { type: feed, url: "https://www.anthropic.com/rss.xml" }
-      - { type: search, query: "frontier AI lab model release this week" }
-
-  - name: "China AI"
-    blurb: "Model releases and policy out of China"
-    summary: rewrite
-    sources:
-      - { type: search, query: "China AI model release news this week" }
-
-  - name: "AI Spending & Capex"
-    blurb: "Money flowing into compute and infrastructure"
-    summary: synthesize
-    sources:
-      - { type: search, query: "AI datacenter capex spending this week" }
+    layout: by-source              # one labeled row per lab; labs with no items are skipped
+    max_per_source: 2              # at most 2 events per lab
+    sources:                       # `label` is the row heading shown for that lab
+      - { type: feed, label: "OpenAI",          url: "https://openai.com/news/rss.xml" }                                 # native
+      - { type: feed, label: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml" }                            # native
+      - { type: feed, label: "Alibaba Qwen",    url: "https://qwenlm.github.io/blog/index.xml" }                         # native
+      - { type: feed, label: "Anthropic",       url: "https://news.google.com/rss/search?q=Anthropic%20Claude&hl=en-US&gl=US&ceid=US:en" }   # no native RSS
+      - { type: feed, label: "xAI",             url: "https://news.google.com/rss/search?q=xAI%20Grok&hl=en-US&gl=US&ceid=US:en" }           # no native RSS
+      - { type: feed, label: "DeepSeek",        url: "https://news.google.com/rss/search?q=DeepSeek&hl=en-US&gl=US&ceid=US:en" }             # no native RSS
+      - { type: feed, label: "Meta",            url: "https://news.google.com/rss/search?q=Meta%20Llama%20AI&hl=en-US&gl=US&ceid=US:en" }    # no native RSS
 
   - name: "Social Platform AI Trends"
     blurb: "What's going viral in AI on social"

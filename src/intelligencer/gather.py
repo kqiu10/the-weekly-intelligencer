@@ -52,6 +52,8 @@ def _gather_dimension(
     items: list[Item] = []
     notes: list[str] = []
     for source in dim.sources:
+        label = source.label or ""
+        src_items: list[Item] = []
         if source.type == "feed" and source.url:
             try:
                 feed_items = fetch_feed(source.url)
@@ -60,7 +62,7 @@ def _gather_dimension(
                 notes.append(f"A source was unavailable and was skipped: {source.url}")
                 continue
             for fi in feed_items:
-                items.append(
+                src_items.append(
                     Item(
                         title=fi.title,
                         url=fi.url,
@@ -69,6 +71,7 @@ def _gather_dimension(
                         image=fi.image,
                         raw_text=fi.raw_text,
                         origin="feed",
+                        group=label,
                     )
                 )
         elif source.type == "api" and source.provider == "newsapi" and source.query:
@@ -76,12 +79,22 @@ def _gather_dimension(
                 notes.append("NewsAPI provider not configured; api source skipped")
                 continue
             result = newsapi.fetch(source.query)
-            items.extend(result.items)
+            for it in result.items:
+                it.group = label
+            src_items.extend(result.items)
             if result.note:
                 notes.append(result.note)
         # search sources are filled by the SKILL.md orchestrator
 
-    items = items[: dim.max_items]
+        # Cap each source independently (by-source layout); a source with no
+        # items contributes nothing and its row is simply never rendered.
+        if dim.max_per_source is not None:
+            src_items = src_items[: dim.max_per_source]
+        items.extend(src_items)
+
+    # Overall cap only applies when there is no per-source cap.
+    if dim.max_per_source is None:
+        items = items[: dim.max_items]
 
     # Discover og:images only for the items we keep — never probe a whole feed archive.
     if discover_og:
@@ -98,6 +111,7 @@ def _gather_dimension(
         name=dim.name,
         blurb=dim.blurb,
         summary_mode=dim.summary,
+        layout=dim.layout,
         items=items,
         notes=notes,
     )

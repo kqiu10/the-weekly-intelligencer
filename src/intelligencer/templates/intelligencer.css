@@ -81,6 +81,42 @@ a { color: inherit; }
   margin: 0.3rem 0 0;
 }
 
+/* by-source ("lab roundup") layout: one labeled row per source */
+.labs { margin-top: 0.25rem; }
+.lab {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 1.25rem;
+  border-top: 1px solid var(--hair);
+  padding: 0.9rem 0;
+}
+.lab:first-child { border-top: none; }
+.lab-name {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin: 0.1rem 0 0;
+  align-self: start;
+}
+.lab-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+.item-link {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.7rem;
+  margin: 0.35rem 0 0;
+  word-break: break-all;            /* long Google News URLs wrap, never overflow */
+}
+.item-link a { color: var(--accent); text-decoration: none; }
+.item-link a:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  .lab { grid-template-columns: 1fr; gap: 0.45rem; }
+}
+
 .colophon {
   border-top: 4px double var(--rule);
   margin-top: 2rem;
