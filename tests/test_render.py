@@ -48,3 +48,6 @@ def test_by_source_renders_labeled_rows_and_full_links():
     # the full link is pasted as visible text, not just the bare domain
     assert "https://openai.com/a" in html
     assert html.index(">OpenAI<") < html.index(">Google DeepMind<")
+    # a by-source first dimension suppresses the hero, so the masthead sits
+    # directly above the first section (what the top-rule CSS rule keys off)
+    assert '<article class="lead">' not in html

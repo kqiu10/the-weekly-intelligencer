@@ -65,6 +65,8 @@ a { color: inherit; }
 .lead-summary { font-size: 1.1rem; margin: 0.5rem 0; }
 
 .dimension { border-top: 2px solid var(--rule); padding-top: 0.75rem; margin-top: 1.5rem; }
+/* When the first section sits directly under the masthead, drop it in that case only. */
+.masthead + .sections .dimension:first-child { border-top: none; padding-top: 0; }
 .dimension-name { font-size: 1.4rem; margin: 0; }
 .dimension-blurb { color: var(--muted); font-style: italic; margin: 0.2rem 0 0.75rem; }
 .dimension-note { color: var(--accent); font-style: italic; font-size: 0.85rem; margin: 0.2rem 0; }
