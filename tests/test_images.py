@@ -80,3 +80,30 @@ def test_og_fetch_500_warns(monkeypatch, caplog):
 
     assert result is None
     assert any(r.levelno >= logging.WARNING for r in caplog.records)
+
+
+def test_extract_og_image_rejects_placeholder():
+    """An unfilled og:image template must not become a (404-bound) image URL."""
+    html = (
+        '<meta property="og:image" content="<link or path of image for opengraph, twitter-cards>">'
+    )
+    assert extract_og_image(html) is None
+
+
+def test_cache_image_404_is_quiet(monkeypatch, caplog, tmp_path):
+    """A 404 on the image download fails soft and stays quiet (debug, not warning)."""
+    import logging
+
+    import httpx
+
+    import intelligencer.images as images
+
+    def fake_get(url, **kwargs):
+        return httpx.Response(404, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr(images.httpx, "get", fake_get)
+    with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
+        out = images.cache_image("https://x.example/a.jpg", tmp_path, "2026-06-27")
+
+    assert out is None
+    assert not any(r.levelno >= logging.WARNING for r in caplog.records)

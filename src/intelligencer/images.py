@@ -23,6 +23,17 @@ _IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 _BLOCKED_STATUS = {401, 403, 404, 410, 451}
 
 
+def _is_real_image_ref(value: str) -> bool:
+    """Reject unfilled template placeholders some sites leave in their og:image
+    meta (e.g. Qwen's literal '<link or path of image for opengraph ...>'), which
+    would otherwise become a guaranteed-404 image URL."""
+    if not value:
+        return False
+    if any(c in value for c in "<>\"'") or any(c.isspace() for c in value):
+        return False
+    return True
+
+
 def extract_og_image(html: str | bytes, base_url: str = "") -> str | None:
     """Return the page's og:image (or twitter:image) URL, or None."""
     soup = BeautifulSoup(html, "html.parser")
@@ -35,6 +46,8 @@ def extract_og_image(html: str | bytes, base_url: str = "") -> str | None:
         tag = soup.find("meta", attrs=attrs)
         if tag and tag.get("content"):
             content = tag["content"].strip()
+            if not _is_real_image_ref(content):
+                continue
             return urljoin(base_url, content) if base_url else content
     return None
 
@@ -112,10 +125,17 @@ def cache_image(
     image_url: str, output_dir: str | Path, date: str, *, timeout: float = DEFAULT_TIMEOUT
 ) -> str | None:
     """Download an image to ``<output_dir>/assets/<date>/`` and return its path
-    relative to ``output_dir`` (usable as an ``<img src>``). Fail-soft → None."""
+    relative to ``output_dir`` (usable as an ``<img src>``). Fail-soft → None.
+
+    Expected unavailability (404/403/etc.) is logged at debug, not as a warning."""
     try:
         data, content_type = _download(image_url, timeout)
-    except Exception as exc:  # noqa: BLE001 - fail soft
+    except httpx.HTTPStatusError as exc:
+        code = exc.response.status_code
+        level = logging.DEBUG if code in _BLOCKED_STATUS else logging.WARNING
+        logger.log(level, "image unavailable for %s (HTTP %s)", image_url, code)
+        return None
+    except Exception as exc:  # noqa: BLE001 - network/timeout, fail soft
         logger.warning("image cache failed for %s: %s", image_url, exc)
         return None
     name = hashlib.sha1(image_url.encode("utf-8")).hexdigest()[:16] + _ext_for(
