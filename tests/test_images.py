@@ -41,3 +41,42 @@ def test_cache_image_downloads(tmp_path):
 
 def test_cache_image_failsoft(tmp_path):
     assert cache_image("file:///nonexistent/none.png", tmp_path, "2026-06-26") is None
+
+
+def test_og_fetch_403_is_quiet(monkeypatch, caplog):
+    """A scraper block (403) returns None without logging a WARNING."""
+    import logging
+
+    import httpx
+
+    import intelligencer.images as images
+
+    def fake_get(url, **kwargs):
+        return httpx.Response(403, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr(images.httpx, "get", fake_get)
+    with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
+        result = images.fetch_og_image_url("https://blocked.example/a")
+
+    assert result is None
+    assert not any(r.levelno >= logging.WARNING for r in caplog.records)
+    assert any(r.levelno == logging.DEBUG for r in caplog.records)
+
+
+def test_og_fetch_500_warns(monkeypatch, caplog):
+    """An unexpected server error (500) still surfaces as a WARNING."""
+    import logging
+
+    import httpx
+
+    import intelligencer.images as images
+
+    def fake_get(url, **kwargs):
+        return httpx.Response(500, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr(images.httpx, "get", fake_get)
+    with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
+        result = images.fetch_og_image_url("https://broken.example/a")
+
+    assert result is None
+    assert any(r.levelno >= logging.WARNING for r in caplog.records)

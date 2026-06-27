@@ -45,7 +45,11 @@ def _cmd_fetch(args: argparse.Namespace) -> int:
     manifest = build_manifest(cfg, discover_og=True)
     path = manifest.write(MANIFEST_PATH)
     n = sum(len(d.items) for d in manifest.dimensions)
-    print(f"wrote {path} ({n} items across {len(manifest.dimensions)} dimensions)")
+    missing = sum(1 for d in manifest.dimensions for it in d.items if not it.image)
+    summary = f"{n} items across {len(manifest.dimensions)} dimensions"
+    if missing:
+        summary += f", {missing} without a preview image"
+    print(f"wrote {path} ({summary})")
     return 0
 
 

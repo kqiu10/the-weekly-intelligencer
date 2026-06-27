@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 
 _IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
+# Statuses that mean "this site won't give us its preview image" — expected and
+# unrecoverable (scraper blocks like Cloudflare 403, or no such page). We treat
+# these as a quiet "no image", not a warning, so a normal run stays clean.
+_BLOCKED_STATUS = {401, 403, 404, 410, 451}
+
 
 def extract_og_image(html: str | bytes, base_url: str = "") -> str | None:
     """Return the page's og:image (or twitter:image) URL, or None."""
@@ -57,7 +62,12 @@ def image_from_feed_entry(entry) -> str | None:
 
 
 def fetch_og_image_url(article_url: str, *, timeout: float = DEFAULT_TIMEOUT) -> str | None:
-    """Fetch an article page and return its og:image URL. Fail-soft → None."""
+    """Fetch an article page and return its og:image URL. Fail-soft → None.
+
+    A scraper block (e.g. Cloudflare 403) or a missing page simply means there is
+    no fetchable preview image; that is logged at debug, not as a warning, so a
+    normal run isn't buried in expected noise.
+    """
     try:
         resp = httpx.get(
             article_url,
@@ -66,7 +76,12 @@ def fetch_og_image_url(article_url: str, *, timeout: float = DEFAULT_TIMEOUT) ->
             timeout=timeout,
         )
         resp.raise_for_status()
-    except Exception as exc:  # noqa: BLE001 - fail soft
+    except httpx.HTTPStatusError as exc:
+        code = exc.response.status_code
+        level = logging.DEBUG if code in _BLOCKED_STATUS else logging.WARNING
+        logger.log(level, "no og:image for %s (HTTP %s)", article_url, code)
+        return None
+    except Exception as exc:  # noqa: BLE001 - network/timeout, fail soft
         logger.warning("og:image fetch failed for %s: %s", article_url, exc)
         return None
     return extract_og_image(resp.text, base_url=str(resp.url))
