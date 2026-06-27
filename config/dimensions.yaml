@@ -20,27 +20,23 @@ providers:                         # settings for keyed `api` sources (keys live
 
 dimensions:
   - name: "Frontier AI Research Labs"
-    blurb: "What the world's strongest AI labs — OpenAI, Google DeepMind, Anthropic, xAI, DeepSeek, Alibaba Qwen, and Meta — built, funded, and announced this week"
+    blurb: "The week's models, money, and announcements from the world's leading AI labs"
     summary: rewrite
     layout: by-source              # one labeled row per lab; labs with no items are skipped
     max_per_source: 2              # at most 2 events per lab
+    within_days: 7                 # only items from the past 7 days (else the lab is skipped)
     sources:                       # `label` is the row heading shown for that lab
       - { type: feed, label: "OpenAI",          url: "https://openai.com/news/rss.xml" }                                 # native
       - { type: feed, label: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml" }                            # native
-      - { type: feed, label: "Alibaba Qwen",    url: "https://qwenlm.github.io/blog/index.xml" }                         # native
+      - { type: feed, label: "Alibaba Qwen",    url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # no native RSS (blog dormant)
       - { type: feed, label: "Anthropic",       url: "https://news.google.com/rss/search?q=Anthropic%20Claude&hl=en-US&gl=US&ceid=US:en" }   # no native RSS
       - { type: feed, label: "xAI",             url: "https://news.google.com/rss/search?q=xAI%20Grok&hl=en-US&gl=US&ceid=US:en" }           # no native RSS
       - { type: feed, label: "DeepSeek",        url: "https://news.google.com/rss/search?q=DeepSeek&hl=en-US&gl=US&ceid=US:en" }             # no native RSS
       - { type: feed, label: "Meta",            url: "https://news.google.com/rss/search?q=Meta%20Llama%20AI&hl=en-US&gl=US&ceid=US:en" }    # no native RSS
 
-  - name: "Social Platform AI Trends"
-    blurb: "What's going viral in AI on social"
-    summary: raw
-    sources:
-      - { type: search, query: "TikTok Instagram AI viral trend this week" }
+  # - name: "Social Platform AI Trends"
+  #   blurb: "What's going viral in AI on social"
+  #   summary: raw
+  #   sources:
+  #     - { type: search, query: "TikTok Instagram AI viral trend this week" }
 
-  - name: "AI in the News"
-    blurb: "Wire coverage across many outlets (NewsAPI)"
-    summary: rewrite
-    sources:
-      - { type: api, provider: newsapi, query: "artificial intelligence" }
