@@ -79,4 +79,4 @@ uv run pytest                            # tests (offline, deterministic)
 uv run ruff check . && uv run black .    # lint + format
 ```
 
-See `SPEC.md` for the full specification and `tasks/plan.md` for the build plan.
+See `tasks/SPEC.md` for the full specification and `tasks/plan.md` for the build plan.
