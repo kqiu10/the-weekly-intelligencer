@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Dated Lab</title>
+    <item>
+      <title>D2 older-recent</title>
+      <link>https://ex.com/2</link>
+      <pubDate>Mon, 22 Jun 2026 09:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>D1 recent</title>
+      <link>https://ex.com/1</link>
+      <pubDate>Fri, 26 Jun 2026 09:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>D3 stale</title>
+      <link>https://ex.com/3</link>
+      <pubDate>Wed, 17 Jun 2026 09:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>D4 undated</title>
+      <link>https://ex.com/4</link>
+    </item>
+  </channel>
+</rss>

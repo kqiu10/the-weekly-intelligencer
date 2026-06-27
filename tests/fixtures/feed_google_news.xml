@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Anthropic Claude - Google News</title>
+    <item>
+      <title>Anthropic ships something - Reuters</title>
+      <link>https://news.google.com/rss/articles/CBMabc123longredirecttoken</link>
+      <pubDate>Fri, 26 Jun 2026 10:00:00 GMT</pubDate>
+      <source url="https://www.reuters.com">Reuters</source>
+    </item>
+  </channel>
+</rss>

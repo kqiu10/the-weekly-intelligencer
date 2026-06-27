@@ -115,6 +115,7 @@ a { color: inherit; }
 }
 .item-link a { color: var(--accent); text-decoration: none; }
 .item-link a:hover { text-decoration: underline; }
+.item-date { color: var(--muted); }
 @media (max-width: 640px) {
   .lab { grid-template-columns: 1fr; gap: 0.45rem; }
 }

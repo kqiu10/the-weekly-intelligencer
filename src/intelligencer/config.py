@@ -30,6 +30,7 @@ class Dimension:
     max_items: int = 5
     layout: str = "grid"  # grid | by-source
     max_per_source: int | None = None  # by-source: cap items shown per source
+    within_days: int | None = None  # keep only items published within N days
     sources: list[Source] = field(default_factory=list)
 
 
@@ -113,6 +114,8 @@ def load_config(path: str | Path) -> Config:
         max_per_source = (
             int(raw_mps) if raw_mps is not None else (2 if layout == "by-source" else None)
         )
+        raw_wd = d.get("within_days")
+        within_days = int(raw_wd) if raw_wd is not None else None
         dimensions.append(
             Dimension(
                 name=d.get("name", "Untitled"),
@@ -121,6 +124,7 @@ def load_config(path: str | Path) -> Config:
                 max_items=int(d.get("max_items", default_max)),
                 layout=layout,
                 max_per_source=max_per_source,
+                within_days=within_days,
                 sources=sources,
             )
         )

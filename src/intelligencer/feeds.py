@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -43,6 +44,31 @@ def _clean(text: str) -> str:
     return BeautifulSoup(text, "html.parser").get_text(" ", strip=True)
 
 
+def _entry_date(entry) -> str | None:
+    """Normalize an entry's date to an ISO ``YYYY-MM-DD`` string, or None."""
+    parsed = entry.get("published_parsed") or entry.get("updated_parsed")
+    if not parsed:
+        return None
+    try:
+        return datetime.date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday).isoformat()
+    except (ValueError, TypeError):
+        return None
+
+
+def _entry_source(entry, link: str, feed_title: str) -> str:
+    """The real publisher of an item. Google News items carry a ``<source>``
+    element naming the actual outlet, so prefer that over ``news.google.com``."""
+    src = entry.get("source")
+    if src:
+        host = urlparse(src.get("href") or "").netloc
+        if host:
+            return host.replace("www.", "")
+        if src.get("title"):
+            return src["title"]
+    host = urlparse(link).netloc.replace("www.", "") if link else ""
+    return host or feed_title
+
+
 def fetch_feed(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> list[FeedItem]:
     """Fetch + parse one RSS/Atom feed. Raises on a read/network error so the caller
     can record a fail-soft note; returns ``[]`` for an empty/unparseable feed."""
@@ -56,8 +82,8 @@ def fetch_feed(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> list[FeedItem]:
             FeedItem(
                 title=entry.get("title", "").strip(),
                 url=link,
-                source=(urlparse(link).netloc if link else "") or feed_title,
-                published=entry.get("published") or entry.get("updated"),
+                source=_entry_source(entry, link, feed_title),
+                published=_entry_date(entry),
                 raw_text=_clean(entry.get("summary", "")),
                 image=image_from_feed_entry(entry),
             )

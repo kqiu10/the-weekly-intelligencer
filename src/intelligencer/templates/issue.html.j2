@@ -47,7 +47,7 @@
               <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h5>
               {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
               {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
-              <p class="item-link"><a href="{{ item.url }}">{{ item.url }}</a></p>
+              <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
             </article>
             {% endfor %}
           </div>

@@ -18,7 +18,7 @@ def test_golden_render():
     )
 
 
-def test_by_source_renders_labeled_rows_and_full_links():
+def test_by_source_renders_labeled_rows_with_source_and_date():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 
     manifest = Manifest(
@@ -28,11 +28,27 @@ def test_by_source_renders_labeled_rows_and_full_links():
                 name="Labs",
                 layout="by-source",
                 items=[
-                    Item(title="A1", url="https://openai.com/a", summary="s", group="OpenAI"),
-                    Item(title="A2", url="https://openai.com/b", summary="s", group="OpenAI"),
+                    Item(
+                        title="A1",
+                        url="https://openai.com/a",
+                        source="openai.com",
+                        published="2026-06-26",
+                        summary="s",
+                        group="OpenAI",
+                    ),
+                    Item(
+                        title="A2",
+                        url="https://openai.com/b",
+                        source="openai.com",
+                        published="2026-06-25",
+                        summary="s",
+                        group="OpenAI",
+                    ),
                     Item(
                         title="B1",
                         url="https://deepmind.google/c",
+                        source="deepmind.google",
+                        published="2026-06-24",
                         summary="s",
                         group="Google DeepMind",
                     ),
@@ -45,8 +61,9 @@ def test_by_source_renders_labeled_rows_and_full_links():
     assert html.count('class="lab"') == 2
     assert ">OpenAI<" in html
     assert ">Google DeepMind<" in html
-    # the full link is pasted as visible text, not just the bare domain
-    assert "https://openai.com/a" in html
+    # clean publisher + date, not a long pasted URL
+    assert ">openai.com<" in html
+    assert "2026-06-26" in html
     assert html.index(">OpenAI<") < html.index(">Google DeepMind<")
     # a by-source first dimension suppresses the hero, so the masthead sits
     # directly above the first section (what the top-rule CSS rule keys off)
