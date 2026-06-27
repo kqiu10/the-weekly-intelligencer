@@ -1,4 +1,4 @@
-# The Week Intelligencer
+# The Weekly Intelligencer
 
 A weekly, *New York Times*–style digest of AI-industry news, rendered as a
 self-contained HTML issue you can open in any browser. Sections and sources are fully
@@ -32,7 +32,7 @@ cp .env.example .env       # then add your NEWSAPI_KEY (only needed for `api` so
 From the project directory, ask Claude Code to **"generate this week's Intelligencer
 issue."** The skill validates config, gathers deterministic sources, fills `search`
 sources via web search, writes summaries, and renders the issue. The orchestration lives
-in `.claude/skills/the-week-intelligencer/SKILL.md`.
+in `.claude/skills/the-weekly-intelligencer/SKILL.md`.
 
 ### By hand (deterministic only)
 ```bash

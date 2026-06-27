@@ -1,9 +1,9 @@
 ---
-name: the-week-intelligencer
-description: Generate this week's issue of The Week Intelligencer — a New York Times–style AI-industry digest rendered as a self-contained HTML page. Use when the user asks to build, generate, or refresh the weekly AI issue. Deterministic feed/NewsAPI sources are gathered by Python scripts (zero tokens); you fill `search` sources with web search and write the editorial summaries.
+name: the-weekly-intelligencer
+description: Generate this week's issue of The Weekly Intelligencer — a New York Times–style AI-industry digest rendered as a self-contained HTML page. Use when the user asks to build, generate, or refresh the weekly AI issue. Deterministic feed/NewsAPI sources are gathered by Python scripts (zero tokens); you fill `search` sources with web search and write the editorial summaries.
 ---
 
-# The Week Intelligencer — issue orchestrator
+# The Weekly Intelligencer — issue orchestrator
 
 You are producing **one weekly issue**. The deterministic work (RSS `feed` and NewsAPI
 `api` sources) is done by Python scripts and costs no tokens — you only spend effort on

@@ -1,4 +1,4 @@
-# The Week Intelligencer — Build TODO
+# The Weekly Intelligencer — Build TODO
 
 Vertical slices, each end-to-end & test-verified. One commit per task on `main`.
 ⛳ = human review point (auto-mode continues through these; interrupt anytime).

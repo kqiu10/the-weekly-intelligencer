@@ -1,4 +1,4 @@
-# The Week Intelligencer — Build Plan
+# The Weekly Intelligencer — Build Plan
 
 - **Spec:** `SPEC.md` (v1, HTML output only)
 - **Generated:** 2026-06-26
@@ -121,7 +121,7 @@ A1 ─► A2 ─► B1 ─► B2 ─► B3 ─► C2 ─► D1
 
 ### C2 · `SKILL.md` orchestrator + search / rewrite / synthesize
 - **Goal:** the full product, incl. agentic gathering + editorial writing.
-- **Touches:** `.claude/skills/the-week-intelligencer/SKILL.md` (frontmatter `name` +
+- **Touches:** `.claude/skills/the-weekly-intelligencer/SKILL.md` (frontmatter `name` +
   `description`; body: run `validate → fetch`; for each `search` source use
   WebSearch/WebFetch to fill manifest placeholders; write summaries per `summary_mode`
   (`raw` skip / `rewrite` each / `synthesize` combine) + optional editor's note; curate

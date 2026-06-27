@@ -1,4 +1,4 @@
-"""Configuration model + loader for The Week Intelligencer."""
+"""Configuration model + loader for The Weekly Intelligencer."""
 
 from __future__ import annotations
 

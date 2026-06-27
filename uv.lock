@@ -427,7 +427,7 @@ wheels = [
 ]
 
 [[package]]
-name = "the-week-intelligencer"
+name = "the-weekly-intelligencer"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

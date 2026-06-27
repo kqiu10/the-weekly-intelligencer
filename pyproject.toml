@@ -1,5 +1,5 @@
 [project]
-name = "the-week-intelligencer"
+name = "the-weekly-intelligencer"
 version = "0.1.0"
 description = "Weekly NYT-style AI-industry digest generator (Claude Code skill)"
 readme = "README.md"

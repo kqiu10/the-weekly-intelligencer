@@ -1,4 +1,4 @@
-"""Command-line interface for The Week Intelligencer.
+"""Command-line interface for The Weekly Intelligencer.
 
 Subcommands:
   * ``fetch``    — gather deterministic sources into ``out/manifest.json``
