@@ -2,7 +2,6 @@ publication:
   title: "The Weekly Intelligencer"
   subtitle: "A weekly briefing on AI and the work it's reshaping"
   first_issue_date: "2026-06-26"
-  timezone: "Asia/Singapore"
 
 output:
   dir: "./dist"

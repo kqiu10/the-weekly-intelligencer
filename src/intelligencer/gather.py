@@ -26,14 +26,13 @@ def _today() -> str:
     return _dt.date.today().isoformat()
 
 
-def issue_volume_number(first_issue_date: str | None, issue_date: str) -> tuple[int, int]:
-    """Compute (volume, number) where a volume spans 52 weekly issues."""
+def issue_week_number(first_issue_date: str | None, issue_date: str) -> int:
+    """Issue number = weeks since the first issue, 1-based (Week 1, Week 2, …)."""
     if not first_issue_date:
-        return 1, 1
+        return 1
     first = _dt.date.fromisoformat(first_issue_date)
     current = _dt.date.fromisoformat(issue_date)
-    weeks = max((current - first).days // 7, 0)
-    return weeks // 52 + 1, weeks % 52 + 1
+    return max((current - first).days // 7, 0) + 1
 
 
 def _make_newsapi_client(config: Config) -> NewsApiClient | None:
@@ -108,13 +107,12 @@ def build_manifest(
     config: Config, *, date: str | None = None, discover_og: bool = False
 ) -> Manifest:
     date_str = date or _today()
-    volume, number = issue_volume_number(config.publication.first_issue_date, date_str)
+    week = issue_week_number(config.publication.first_issue_date, date_str)
     issue = Issue(
         date=date_str,
         title=config.publication.title,
         subtitle=config.publication.subtitle,
-        volume=volume,
-        number=number,
+        week=week,
     )
     newsapi = _make_newsapi_client(config)
     dimensions = [

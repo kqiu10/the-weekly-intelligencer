@@ -50,7 +50,7 @@ item; add your `search` items into their dimensions; fill in summaries. Preserve
 schema exactly:
 
 ```
-issue:      { date, title, subtitle, volume, number }
+issue:      { date, title, subtitle, week }
 dimensions: [ { name, blurb, summary_mode, items: [ ... ], notes: [ ... ] } ]
 item:       { title, url, source, published, image, raw_text, summary, origin }
 ```

@@ -41,7 +41,6 @@ class Publication:
     title: str
     subtitle: str = ""
     first_issue_date: str | None = None
-    timezone: str = "UTC"
 
 
 @dataclass
@@ -75,7 +74,6 @@ def load_config(path: str | Path) -> Config:
         title=pub.get("title", "Untitled"),
         subtitle=pub.get("subtitle", ""),
         first_issue_date=pub.get("first_issue_date"),
-        timezone=pub.get("timezone", "UTC"),
     )
 
     out = data.get("output", {}) or {}

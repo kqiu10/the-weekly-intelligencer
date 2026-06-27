@@ -33,8 +33,7 @@ class Issue:
     date: str
     title: str
     subtitle: str = ""
-    volume: int = 1
-    number: int = 1
+    week: int = 1
 
 
 @dataclass
