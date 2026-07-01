@@ -112,11 +112,11 @@ def test_by_source_renders_company_logo_when_present():
 
 def test_blurb_hides_title_echoes_shows_real_lede():
     from intelligencer.manifest import Item
-    from intelligencer.render import _blurb
+    from intelligencer.text import item_blurb
 
     # raw_text is just the headline (punctuation aside) -> nothing to show
     assert (
-        _blurb(
+        item_blurb(
             Item(
                 title="Grok 4.5 Enters Beta - BASENOR",
                 url="u",
@@ -128,15 +128,15 @@ def test_blurb_hides_title_echoes_shows_real_lede():
     )
     # "Headline Publisher-name" echo -> hidden via title+source check
     assert (
-        _blurb(
+        item_blurb(
             Item(title="Big News", url="u", source="Example News", raw_text="Big News Example News")
         )
         == ""
     )
     # empty when there's no text at all
-    assert _blurb(Item(title="X", url="u", raw_text="", summary="")) == ""
+    assert item_blurb(Item(title="X", url="u", raw_text="", summary="")) == ""
     # a real lede is shown, and a written summary wins over raw_text
-    assert _blurb(
+    assert item_blurb(
         Item(
             title="Grok 4.5 Enters Beta",
             url="u",
@@ -144,7 +144,7 @@ def test_blurb_hides_title_echoes_shows_real_lede():
             raw_text="Elon Musk posted a single word late Monday night.",
         )
     ).startswith("Elon Musk")
-    assert _blurb(Item(title="X", url="u", raw_text="raw lede", summary="written summary")) == (
+    assert item_blurb(Item(title="X", url="u", raw_text="raw lede", summary="written summary")) == (
         "written summary"
     )
 

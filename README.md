@@ -65,9 +65,12 @@ From that same article page, fetch also pulls the story's own **lede** — its f
 newspaper reprints a wire story's opening rather than paraphrasing it, ending on a whole
 sentence. It reads the leading paragraphs, and for JavaScript-rendered pages (no readable
 `<p>` body) falls back to the page's `NewsArticle` JSON-LD (article body, else the
-publisher's description). If even that is missing (a hard scraper block), the item shows
-its headline only — a blurb that merely repeats the headline (as Google News'
+publisher's description). A blurb that merely repeats the headline (as Google News'
 "Headline — Publisher" does) is hidden, never printed twice.
+
+If an article can't be read at all (a hard scraper block, e.g. a Cloudflare 403 that a
+browser User-Agent can't get past), the item has neither image nor blurb, so it's dropped
+rather than shown as a bare headline — a company simply shows fewer stories (0–2).
 
 | Source `type`   | Gathered by        | Token cost |
 |-----------------|--------------------|------------|

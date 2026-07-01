@@ -16,6 +16,7 @@ import os
 from .config import Config, Dimension
 from .feeds import fetch_feed
 from .images import fetch_article_preview, logo_asset_path, resolve_google_news_url
+from .text import item_blurb
 from .manifest import DimensionContent, Issue, Item, Manifest
 from .providers.newsapi import NewsApiClient
 
@@ -42,6 +43,14 @@ def _parse_iso_date(value: str | None) -> _dt.date | None:
         return _dt.date.fromisoformat(value[:10])
     except (ValueError, TypeError):
         return None
+
+
+def _drop_contentless(items: list[Item]) -> list[Item]:
+    """Drop items we couldn't give real content: no preview image *and* no blurb
+    (a bare headline + link). Happens when a site hard-blocks our fetch (403), so
+    neither an og:image nor a lede is reachable. A source may end up with fewer
+    items — 0, 1, or up to its cap — which is fine."""
+    return [it for it in items if it.image or item_blurb(it)]
 
 
 def _drop_boilerplate_images(items: list[Item]) -> None:
@@ -172,6 +181,9 @@ def _gather_dimension(
                     item.raw_text = lede
         # An og:image can itself be a publisher-wide default reused across items.
         _drop_boilerplate_images(items)
+        # Now that enrichment is done, drop any item left with neither image nor
+        # blurb — a bare headline adds nothing and usually means a hard 403 block.
+        items = _drop_contentless(items)
 
     if dim.summary == "raw":
         for item in items:

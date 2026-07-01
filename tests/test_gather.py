@@ -1,7 +1,23 @@
 """B2: issue week number computed from the first-issue date."""
 
-from intelligencer.gather import _drop_boilerplate_images, build_manifest, issue_week_number
+from intelligencer.gather import (
+    _drop_boilerplate_images,
+    _drop_contentless,
+    build_manifest,
+    issue_week_number,
+)
 from intelligencer.manifest import Item
+
+
+def test_drop_contentless_keeps_items_with_image_or_blurb():
+    """A bare headline (no image, text only echoes the title) is dropped; items
+    with a preview image or a real blurb survive."""
+    has_image = Item(title="T1", url="u1", image="assets/x.jpg", raw_text="T1 Publisher")
+    has_blurb = Item(title="T2", url="u2", raw_text="A real lede sentence about the news.")
+    echo_only = Item(title="T3 - Publisher", url="u3", source="pub.com", raw_text="T3 Publisher")
+    bare = Item(title="T4", url="u4")
+    kept = _drop_contentless([has_image, has_blurb, echo_only, bare])
+    assert kept == [has_image, has_blurb]
 
 
 def test_shared_image_is_dropped_unique_kept():
