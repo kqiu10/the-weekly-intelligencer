@@ -38,6 +38,7 @@ class Issue:
     title: str
     subtitle: str = ""
     week: int = 1
+    tldr: str = ""  # issue-level TL;DR (~100 words), written at the write stage
 
 
 @dataclass
