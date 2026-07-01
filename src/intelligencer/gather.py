@@ -30,12 +30,18 @@ def _today() -> str:
 
 
 def issue_week_number(first_issue_date: str | None, issue_date: str) -> int:
-    """Issue number = weeks since the first issue, 1-based (Week 1, Week 2, …)."""
+    """Issue number = calendar weeks (Mon–Sun) since the first issue's week, 1-based.
+    Week 1 is the Mon–Sun week that contains the first issue, so it ends on the first
+    Sunday on/after ``first_issue_date``; every following Monday begins the next week."""
     if not first_issue_date:
         return 1
     first = _dt.date.fromisoformat(first_issue_date)
     current = _dt.date.fromisoformat(issue_date)
-    return max((current - first).days // 7, 0) + 1
+    # Snap each date back to the Monday of its week (weekday(): Mon=0 … Sun=6), so
+    # issues are bucketed by calendar week rather than a rolling count from the anchor.
+    first_monday = first - _dt.timedelta(days=first.weekday())
+    current_monday = current - _dt.timedelta(days=current.weekday())
+    return max((current_monday - first_monday).days // 7, 0) + 1
 
 
 def _parse_iso_date(value: str | None) -> _dt.date | None:

@@ -69,6 +69,18 @@ def test_fifty_two_weeks_later_is_week53():
     assert issue_week_number("2026-06-26", "2027-06-25") == 53
 
 
+def test_week1_ends_on_the_first_sunday():
+    # first issue Fri 2026-06-26 → Week 1 is its Mon–Sun week, ending Sun 06-28
+    assert issue_week_number("2026-06-26", "2026-06-28") == 1  # Sunday → still Week 1
+    assert issue_week_number("2026-06-26", "2026-06-29") == 2  # Monday → Week 2 begins
+
+
+def test_numbering_is_calendar_week_not_rolling_from_anchor():
+    # 2026-07-01 (Wed) is in the second Mon–Sun week → Week 2. A rolling 7-day count
+    # from the Friday anchor would wrongly still call it Week 1.
+    assert issue_week_number("2026-06-26", "2026-07-01") == 2
+
+
 def test_raw_summary_uses_feed_text():
     from pathlib import Path
 
