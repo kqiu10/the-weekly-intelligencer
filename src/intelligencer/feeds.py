@@ -55,6 +55,18 @@ def _entry_date(entry) -> str | None:
         return None
 
 
+def _strip_publisher(title: str, entry) -> str:
+    """Google News titles read 'Headline - Publisher'. Drop the ' - <publisher>'
+    suffix using the item's own <source> name, so only that exact tail is removed
+    (native RSS items have no <source>, so their titles are left untouched)."""
+    src = entry.get("source") or {}
+    publisher = (src.get("title") or "").strip()
+    suffix = f" - {publisher}"
+    if publisher and title.endswith(suffix):
+        return title[: -len(suffix)].rstrip()
+    return title
+
+
 def _entry_source(entry, link: str, feed_title: str) -> str:
     """The real publisher of an item. Google News items carry a ``<source>``
     element naming the actual outlet, so prefer that over ``news.google.com``."""
@@ -80,7 +92,7 @@ def fetch_feed(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> list[FeedItem]:
         link = entry.get("link", "")
         items.append(
             FeedItem(
-                title=entry.get("title", "").strip(),
+                title=_strip_publisher(entry.get("title", "").strip(), entry),
                 url=link,
                 source=_entry_source(entry, link, feed_title),
                 published=_entry_date(entry),
