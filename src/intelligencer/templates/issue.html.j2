@@ -16,6 +16,13 @@
     </div>
   </header>
 
+  {% if issue.tldr %}
+  <section class="tldr">
+    <p class="kicker">TL;DR</p>
+    <p class="tldr-body">{{ issue.tldr }}</p>
+  </section>
+  {% endif %}
+
   {% set lead = dimensions[0].items[0] if dimensions and dimensions[0].items and dimensions[0].layout != "by-source" else None %}
   {% if lead %}
   <article class="lead">

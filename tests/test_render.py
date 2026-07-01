@@ -18,6 +18,16 @@ def test_golden_render():
     )
 
 
+def test_tldr_renders_above_sections_when_present_and_omitted_when_empty():
+    from intelligencer.manifest import Issue, Manifest
+
+    text = "The week in AI: frontier labs shipped, and AI video went viral."
+    shown = render_html(Manifest(issue=Issue(date="2026-07-01", title="T", tldr=text)))
+    assert 'class="tldr"' in shown and text in shown
+    hidden = render_html(Manifest(issue=Issue(date="2026-07-01", title="T")))
+    assert 'class="tldr"' not in hidden
+
+
 def test_by_source_renders_labeled_rows_with_source_and_date():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 
