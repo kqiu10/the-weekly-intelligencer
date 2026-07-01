@@ -53,3 +53,26 @@ def test_record_same_week_updates_in_place(tmp_path):
     store.record("t1", "d", [], week=3, issue_date="2026-07-06", magnitude=3)
     store.record("t1", "d", [], week=3, issue_date="2026-07-06", magnitude=9)  # rerun same issue
     assert store.magnitudes("t1") == [9]
+
+
+def test_apply_trends_records_and_annotates():
+    from intelligencer.manifest import DimensionContent, Issue, Manifest
+    from intelligencer.trends import apply_trends
+
+    store = TrendStore()
+    store.record("cats", "AI cats", ["cats"], week=2, issue_date="2026-06-29", magnitude=3)  # prior
+    dim = DimensionContent(
+        name="Social",
+        trends=[
+            {"id": "cats", "descriptor": "AI cats flying jets", "tags": ["cats"], "magnitude": 7},
+            {"id": "new-meme", "descriptor": "brand new meme", "tags": [], "magnitude": 4},
+        ],
+    )
+    manifest = Manifest(issue=Issue(date="2026-07-06", title="T", week=3), dimensions=[dim])
+    apply_trends(manifest, store, week=3, issue_date="2026-07-06")
+
+    cats = manifest.dimensions[0].trends[0]
+    assert store.magnitudes("cats") == [3, 7]  # this week appended
+    assert cats["heat_tier"] == 2 and cats["direction"] == "up" and cats["recurring"] is True
+    new = manifest.dimensions[0].trends[1]
+    assert new["heat_tier"] == 0 and new["recurring"] is False  # first appearance

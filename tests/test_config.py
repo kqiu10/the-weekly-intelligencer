@@ -19,6 +19,7 @@ def test_shipped_config_has_valid_social_video_dimension():
     )
     assert social is not None, "the social-video dimension is missing from the shipped config"
     assert social.layout == "by-source"
+    assert social.trends is True  # trend tracking is enabled for this dimension
     assert [(s.type, s.label, s.logo) for s in social.sources] == [
         ("search", "YouTube Shorts", "youtube"),
         ("search", "TikTok", "tiktok"),

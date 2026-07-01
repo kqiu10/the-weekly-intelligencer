@@ -12,6 +12,7 @@ import argparse
 import sys
 
 MANIFEST_PATH = "out/manifest.json"
+TRENDS_PATH = "data/trends.json"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -19,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="intelligencer",
         description="Generate a weekly NYT-style AI-industry issue.",
     )
-    sub = parser.add_subparsers(dest="command", metavar="{fetch,render,validate}")
+    sub = parser.add_subparsers(dest="command", metavar="{fetch,render,validate,trends}")
 
     p_fetch = sub.add_parser("fetch", help="Gather deterministic sources into a manifest")
     p_fetch.add_argument("--config", default="config/dimensions.yaml", help="config file path")
@@ -33,6 +34,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_validate = sub.add_parser("validate", help="Validate the configuration file")
     p_validate.add_argument("--config", default="config/dimensions.yaml", help="config file path")
+
+    sub.add_parser("trends", help="Fold curated trend topics into the store and annotate 🔥 heat")
 
     return parser
 
@@ -69,6 +72,20 @@ def _cmd_render(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_trends(args: argparse.Namespace) -> int:
+    from .manifest import Manifest
+    from .trends import apply_trends, load_store, save_store
+
+    manifest = Manifest.read(MANIFEST_PATH)
+    store = load_store(TRENDS_PATH)
+    apply_trends(manifest, store, week=manifest.issue.week, issue_date=manifest.issue.date)
+    save_store(store, TRENDS_PATH)
+    manifest.write(MANIFEST_PATH)
+    n = sum(len(d.trends) for d in manifest.dimensions)
+    print(f"updated {n} trend topics -> {TRENDS_PATH}")
+    return 0
+
+
 def _cmd_validate(args: argparse.Namespace) -> int:
     from .config import load_config, validate_config
 
@@ -99,6 +116,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_render(args)
     if args.command == "validate":
         return _cmd_validate(args)
+    if args.command == "trends":
+        return _cmd_trends(args)
     print(f"'{args.command}' is not implemented yet.", file=sys.stderr)
     return 2
 

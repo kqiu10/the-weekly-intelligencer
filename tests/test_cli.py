@@ -5,7 +5,7 @@ import pytest
 from intelligencer.cli import build_parser, main
 
 
-@pytest.mark.parametrize("command", ["fetch", "render", "validate"])
+@pytest.mark.parametrize("command", ["fetch", "render", "validate", "trends"])
 def test_subcommand_parses(command):
     args = build_parser().parse_args([command])
     assert args.command == command

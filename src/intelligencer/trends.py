@@ -163,3 +163,27 @@ def direction(history: list[int]) -> str:
 def recurring(history: list[int]) -> bool:
     """True once a topic has appeared in more than one issue."""
     return len(history) >= 2
+
+
+def apply_trends(manifest, store: TrendStore, *, week: int, issue_date: str):
+    """Fold this issue's Claude-curated trend topics into the store and annotate them for
+    render. Each dimension carrying ``trends`` holds rows of {id, descriptor, tags, magnitude,
+    samples}; for each, record the magnitude into the store then attach the computed
+    ``heat_tier``/``direction``/``recurring``. Mutates ``manifest`` and ``store`` in place."""
+    for dim in manifest.dimensions:
+        for topic in dim.trends:
+            tid = topic["id"]
+            store.record(
+                tid,
+                topic.get("descriptor", ""),
+                topic.get("tags", []),
+                week=week,
+                issue_date=issue_date,
+                magnitude=int(topic.get("magnitude", 0)),
+                samples=topic.get("samples", []),
+            )
+            mags = store.magnitudes(tid)
+            topic["heat_tier"] = heat_tier(mags)
+            topic["direction"] = direction(mags)
+            topic["recurring"] = recurring(mags)
+    return manifest

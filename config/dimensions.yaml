@@ -35,6 +35,7 @@ dimensions:
     layout: by-source              # one card per platform; empty platforms are skipped
     max_per_source: 2              # at most 2 posts per platform
     within_days: 7                 # only the past 7 days
+    trends: true                   # track 🔥 context hotness across issues (SPEC §10.2)
     sources:                       # filled in-session by Claude web search (no open API for most)
       - { type: search, label: "YouTube Shorts", logo: "youtube",   query: "trending AI-generated video YouTube Shorts this week" }
       - { type: search, label: "TikTok",         logo: "tiktok",    query: "viral AI-generated video TikTok this week" }
