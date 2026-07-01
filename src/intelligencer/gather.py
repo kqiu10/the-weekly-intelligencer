@@ -15,7 +15,7 @@ import os
 
 from .config import Config, Dimension
 from .feeds import fetch_feed
-from .images import fetch_og_image_url, logo_asset_path
+from .images import fetch_og_image_url, logo_asset_path, resolve_google_news_url
 from .manifest import DimensionContent, Issue, Item, Manifest
 from .providers.newsapi import NewsApiClient
 
@@ -142,14 +142,24 @@ def _gather_dimension(
     if dim.max_per_source is None:
         items = items[: dim.max_items]
 
-    # Discover og:images only for the items we keep — never probe a whole feed archive.
+    # Only touch the network for the items we keep — never probe a whole feed archive.
+    if discover_og:
+        # Google News links are opaque redirects; resolve them to the real article
+        # so the link works and its og:image is reachable. Native feeds no-op fast.
+        for item in items:
+            if item.origin == "feed" and item.url:
+                real = resolve_google_news_url(item.url)
+                if real:
+                    item.url = real
+    # Drop feed boilerplate (e.g. Google News' generic thumbnail) first, so those
+    # items fall through to og:image discovery instead of showing a shared picture.
+    _drop_boilerplate_images(items)
     if discover_og:
         for item in items:
             if not item.image and item.origin == "feed" and item.url:
                 item.image = fetch_og_image_url(item.url)
-
-    # Drop feed boilerplate: an image reused across items isn't an article's own.
-    _drop_boilerplate_images(items)
+        # An og:image can itself be a publisher-wide default reused across items.
+        _drop_boilerplate_images(items)
 
     if dim.summary == "raw":
         for item in items:

@@ -1,10 +1,17 @@
 """B1: og:image extraction, feed-embedded images, and caching."""
 
+import json
 from pathlib import Path
 
 import feedparser
 
-from intelligencer.images import cache_image, extract_og_image, image_from_feed_entry
+from intelligencer.images import (
+    _parse_batchexecute_url,
+    cache_image,
+    extract_og_image,
+    image_from_feed_entry,
+    resolve_google_news_url,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -80,6 +87,25 @@ def test_og_fetch_500_warns(monkeypatch, caplog):
 
     assert result is None
     assert any(r.levelno >= logging.WARNING for r in caplog.records)
+
+
+def test_resolve_google_news_url_ignores_non_gnews():
+    """A normal publisher URL isn't a Google News redirect — returns None, no network."""
+    assert resolve_google_news_url("https://openai.com/index/some-post") is None
+    assert resolve_google_news_url("https://news.google.com/foo") is None
+
+
+def test_parse_batchexecute_extracts_real_url():
+    inner = '["garturlres","https://pub.example/real-article",null,"sig"]'
+    body = ")]}'\n\n" + json.dumps(
+        [["wrb.fr", "Fbv4je", inner, None, None, None, "generic"], ["di", 22]]
+    )
+    assert _parse_batchexecute_url(body) == "https://pub.example/real-article"
+
+
+def test_parse_batchexecute_missing_returns_none():
+    assert _parse_batchexecute_url(")]}'\n\n" + json.dumps([["wrb.fr", "other", "[]"]])) is None
+    assert _parse_batchexecute_url("not json at all") is None
 
 
 def test_extract_og_image_rejects_placeholder():

@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import mimetypes
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import quote, urljoin, urlparse
 
 import httpx
 from bs4 import BeautifulSoup
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 _IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
-# Company logos ship with the package as monochrome SVGs, keyed by slug
+# Company logos ship with the package as brand-colored SVGs, keyed by slug
 # (assets/logos/<slug>.svg). They are copied into each issue's dist/ so the
 # rendered HTML stays self-contained and portable.
 LOGO_DIR = Path(__file__).parent / "assets" / "logos"
@@ -34,17 +35,18 @@ def logo_asset_path(slug: str | None) -> str | None:
 
 def copy_logo(rel_path: str, output_dir: str | Path) -> bool:
     """Copy a packaged logo (referenced by its dist-relative ``rel_path``) into
-    ``output_dir``. No-op if already present or the source is missing. Returns
-    whether the file exists at the destination afterward."""
+    ``output_dir``. Copies on first use or when the packaged logo has changed
+    (e.g. recolored), so dist/ never keeps a stale asset. Returns whether the
+    file exists at the destination afterward."""
     src = Path(__file__).parent / rel_path
     dest = Path(output_dir) / rel_path
-    if dest.exists():
-        return True
     if not src.exists():
         logger.warning("logo asset missing: %s", rel_path)
-        return False
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_bytes(src.read_bytes())
+        return dest.exists()
+    data = src.read_bytes()
+    if not dest.exists() or dest.read_bytes() != data:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)
     return True
 
 
@@ -129,6 +131,111 @@ def fetch_og_image_url(article_url: str, *, timeout: float = DEFAULT_TIMEOUT) ->
         logger.warning("og:image fetch failed for %s: %s", article_url, exc)
         return None
     return extract_og_image(resp.text, base_url=str(resp.url))
+
+
+_GNEWS_BATCHEXECUTE = "https://news.google.com/_/DotsSplashUi/data/batchexecute"
+
+
+def _parse_batchexecute_url(text: str) -> str | None:
+    """Pull the resolved article URL out of a Google ``batchexecute`` response
+    (an XSSI-guarded, doubly JSON-encoded blob)."""
+    start = text.find("[")
+    if start == -1:
+        return None
+    try:
+        rows = json.loads(text[start:])
+    except json.JSONDecodeError:
+        return None
+    for row in rows:
+        if (
+            isinstance(row, list)
+            and len(row) > 2
+            and row[1] == "Fbv4je"
+            and isinstance(row[2], str)
+        ):
+            try:
+                payload = json.loads(row[2])
+            except json.JSONDecodeError:
+                continue
+            if isinstance(payload, list) and len(payload) > 1 and payload[0] == "garturlres":
+                return payload[1]
+    return None
+
+
+def resolve_google_news_url(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> str | None:
+    """Resolve a Google News RSS redirect (``news.google.com/rss/articles/...``)
+    to the real publisher article URL via Google's ``batchexecute`` endpoint.
+
+    Fail-soft → None: a non-Google-News URL, a layout change, or any network
+    error just yields None, and the caller keeps the original link. Only worth
+    calling on feed items — native publisher feeds return None immediately."""
+    if "news.google.com" not in url or "/articles/" not in url:
+        return None
+    try:
+        with httpx.Client(
+            headers={"User-Agent": USER_AGENT}, follow_redirects=True, timeout=timeout
+        ) as client:
+            page = client.get(url)
+            page.raise_for_status()
+            div = BeautifulSoup(page.text, "html.parser").select_one("c-wiz > div")
+            if div is None:
+                return None
+            aid, ts, sig = (
+                div.get("data-n-a-id"),
+                div.get("data-n-a-ts"),
+                div.get("data-n-a-sg"),
+            )
+            if not (aid and ts and sig):
+                return None
+            inner = [
+                "garturlreq",
+                [
+                    [
+                        "X",
+                        "X",
+                        ["X", "X"],
+                        None,
+                        None,
+                        1,
+                        1,
+                        "US:en",
+                        None,
+                        1,
+                        None,
+                        None,
+                        None,
+                        None,
+                        None,
+                        0,
+                        1,
+                    ],
+                    "X",
+                    "X",
+                    1,
+                    [1, 1, 1],
+                    1,
+                    1,
+                    None,
+                    0,
+                    0,
+                    None,
+                    0,
+                ],
+                aid,
+                ts,
+                sig,
+            ]
+            body = "f.req=" + quote(json.dumps([[["Fbv4je", json.dumps(inner), None, "generic"]]]))
+            resp = client.post(
+                _GNEWS_BATCHEXECUTE,
+                headers={"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"},
+                content=body,
+            )
+            resp.raise_for_status()
+            return _parse_batchexecute_url(resp.text)
+    except Exception as exc:  # noqa: BLE001 - network/parse, fail soft
+        logger.debug("google-news resolve failed for %s: %s", url, exc)
+        return None
 
 
 def _download(url: str, timeout: float) -> tuple[bytes, str | None]:

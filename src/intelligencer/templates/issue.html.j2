@@ -41,8 +41,8 @@
         {% set logo = dim.logos.get(label) %}
         <div class="lab">
           <div class="lab-rail">
-            {% if logo %}<img class="lab-logo" src="{{ logo }}" alt="{{ label }} logo">{% endif %}
             {% if label %}<div class="lab-name">{{ label }}</div>{% endif %}
+            {% if logo %}<img class="lab-logo" src="{{ logo }}" alt="{{ label }} logo">{% endif %}
           </div>
           <div class="lab-items">
             {% for item in group_items %}
