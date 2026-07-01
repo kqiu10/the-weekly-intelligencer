@@ -1,0 +1,132 @@
+"""Trend store: a small committed time-series of context "hotness" across issues.
+
+``data/trends.json`` holds one entry per canonical topic, each with a history of weekly
+magnitudes. Claude assigns a topic's canonical ``id`` (its semantic identity) at the write
+stage; this module just persists magnitudes over time and is the substrate the 🔥 heat
+signal (``heat_tier``) is computed from. Pure stdlib, human-readable, diff-able JSON.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass, field
+from pathlib import Path
+
+
+@dataclass
+class Point:
+    week: int
+    issue_date: str
+    magnitude: int
+    samples: list[str] = field(default_factory=list)
+
+
+@dataclass
+class Topic:
+    id: str
+    descriptor: str
+    tags: list[str] = field(default_factory=list)
+    history: list[Point] = field(default_factory=list)
+
+
+@dataclass
+class TrendStore:
+    topics: list[Topic] = field(default_factory=list)
+
+    def get(self, topic_id: str) -> Topic | None:
+        return next((t for t in self.topics if t.id == topic_id), None)
+
+    def magnitudes(self, topic_id: str) -> list[int]:
+        """This topic's weekly magnitudes, oldest → newest."""
+        topic = self.get(topic_id)
+        return [p.magnitude for p in topic.history] if topic else []
+
+    def record(
+        self,
+        topic_id: str,
+        descriptor: str,
+        tags: list[str],
+        *,
+        week: int,
+        issue_date: str,
+        magnitude: int,
+        samples: list[str] | None = None,
+    ) -> Topic:
+        """Record this issue's magnitude for a topic, creating the topic if new. Re-recording
+        the same ``week`` (a pipeline rerun for one issue) updates that point in place rather
+        than appending a duplicate."""
+        topic = self.get(topic_id)
+        if topic is None:
+            topic = Topic(id=topic_id, descriptor=descriptor, tags=list(tags))
+            self.topics.append(topic)
+        else:
+            # keep the latest descriptor/tags Claude assigned
+            topic.descriptor = descriptor
+            topic.tags = list(tags)
+        point = Point(
+            week=week, issue_date=issue_date, magnitude=magnitude, samples=list(samples or [])
+        )
+        existing = next((p for p in topic.history if p.week == week), None)
+        if existing is not None:
+            topic.history[topic.history.index(existing)] = point
+        else:
+            topic.history.append(point)
+        topic.history.sort(key=lambda p: p.week)
+        return topic
+
+    def to_dict(self) -> dict:
+        return {
+            "topics": [
+                {
+                    "id": t.id,
+                    "descriptor": t.descriptor,
+                    "tags": t.tags,
+                    "history": [
+                        {
+                            "week": p.week,
+                            "issue_date": p.issue_date,
+                            "magnitude": p.magnitude,
+                            "samples": p.samples,
+                        }
+                        for p in t.history
+                    ],
+                }
+                for t in self.topics
+            ]
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "TrendStore":
+        topics = [
+            Topic(
+                id=t["id"],
+                descriptor=t.get("descriptor", ""),
+                tags=list(t.get("tags", [])),
+                history=[
+                    Point(
+                        week=int(p["week"]),
+                        issue_date=p.get("issue_date", ""),
+                        magnitude=int(p.get("magnitude", 0)),
+                        samples=list(p.get("samples", [])),
+                    )
+                    for p in t.get("history", [])
+                ],
+            )
+            for t in data.get("topics", [])
+        ]
+        return cls(topics=topics)
+
+
+def load_store(path: str | Path) -> TrendStore:
+    """Load the store; a missing file yields an empty store (cold start)."""
+    path = Path(path)
+    if not path.exists():
+        return TrendStore()
+    return TrendStore.from_dict(json.loads(path.read_text(encoding="utf-8")))
+
+
+def save_store(store: TrendStore, path: str | Path) -> Path:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(store.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+    return path
