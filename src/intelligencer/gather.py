@@ -74,37 +74,17 @@ def _drop_boilerplate_images(items: list[Item]) -> None:
             it.image = None
 
 
-# Outlets that aren't really AI journalism — SEO farms, stock screeners, crypto
-# and vendor blogs. Still usable as a last resort, but demoted below real coverage
-# when ranking a Google News feed. Matched as a case-insensitive substring of source.
-_DEMOTE_SOURCES = (
-    "mobileappdaily",
-    "simplywall.st",
-    "startupfortune",
-    "basenor",
-    "tech-insider",
-    "kucoin",
-)
-
-
 def _select_in_window(items: list[Item], today: _dt.date, within_days: int) -> list[Item]:
-    """Keep items published within ``[today - within_days, today]`` (undated ones
-    dropped), preserving the feed's own order — relevance for Google News, recency
-    for a chronological RSS feed — then demote low-signal outlets (SEO farms, stock
-    screeners) to the end, so real journalism is picked ahead of them."""
+    """Keep items published within ``[today - within_days, today]``, dropping
+    undated ones, and preserve the feed's own order — relevance for a Google News
+    search, recency for a chronological RSS feed. We take that ordering as given
+    rather than second-guessing it with a hand-maintained outlet blocklist."""
     cutoff = today - _dt.timedelta(days=within_days)
-    kept = [
+    return [
         it
         for it in items
         if (d := _parse_iso_date(it.published)) is not None and cutoff <= d <= today
     ]
-
-    def _demoted(item: Item) -> bool:
-        source = (item.source or "").lower()
-        return any(bad in source for bad in _DEMOTE_SOURCES)
-
-    kept.sort(key=_demoted)  # stable sort: keeps feed order within each tier
-    return kept
 
 
 def _make_newsapi_client(config: Config) -> NewsApiClient | None:
@@ -184,8 +164,8 @@ def _gather_dimension(
                 )
         # search sources are filled by the SKILL.md orchestrator
 
-        # Strict recency window (e.g. past 7 days), most-recent first. Also fixes
-        # relevance-ordered feeds (Google News) and drops undated items.
+        # Keep only items inside the recency window (e.g. past 7 days), preserving
+        # the feed's own order (relevance for Google News, recency for RSS).
         if dim.within_days is not None:
             src_items = _select_in_window(src_items, today, dim.within_days)
         # Cap each source independently (by-source layout); a source with no items

@@ -12,18 +12,18 @@ from intelligencer.gather import (
 from intelligencer.manifest import Item
 
 
-def test_select_in_window_keeps_relevance_order_but_demotes_low_signal():
+def test_select_in_window_keeps_feed_order_and_drops_out_of_window():
     today = dt.date(2026, 7, 1)
     items = [
-        Item(title="farm", url="u1", source="mobileappdaily.com", published="2026-06-30"),
-        Item(title="scmp", url="u2", source="scmp.com", published="2026-06-24"),
-        Item(title="reuters", url="u3", source="reuters.com", published="2026-06-25"),
+        Item(title="a", url="u1", source="mobileappdaily.com", published="2026-06-30"),
+        Item(title="b", url="u2", source="scmp.com", published="2026-06-24"),
+        Item(title="c", url="u3", source="reuters.com", published="2026-06-25"),
         Item(title="stale", url="u4", source="reuters.com", published="2026-06-01"),  # >7 days
         Item(title="undated", url="u5", source="reuters.com", published=None),  # can't place
     ]
     out = _select_in_window(items, today, within_days=7)
-    # stale + undated dropped; feed order preserved, but the SEO farm sinks below real news
-    assert [it.title for it in out] == ["scmp", "reuters", "farm"]
+    # stale + undated dropped; the feed's own order (relevance) is taken as given
+    assert [it.title for it in out] == ["a", "b", "c"]
 
 
 def test_drop_contentless_keeps_items_with_image_or_blurb():
