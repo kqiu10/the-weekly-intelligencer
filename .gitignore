@@ -221,3 +221,5 @@ __marimo__/
 # The Weekly Intelligencer
 out/
 dist/
+# canonical spec lives in tasks/ (local, with plan*.md/todo.md); keep the root copy untracked
+/SPEC.md
