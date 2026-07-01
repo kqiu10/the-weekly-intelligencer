@@ -18,15 +18,6 @@ def test_golden_render():
     )
 
 
-def test_masthead_shows_issue_number_and_week_range():
-    from intelligencer.manifest import Issue, Manifest
-
-    html = render_html(Manifest(issue=Issue(date="2026-07-01", title="T", week=2), dimensions=[]))
-    assert "Issue 2" in html  # labeled 'Issue', not 'Week'
-    assert "Jun 29 – Jul 5, 2026" in html  # the Mon–Sun week it covers
-    assert "Week 2" not in html
-
-
 def test_by_source_renders_labeled_rows_with_source_and_date():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 

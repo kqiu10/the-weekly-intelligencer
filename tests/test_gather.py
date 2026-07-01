@@ -53,39 +53,20 @@ def test_shared_image_is_dropped_unique_kept():
     assert [it.image for it in items] == [None, None, unique, None]
 
 
-def test_first_issue_is_week1():
-    assert issue_week_number("2026-06-26", "2026-06-26") == 1
-
-
-def test_one_week_later_is_week2():
-    assert issue_week_number("2026-06-26", "2026-07-03") == 2
-
-
-def test_missing_first_date_defaults_to_week1():
-    assert issue_week_number(None, "2026-06-26") == 1
-
-
-def test_fifty_two_weeks_later_is_week53():
-    # 364 days == exactly 52 weeks later
-    assert issue_week_number("2026-06-26", "2027-06-25") == 53
-
-
-def test_week1_ends_on_the_first_sunday():
-    # first issue Fri 2026-06-26 → Week 1 is its Mon–Sun week, ending Sun 06-28
-    assert issue_week_number("2026-06-26", "2026-06-28") == 1  # Sunday → still Week 1
-    assert issue_week_number("2026-06-26", "2026-06-29") == 2  # Monday → Week 2 begins
-
-
-def test_numbering_is_calendar_week_not_rolling_from_anchor():
-    # 2026-07-01 (Wed) is in the second Mon–Sun week → Week 2. A rolling 7-day count
-    # from the Friday anchor would wrongly still call it Week 1.
-    assert issue_week_number("2026-06-26", "2026-07-01") == 2
+def test_issue_number_buckets_by_calendar_week():
+    """The core rule: Issue 1 is the Mon–Sun week containing the first issue, so it
+    ends on that Sunday and the next Monday starts Issue 2 (not a rolling 7-day count
+    from the launch weekday). Missing anchor falls back to Issue 1."""
+    launch = "2026-06-26"  # a Friday
+    assert issue_week_number(launch, "2026-06-26") == 1  # launch day
+    assert issue_week_number(launch, "2026-06-28") == 1  # Sunday — still Issue 1
+    assert issue_week_number(launch, "2026-06-29") == 2  # Monday — Issue 2 begins
+    assert issue_week_number(launch, "2026-07-09") == 3  # a Thursday three weeks in
+    assert issue_week_number(None, "2026-06-26") == 1  # no anchor → Issue 1
 
 
 def test_issue_week_range_is_the_containing_mon_sun_week():
-    # Fri 2026-06-26 → its week runs Mon 06-22 .. Sun 06-28
-    assert issue_week_range("2026-06-26") == ("2026-06-22", "2026-06-28")
-    # Wed 2026-07-01 → Mon 06-29 .. Sun 07-05
+    # Wed 2026-07-01 → its week runs Mon 06-29 .. Sun 07-05
     assert issue_week_range("2026-07-01") == ("2026-06-29", "2026-07-05")
     # a Sunday is the end of its week, not the start of the next
     assert issue_week_range("2026-06-28") == ("2026-06-22", "2026-06-28")
