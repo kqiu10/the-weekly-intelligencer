@@ -1,5 +1,7 @@
 """B3: configuration validation."""
 
+import pytest
+
 from intelligencer.config import load_config, validate_config
 
 
@@ -27,45 +29,56 @@ def test_valid_config_has_no_errors(tmp_path):
     assert errors == []
 
 
-def test_duplicate_names_fail(tmp_path):
-    text = """
+@pytest.mark.parametrize(
+    "expected, yaml_text",
+    [
+        (
+            "duplicate",
+            """
 publication: {title: T}
 dimensions:
   - {name: Dup, sources: [{type: feed, url: "http://x"}]}
   - {name: Dup, sources: [{type: feed, url: "http://y"}]}
-"""
-    errors, _ = validate_config(load_config(_write(tmp_path, text)))
-    assert any("duplicate" in e for e in errors)
-
-
-def test_unknown_source_type_fails(tmp_path):
-    text = """
+""",
+        ),
+        (
+            "unknown source type",
+            """
 publication: {title: T}
 dimensions:
   - {name: A, sources: [{type: bogus, url: "http://x"}]}
-"""
-    errors, _ = validate_config(load_config(_write(tmp_path, text)))
-    assert any("unknown source type" in e for e in errors)
-
-
-def test_unknown_summary_fails(tmp_path):
-    text = """
+""",
+        ),
+        (
+            "unknown summary",
+            """
 publication: {title: T}
 dimensions:
   - {name: A, summary: bogus, sources: [{type: feed, url: "http://x"}]}
-"""
-    errors, _ = validate_config(load_config(_write(tmp_path, text)))
-    assert any("unknown summary" in e for e in errors)
-
-
-def test_dimension_without_sources_fails(tmp_path):
-    text = """
+""",
+        ),
+        (
+            "no sources",
+            """
 publication: {title: T}
 dimensions:
   - {name: A, sources: []}
-"""
-    errors, _ = validate_config(load_config(_write(tmp_path, text)))
-    assert any("no sources" in e for e in errors)
+""",
+        ),
+        (
+            "unknown layout",
+            """
+publication: {title: T}
+dimensions:
+  - {name: A, layout: bogus, sources: [{type: feed, url: "http://x"}]}
+""",
+        ),
+    ],
+)
+def test_invalid_config_reports_error(tmp_path, expected, yaml_text):
+    """Each malformed config surfaces its specific validation error."""
+    errors, _ = validate_config(load_config(_write(tmp_path, yaml_text)))
+    assert any(expected in e for e in errors)
 
 
 def test_by_source_layout_parses(tmp_path):
@@ -74,17 +87,16 @@ publication: {title: T}
 dimensions:
   - name: Labs
     layout: by-source
-    max_per_source: 2
+    max_per_source: 3
     sources:
       - {type: feed, label: OpenAI, url: "http://x"}
 """
     cfg = load_config(_write(tmp_path, text))
     dim = cfg.dimensions[0]
     assert dim.layout == "by-source"
-    assert dim.max_per_source == 2
+    assert dim.max_per_source == 3  # explicit value parses
     assert dim.sources[0].label == "OpenAI"
-    errors, _ = validate_config(cfg)
-    assert errors == []
+    assert validate_config(cfg)[0] == []
 
 
 def test_by_source_defaults_max_per_source_to_two(tmp_path):
@@ -93,18 +105,7 @@ publication: {title: T}
 dimensions:
   - {name: Labs, layout: by-source, sources: [{type: feed, label: X, url: "http://x"}]}
 """
-    cfg = load_config(_write(tmp_path, text))
-    assert cfg.dimensions[0].max_per_source == 2
-
-
-def test_unknown_layout_fails(tmp_path):
-    text = """
-publication: {title: T}
-dimensions:
-  - {name: A, layout: bogus, sources: [{type: feed, url: "http://x"}]}
-"""
-    errors, _ = validate_config(load_config(_write(tmp_path, text)))
-    assert any("unknown layout" in e for e in errors)
+    assert load_config(_write(tmp_path, text)).dimensions[0].max_per_source == 2
 
 
 def test_by_source_unlabeled_source_warns(tmp_path):

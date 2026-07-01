@@ -1,6 +1,7 @@
-"""B1: og:image extraction, feed-embedded images, and caching."""
+"""B1: og:image extraction, feed-embedded images, lede/title parsing, and caching."""
 
 import json
+import logging
 from pathlib import Path
 
 import feedparser
@@ -18,20 +19,39 @@ from intelligencer.images import (
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def test_extract_og_image_present():
-    html = (FIXTURES / "article_with_og.html").read_text()
-    assert extract_og_image(html) == "http://img.example/og.jpg"
+def _stub_httpx_status(monkeypatch, status):
+    """Force images.httpx.get to return a bare response with the given status code."""
+    import httpx
+
+    import intelligencer.images as images
+
+    monkeypatch.setattr(
+        images.httpx,
+        "get",
+        lambda url, **k: httpx.Response(status, request=httpx.Request("GET", url)),
+    )
+    return images
 
 
-def test_extract_og_image_absent():
-    html = (FIXTURES / "article_without_og.html").read_text()
-    assert extract_og_image(html) is None
-
-
-def test_extract_og_image_relative_resolved():
-    html = '<meta property="og:image" content="/img/pic.jpg">'
-    got = extract_og_image(html, base_url="https://site.example/article")
-    assert got == "https://site.example/img/pic.jpg"
+def test_extract_og_image_reads_resolves_and_rejects_placeholder():
+    present = (FIXTURES / "article_with_og.html").read_text()
+    absent = (FIXTURES / "article_without_og.html").read_text()
+    assert extract_og_image(present) == "http://img.example/og.jpg"
+    assert extract_og_image(absent) is None
+    # a relative og:image is resolved against the page URL
+    assert (
+        extract_og_image(
+            '<meta property="og:image" content="/img/pic.jpg">',
+            base_url="https://site.example/article",
+        )
+        == "https://site.example/img/pic.jpg"
+    )
+    # an unfilled og:image template must not become a (404-bound) URL
+    placeholder = (
+        '<meta property="og:image" '
+        'content="<link or path of image for opengraph, twitter-cards>">'
+    )
+    assert extract_og_image(placeholder) is None
 
 
 def test_image_from_feed_entry_enclosure():
@@ -40,55 +60,37 @@ def test_image_from_feed_entry_enclosure():
     assert image_from_feed_entry(parsed.entries[1]) is None
 
 
-def test_cache_image_downloads(tmp_path):
-    src = f"file://{FIXTURES / 'pixel.png'}"
-    rel = cache_image(src, tmp_path, "2026-06-26")
-    assert rel is not None
-    assert rel.startswith("assets/2026-06-26/")
+def test_cache_image_downloads_and_failsofts(tmp_path):
+    rel = cache_image(f"file://{FIXTURES / 'pixel.png'}", tmp_path, "2026-06-26")
+    assert rel and rel.startswith("assets/2026-06-26/")
     assert (tmp_path / rel).exists()
-
-
-def test_cache_image_failsoft(tmp_path):
+    # a missing source fails soft (None), never raises
     assert cache_image("file:///nonexistent/none.png", tmp_path, "2026-06-26") is None
 
 
 def test_og_fetch_403_is_quiet(monkeypatch, caplog):
-    """A scraper block (403) returns None without logging a WARNING."""
-    import logging
-
-    import httpx
-
-    import intelligencer.images as images
-
-    def fake_get(url, **kwargs):
-        return httpx.Response(403, request=httpx.Request("GET", url))
-
-    monkeypatch.setattr(images.httpx, "get", fake_get)
+    """A scraper block (403) returns None quietly (debug, not warning)."""
+    images = _stub_httpx_status(monkeypatch, 403)
     with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
-        result = images.fetch_og_image_url("https://blocked.example/a")
-
-    assert result is None
+        assert images.fetch_og_image_url("https://blocked.example/a") is None
     assert not any(r.levelno >= logging.WARNING for r in caplog.records)
     assert any(r.levelno == logging.DEBUG for r in caplog.records)
 
 
 def test_og_fetch_500_warns(monkeypatch, caplog):
     """An unexpected server error (500) still surfaces as a WARNING."""
-    import logging
-
-    import httpx
-
-    import intelligencer.images as images
-
-    def fake_get(url, **kwargs):
-        return httpx.Response(500, request=httpx.Request("GET", url))
-
-    monkeypatch.setattr(images.httpx, "get", fake_get)
+    images = _stub_httpx_status(monkeypatch, 500)
     with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
-        result = images.fetch_og_image_url("https://broken.example/a")
-
-    assert result is None
+        assert images.fetch_og_image_url("https://broken.example/a") is None
     assert any(r.levelno >= logging.WARNING for r in caplog.records)
+
+
+def test_cache_image_404_is_quiet(monkeypatch, caplog, tmp_path):
+    """A 404 on the image download fails soft and stays quiet (debug, not warning)."""
+    images = _stub_httpx_status(monkeypatch, 404)
+    with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
+        assert images.cache_image("https://x.example/a.jpg", tmp_path, "2026-06-27") is None
+    assert not any(r.levelno >= logging.WARNING for r in caplog.records)
 
 
 _ARTICLE_HTML = """
@@ -192,30 +194,3 @@ def test_parse_batchexecute_extracts_real_url():
 def test_parse_batchexecute_missing_returns_none():
     assert _parse_batchexecute_url(")]}'\n\n" + json.dumps([["wrb.fr", "other", "[]"]])) is None
     assert _parse_batchexecute_url("not json at all") is None
-
-
-def test_extract_og_image_rejects_placeholder():
-    """An unfilled og:image template must not become a (404-bound) image URL."""
-    html = (
-        '<meta property="og:image" content="<link or path of image for opengraph, twitter-cards>">'
-    )
-    assert extract_og_image(html) is None
-
-
-def test_cache_image_404_is_quiet(monkeypatch, caplog, tmp_path):
-    """A 404 on the image download fails soft and stays quiet (debug, not warning)."""
-    import logging
-
-    import httpx
-
-    import intelligencer.images as images
-
-    def fake_get(url, **kwargs):
-        return httpx.Response(404, request=httpx.Request("GET", url))
-
-    monkeypatch.setattr(images.httpx, "get", fake_get)
-    with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
-        out = images.cache_image("https://x.example/a.jpg", tmp_path, "2026-06-27")
-
-    assert out is None
-    assert not any(r.levelno >= logging.WARNING for r in caplog.records)

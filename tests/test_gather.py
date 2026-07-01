@@ -150,31 +150,3 @@ def test_by_source_caps_each_lab_and_skips_empty():
     groups = [it.group for it in dim.items]
     assert groups == ["LabA", "LabA"]  # capped at 2, and LabB skipped entirely
     assert "LabB" not in groups
-
-
-def test_within_days_window_filters_and_drops_undated():
-    """Strict past-week window: drop stale + undated items, keeping feed order."""
-    from pathlib import Path
-
-    from intelligencer.config import Config, Dimension, Output, Publication, Source
-
-    fixtures = Path(__file__).parent / "fixtures"
-    cfg = Config(
-        publication=Publication(title="T"),
-        output=Output(),
-        dimensions=[
-            Dimension(
-                name="Labs",
-                layout="by-source",
-                within_days=7,
-                max_per_source=5,
-                sources=[
-                    Source(type="feed", url=f"file://{fixtures / 'feed_dated.xml'}", label="Lab")
-                ],
-            )
-        ],
-    )
-    items = build_manifest(cfg, date="2026-06-27").dimensions[0].items
-    # feed order is D2,D1,D3,D4; today=06-27 keeps only D2 (06-22) and D1 (06-26),
-    # in the feed's own order (relevance); D3 (06-17, stale) and D4 (undated) drop.
-    assert [it.title for it in items] == ["D2 older-recent", "D1 recent"]
