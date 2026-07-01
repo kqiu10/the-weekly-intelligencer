@@ -1,12 +1,29 @@
 """B2: issue week number computed from the first-issue date."""
 
+import datetime as dt
+
 from intelligencer.gather import (
     _drop_boilerplate_images,
     _drop_contentless,
+    _select_in_window,
     build_manifest,
     issue_week_number,
 )
 from intelligencer.manifest import Item
+
+
+def test_select_in_window_keeps_relevance_order_but_demotes_low_signal():
+    today = dt.date(2026, 7, 1)
+    items = [
+        Item(title="farm", url="u1", source="mobileappdaily.com", published="2026-06-30"),
+        Item(title="scmp", url="u2", source="scmp.com", published="2026-06-24"),
+        Item(title="reuters", url="u3", source="reuters.com", published="2026-06-25"),
+        Item(title="stale", url="u4", source="reuters.com", published="2026-06-01"),  # >7 days
+        Item(title="undated", url="u5", source="reuters.com", published=None),  # can't place
+    ]
+    out = _select_in_window(items, today, within_days=7)
+    # stale + undated dropped; feed order preserved, but the SEO farm sinks below real news
+    assert [it.title for it in out] == ["scmp", "reuters", "farm"]
 
 
 def test_drop_contentless_keeps_items_with_image_or_blurb():
@@ -132,8 +149,8 @@ def test_by_source_caps_each_lab_and_skips_empty():
     assert "LabB" not in groups
 
 
-def test_within_days_window_filters_sorts_and_drops_undated():
-    """Strict past-week window: drop stale + undated items, most-recent first."""
+def test_within_days_window_filters_and_drops_undated():
+    """Strict past-week window: drop stale + undated items, keeping feed order."""
     from pathlib import Path
 
     from intelligencer.config import Config, Dimension, Output, Publication, Source
@@ -155,6 +172,6 @@ def test_within_days_window_filters_sorts_and_drops_undated():
         ],
     )
     items = build_manifest(cfg, date="2026-06-27").dimensions[0].items
-    # feed order is D2,D1,D3,D4; today=06-27 keeps only D1 (06-26) and D2 (06-22),
-    # sorted newest-first; D3 (06-17, stale) and D4 (undated) are dropped.
-    assert [it.title for it in items] == ["D1 recent", "D2 older-recent"]
+    # feed order is D2,D1,D3,D4; today=06-27 keeps only D2 (06-22) and D1 (06-26),
+    # in the feed's own order (relevance); D3 (06-17, stale) and D4 (undated) drop.
+    assert [it.title for it in items] == ["D2 older-recent", "D1 recent"]

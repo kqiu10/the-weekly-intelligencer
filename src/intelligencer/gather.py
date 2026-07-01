@@ -74,18 +74,37 @@ def _drop_boilerplate_images(items: list[Item]) -> None:
             it.image = None
 
 
-def _recent_first(items: list[Item], today: _dt.date, within_days: int) -> list[Item]:
-    """Keep items published within ``[today - within_days, today]``, most-recent
-    first. Undated items are dropped — we can't confirm they're in the window —
-    and the date sort also corrects relevance-ordered feeds (e.g. Google News)."""
+# Outlets that aren't really AI journalism — SEO farms, stock screeners, crypto
+# and vendor blogs. Still usable as a last resort, but demoted below real coverage
+# when ranking a Google News feed. Matched as a case-insensitive substring of source.
+_DEMOTE_SOURCES = (
+    "mobileappdaily",
+    "simplywall.st",
+    "startupfortune",
+    "basenor",
+    "tech-insider",
+    "kucoin",
+)
+
+
+def _select_in_window(items: list[Item], today: _dt.date, within_days: int) -> list[Item]:
+    """Keep items published within ``[today - within_days, today]`` (undated ones
+    dropped), preserving the feed's own order — relevance for Google News, recency
+    for a chronological RSS feed — then demote low-signal outlets (SEO farms, stock
+    screeners) to the end, so real journalism is picked ahead of them."""
     cutoff = today - _dt.timedelta(days=within_days)
-    dated: list[tuple[_dt.date, Item]] = []
-    for it in items:
-        d = _parse_iso_date(it.published)
-        if d is not None and cutoff <= d <= today:
-            dated.append((d, it))
-    dated.sort(key=lambda pair: pair[0], reverse=True)
-    return [it for _, it in dated]
+    kept = [
+        it
+        for it in items
+        if (d := _parse_iso_date(it.published)) is not None and cutoff <= d <= today
+    ]
+
+    def _demoted(item: Item) -> bool:
+        source = (item.source or "").lower()
+        return any(bad in source for bad in _DEMOTE_SOURCES)
+
+    kept.sort(key=_demoted)  # stable sort: keeps feed order within each tier
+    return kept
 
 
 def _make_newsapi_client(config: Config) -> NewsApiClient | None:
@@ -168,7 +187,7 @@ def _gather_dimension(
         # Strict recency window (e.g. past 7 days), most-recent first. Also fixes
         # relevance-ordered feeds (Google News) and drops undated items.
         if dim.within_days is not None:
-            src_items = _recent_first(src_items, today, dim.within_days)
+            src_items = _select_in_window(src_items, today, dim.within_days)
         # Cap each source independently (by-source layout); a source with no items
         # contributes nothing and its row is simply never rendered.
         if dim.max_per_source is not None:
