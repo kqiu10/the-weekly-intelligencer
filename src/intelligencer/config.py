@@ -2,23 +2,21 @@
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
 
-VALID_SOURCE_TYPES = {"feed", "api", "search", "site"}
+VALID_SOURCE_TYPES = {"feed", "search", "site"}
 VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
 VALID_LAYOUTS = {"grid", "by-source"}
 
 
 @dataclass
 class Source:
-    type: str  # feed | api | search | site
+    type: str  # feed | search | site
     url: str | None = None
     query: str | None = None
-    provider: str | None = None
     label: str | None = None  # by-source layout: the row heading (e.g. a lab name)
     logo: str | None = None  # by-source layout: packaged logo slug (e.g. "openai")
     link_contains: str | None = None  # site: only follow links whose href holds this
@@ -56,7 +54,6 @@ class Config:
     output: Output
     dimensions: list[Dimension]
     defaults: dict = field(default_factory=dict)
-    providers: dict = field(default_factory=dict)
     path: Path | None = None
 
 
@@ -106,7 +103,6 @@ def load_config(path: str | Path) -> Config:
                     type=s.get("type", "feed"),
                     url=url,
                     query=s.get("query"),
-                    provider=s.get("provider"),
                     label=s.get("label"),
                     logo=s.get("logo"),
                     link_contains=s.get("link_contains"),
@@ -138,7 +134,6 @@ def load_config(path: str | Path) -> Config:
         output=output,
         dimensions=dimensions,
         defaults=defaults,
-        providers=data.get("providers", {}) or {},
         path=path,
     )
 
@@ -167,23 +162,9 @@ def validate_config(config: Config) -> tuple[list[str], list[str]]:
                 errors.append(f"dimension {dim.name!r}: unknown source type {src.type!r}")
             if src.type in ("feed", "site") and not src.url:
                 errors.append(f"dimension {dim.name!r}: a {src.type} source has no url")
-            if dim.layout == "by-source" and src.type in ("feed", "api") and not src.label:
+            if dim.layout == "by-source" and src.type == "feed" and not src.label:
                 warnings.append(
                     f"dimension {dim.name!r}: a {src.type} source has no label; "
                     "its row will be unlabeled"
                 )
-            if src.type == "api":
-                provider = config.providers.get(src.provider or "")
-                if not provider:
-                    errors.append(
-                        f"dimension {dim.name!r}: api provider {src.provider!r} "
-                        "not defined under providers"
-                    )
-                else:
-                    key_env = provider.get("key_env")
-                    if key_env and not os.environ.get(key_env):
-                        warnings.append(
-                            f"api provider {src.provider!r}: env {key_env} not set — "
-                            "these sources will be skipped"
-                        )
     return errors, warnings

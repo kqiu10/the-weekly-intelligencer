@@ -13,12 +13,6 @@ defaults:
   max_items: 5
   blurb_words: 50                  # words of the article's own lede per item (NYT-brief style; ~40–60)
 
-providers:                         # settings for keyed `api` sources (keys live in .env)
-  newsapi:
-    key_env: NEWSAPI_KEY
-    daily_request_limit: 100       # hard cap (individual plan)
-    cache_ttl_hours: 12
-
 dimensions:
   - name: "Frontier AI Research Labs"
     blurb: "The week's models, money, and announcements from the world's leading AI labs"

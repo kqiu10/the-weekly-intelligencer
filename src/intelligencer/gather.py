@@ -1,7 +1,7 @@
 """Assemble a manifest from config by gathering each dimension's sources.
 
-Deterministic ``feed`` and ``api`` (NewsAPI) sources are gathered here, with zero
-Claude tokens. ``search`` sources are filled by the SKILL.md orchestrator. A dead
+Deterministic ``feed`` and ``site`` sources are gathered here, with zero Claude
+tokens. ``search`` sources are filled by the SKILL.md orchestrator. A dead
 source is skipped with a visible note; ``raw`` dimensions use the feed/snippet text
 verbatim as the summary. When ``discover_og`` is set, items lacking a feed-embedded
 image fall back to the article page's og:image.
@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import datetime as _dt
 import logging
-import os
 from urllib.parse import urlparse
 
 from .config import Config, Dimension
@@ -20,7 +19,6 @@ from .images import fetch_article_preview, logo_asset_path, resolve_google_news_
 from .sites import default_link_pattern, list_site_articles
 from .text import item_blurb
 from .manifest import DimensionContent, Issue, Item, Manifest
-from .providers.newsapi import NewsApiClient
 
 logger = logging.getLogger(__name__)
 
@@ -103,22 +101,10 @@ def _select_in_window(items: list[Item], today: _dt.date, within_days: int) -> l
     ]
 
 
-def _make_newsapi_client(config: Config) -> NewsApiClient | None:
-    cfg = config.providers.get("newsapi")
-    if not cfg:
-        return None
-    return NewsApiClient(
-        api_key=os.environ.get(cfg.get("key_env", "NEWSAPI_KEY"), ""),
-        daily_limit=int(cfg.get("daily_request_limit", 100)),
-        cache_ttl_hours=float(cfg.get("cache_ttl_hours", 12)),
-    )
-
-
 def _gather_dimension(
     dim: Dimension,
     *,
     discover_og: bool,
-    newsapi: NewsApiClient | None,
     today: _dt.date,
     blurb_words: int = 50,
 ) -> DimensionContent:
@@ -153,16 +139,6 @@ def _gather_dimension(
                         group=label,
                     )
                 )
-        elif source.type == "api" and source.provider == "newsapi" and source.query:
-            if newsapi is None:
-                notes.append("NewsAPI provider not configured; api source skipped")
-                continue
-            result = newsapi.fetch(source.query)
-            for it in result.items:
-                it.group = label
-            src_items.extend(result.items)
-            if result.note:
-                notes.append(result.note)
         elif source.type == "site" and source.url:
             # Scrape an official newsroom index for (url, date); title/image/lede
             # are filled from each article by the enrichment pass below.
@@ -253,12 +229,9 @@ def build_manifest(
         subtitle=config.publication.subtitle,
         week=week,
     )
-    newsapi = _make_newsapi_client(config)
     blurb_words = int(config.defaults.get("blurb_words", 50))
     dimensions = [
-        _gather_dimension(
-            d, discover_og=discover_og, newsapi=newsapi, today=today, blurb_words=blurb_words
-        )
+        _gather_dimension(d, discover_og=discover_og, today=today, blurb_words=blurb_words)
         for d in config.dimensions
     ]
     return Manifest(issue=issue, dimensions=dimensions)

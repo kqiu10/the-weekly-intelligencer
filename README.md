@@ -4,14 +4,15 @@ A weekly, *New York Times*–style digest of AI-industry news, rendered as a
 self-contained HTML issue you can open in any browser. Sections and sources are fully
 configurable.
 
-It runs as a **Claude Code skill**: deterministic gathering (RSS feeds, NewsAPI) is done
-by Python scripts with **zero tokens**; web `search` sources and the editorial summaries
-are written by Claude Code in-session — no Anthropic API key, no per-token cost.
+It runs as a **Claude Code skill**: deterministic gathering (RSS feeds, official
+newsrooms) is done by Python scripts with **zero tokens**; web `search` sources and the
+editorial summaries are written by Claude Code in-session — no Anthropic API key, no
+per-token cost.
 
 ## How it works
 
 ```
-config/dimensions.yaml ─▶ fetch (feeds + NewsAPI, scripts) ─▶ out/manifest.json
+config/dimensions.yaml ─▶ fetch (feeds + sites, scripts) ─▶ out/manifest.json
                                   │  Claude: fill `search` + write summaries
                                   ▼
                           render (Jinja2 + NYT CSS) ─▶ dist/<date>.html
@@ -23,7 +24,6 @@ The `manifest` is the single source of truth; every stage reads and writes it.
 
 ```bash
 uv sync                    # install dependencies
-cp .env.example .env       # then add your NEWSAPI_KEY (only needed for `api` sources)
 ```
 
 ## Usage
@@ -37,7 +37,7 @@ in `.claude/skills/the-weekly-intelligencer/SKILL.md`.
 ### By hand (deterministic only)
 ```bash
 uv run intelligencer validate        # check config/dimensions.yaml
-uv run intelligencer fetch           # feeds + NewsAPI → out/manifest.json
+uv run intelligencer fetch           # feeds + sites → out/manifest.json
 uv run intelligencer render --open   # manifest → dist/<date>.html
 ```
 With an all-`feed` + all-`raw` config this produces a complete issue with **zero** Claude
@@ -76,7 +76,6 @@ rather than shown as a bare headline — a company simply shows fewer stories (0
 |-----------------|---------------------------------|------------|
 | `feed`          | script (RSS/Atom)               | none       |
 | `site`          | script (scrape official index)  | none       |
-| `api` (NewsAPI) | script (NewsAPI)                | none       |
 | `search`        | Claude web search               | yes        |
 
 A `site` source scrapes a company's own newsroom index (for those without a feed): give
@@ -90,12 +89,6 @@ from the article page — no third-party aggregator involved.
 | `raw`          | feed/snippet text verbatim         | ~none      |
 | `rewrite`      | Claude rewrites each item          | medium     |
 | `synthesize`   | Claude writes one combined section | highest    |
-
-### NewsAPI
-`api` sources are configured under `providers.newsapi`: the key is read from
-`NEWSAPI_KEY` in `.env`, and `daily_request_limit` (default **100**) is a **hard cap**
-enforced across runs via a persistent daily counter, with a response cache so repeat
-runs don't spend quota.
 
 ## Output
 
