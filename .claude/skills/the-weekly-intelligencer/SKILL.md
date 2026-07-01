@@ -18,8 +18,9 @@ steps in order.
 
 ## 1. Gather deterministic sources (no tokens)
 Run `uv run intelligencer fetch`. This writes `out/manifest.json` with the issue metadata
-and the items already gathered from `feed` and `site` (scraped official newsrooms) sources.
-`search` sources contribute nothing yet — you fill them next.
+and the items already gathered from `feed`, `site` (scraped official newsrooms), and
+`youtube` (the YouTube Data API — the YouTube Shorts card, when `YOUTUBE_API_KEY` is set)
+sources. `search` sources contribute nothing yet — you fill them next.
 
 ## 2. Fill `search` sources (web search)
 For each dimension that has a `search` source, use the **WebSearch** tool with that
@@ -37,14 +38,19 @@ Only use an `image` URL that is the article's real preview image (`og:image`). I
 can't find one, use `null`.
 
 ### The "Trending AI Generative Context & Social Video" dimension
-Its `search` sources are the platforms (YouTube Shorts, TikTok, Instagram, Facebook) — no
-open API exists for most, so you discover the week's most-shared **AI-generated** photos/
-videos by web search:
-- Set each item's `group` to the platform label (e.g. `"TikTok"`) so it lands in that card.
-- Link the **real post permalink**; use the post's own thumbnail/preview as `image` (`cache`
-  downloads it). If you can't get a thumbnail, use `null` — the item may then be dropped.
-- Include only posts you judge to be AI-generated; when unsure, drop it.
-- Prefer YouTube Shorts where you can read real view counts — they sharpen the trend signal.
+- **YouTube Shorts** is sourced first-party by `fetch` (the `youtube` Data API): the card
+  arrives pre-filled with the week's most-viewed short-video **candidates** (durable
+  `i.ytimg.com` thumbnails + real view counts folded into `raw_text`). **Prune** it — keep only
+  the ones you judge **AI-generated**, drop the rest, down to `max_per_source`. If it's empty
+  (no `YOUTUBE_API_KEY`), you *may* web-search YouTube as a fallback like the other platforms.
+- **TikTok, Instagram, Facebook** have no open API, so discover the week's most-shared
+  **AI-generated** posts by web search and fill their `search` sources:
+  - Set each item's `group` to the platform label (e.g. `"TikTok"`) so it lands in that card.
+  - Link the **real post permalink**; use the post's own thumbnail/preview as `image` (`cache`
+    downloads it at gen time, so a short-lived CDN URL is fine). If you can't get one, use
+    `null` — the item may then be dropped; a fact-check article's hero image is also allowed
+    (see Boundaries).
+  - Include only posts you judge to be AI-generated; when unsure, drop it.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
@@ -102,7 +108,10 @@ e.g. `dist/2026-06-26.html`.
 - **Attribute everything.** Every item links to a real source you actually found.
 - **Never fabricate** headlines, quotes, numbers, dates, or links. If you can't verify
   it, drop it.
-- **No AI-generated images** — only an article's own preview image, or `null`.
+- **No AI-generated images as decoration** — only a real preview image, or `null`.
+  *Social-video exception (SPEC §9):* there the AI-generated media **is** the story, so a
+  post's own thumbnail, a fact-check article's hero image, or the AI still itself may be shown —
+  attributed and labeled synthetic (the dimension's note already says every clip is an AI fake).
 - **Never call the Anthropic API** — all writing happens here in this session.
 - **Social posts & hotness:** link the real permalink; never fabricate a post, a view count,
   or a virality/hotness figure — the 🔥 signal is an editorial estimate over time, not
