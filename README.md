@@ -48,6 +48,14 @@ tokens.
 Each section ("dimension") in `config/dimensions.yaml` has a name, blurb, summary mode,
 `max_items`, and a list of sources.
 
+With `layout: by-source`, each source becomes its own card — a left rail with the
+company's logo and name, and its recent items alongside. Give the source a `label` (the
+displayed name) and a `logo` slug matching a monochrome SVG in
+`src/intelligencer/assets/logos/<slug>.svg` (bundled: `openai`, `anthropic`, `deepmind`,
+`qwen`, `xai`, `deepseek`, `meta`); the render copies referenced logos into the issue so
+`dist/` stays self-contained. Preview images that repeat across items (feed boilerplate,
+e.g. Google News' generic thumbnail) are dropped, so only an article's own image shows.
+
 | Source `type`   | Gathered by        | Token cost |
 |-----------------|--------------------|------------|
 | `feed`          | script (RSS/Atom)  | none       |

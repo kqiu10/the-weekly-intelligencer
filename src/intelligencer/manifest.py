@@ -28,6 +28,8 @@ class DimensionContent:
     layout: str = "grid"  # grid | by-source
     items: list[Item] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    # by-source layout: group label -> dist-relative logo path (assets/logos/<slug>.svg)
+    logos: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -54,6 +56,7 @@ class Manifest:
                     "layout": d.layout,
                     "items": [asdict(it) for it in d.items],
                     "notes": d.notes,
+                    "logos": d.logos,
                 }
                 for d in self.dimensions
             ],
@@ -73,6 +76,7 @@ class Manifest:
                     layout=d.get("layout", "grid"),
                     items=items,
                     notes=d.get("notes", []),
+                    logos=d.get("logos", {}) or {},
                 )
             )
         return cls(issue=issue, dimensions=dims)

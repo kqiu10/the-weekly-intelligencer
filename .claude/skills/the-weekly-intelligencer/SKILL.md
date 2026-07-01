@@ -51,14 +51,16 @@ schema exactly:
 
 ```
 issue:      { date, title, subtitle, week }
-dimensions: [ { name, blurb, summary_mode, layout, items: [ ... ], notes: [ ... ] } ]
+dimensions: [ { name, blurb, summary_mode, layout, items: [ ... ], notes: [ ... ], logos: { ... } } ]
 item:       { title, url, source, published, image, raw_text, summary, origin, group }
 ```
 
 If a dimension's `layout` is `by-source`, items are rendered grouped by their `group`
-field (one labeled row per source) — set `group` on any item you add there, and a
-source that yields nothing is simply skipped. For the default `grid` layout, leave
-`group` as `""`.
+field (one card per source) — set `group` on any item you add there, and a source that
+yields nothing is simply skipped. Each card shows the source's logo and name in a left
+rail; the `logos` map (group label → packaged logo path) is produced by `fetch` from the
+config's per-source `logo` slug — **keep it as-is, don't hand-edit it.** For the default
+`grid` layout, leave `group` as `""`.
 
 ## 5. Render
 Run `uv run intelligencer render` (add `--open` to open it). Report the output path,

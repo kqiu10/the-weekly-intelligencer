@@ -15,7 +15,7 @@ import os
 
 from .config import Config, Dimension
 from .feeds import fetch_feed
-from .images import fetch_og_image_url
+from .images import fetch_og_image_url, logo_asset_path
 from .manifest import DimensionContent, Issue, Item, Manifest
 from .providers.newsapi import NewsApiClient
 
@@ -42,6 +42,19 @@ def _parse_iso_date(value: str | None) -> _dt.date | None:
         return _dt.date.fromisoformat(value[:10])
     except (ValueError, TypeError):
         return None
+
+
+def _drop_boilerplate_images(items: list[Item]) -> None:
+    """Null out any preview image shared by more than one item. A real article
+    image is unique to that article, so a repeated URL is boilerplate — e.g. the
+    generic thumbnail Google News returns for every entry in a feed — and showing
+    the same picture on story after story just looks broken."""
+    from collections import Counter
+
+    counts = Counter(it.image for it in items if it.image)
+    for it in items:
+        if it.image and counts[it.image] > 1:
+            it.image = None
 
 
 def _recent_first(items: list[Item], today: _dt.date, within_days: int) -> list[Item]:
@@ -74,8 +87,14 @@ def _gather_dimension(
 ) -> DimensionContent:
     items: list[Item] = []
     notes: list[str] = []
+    logos: dict[str, str] = {}
     for source in dim.sources:
         label = source.label or ""
+        # Map each labeled source to its packaged logo (by-source layout).
+        if label and source.logo:
+            rel = logo_asset_path(source.logo)
+            if rel:
+                logos[label] = rel
         src_items: list[Item] = []
         if source.type == "feed" and source.url:
             try:
@@ -129,6 +148,9 @@ def _gather_dimension(
             if not item.image and item.origin == "feed" and item.url:
                 item.image = fetch_og_image_url(item.url)
 
+    # Drop feed boilerplate: an image reused across items isn't an article's own.
+    _drop_boilerplate_images(items)
+
     if dim.summary == "raw":
         for item in items:
             if not item.summary:
@@ -141,6 +163,7 @@ def _gather_dimension(
         layout=dim.layout,
         items=items,
         notes=notes,
+        logos=logos,
     )
 
 

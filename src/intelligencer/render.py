@@ -52,11 +52,22 @@ def _cache_images(manifest: Manifest, output_dir: Path) -> None:
                 item.image = cache_image(item.image, output_dir, date)
 
 
+def _copy_logos(manifest: Manifest, output_dir: Path) -> None:
+    """Copy each referenced company logo into the issue's dist/ so the HTML is
+    self-contained. Logos are packaged assets, needed regardless of image mode."""
+    from .images import copy_logo
+
+    for dim in manifest.dimensions:
+        for rel in set(dim.logos.values()):
+            copy_logo(rel, output_dir)
+
+
 def render_issue(manifest: Manifest, output_dir: str | Path, *, images: str = "hotlink") -> Path:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     if images == "cache":
         _cache_images(manifest, output_dir)
+    _copy_logos(manifest, output_dir)
     out = output_dir / f"{manifest.issue.date}.html"
     out.write_text(render_html(manifest), encoding="utf-8")
     return out

@@ -20,6 +20,7 @@ class Source:
     query: str | None = None
     provider: str | None = None
     label: str | None = None  # by-source layout: the row heading (e.g. a lab name)
+    logo: str | None = None  # by-source layout: packaged logo slug (e.g. "openai")
 
 
 @dataclass
@@ -106,6 +107,7 @@ def load_config(path: str | Path) -> Config:
                     query=s.get("query"),
                     provider=s.get("provider"),
                     label=s.get("label"),
+                    logo=s.get("logo"),
                 )
             )
         layout = d.get("layout", "grid")

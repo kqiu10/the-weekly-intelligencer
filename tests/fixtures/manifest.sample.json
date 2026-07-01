@@ -55,6 +55,10 @@
       "blurb": "What the strongest labs shipped this week",
       "summary_mode": "rewrite",
       "layout": "by-source",
+      "logos": {
+        "OpenAI": "assets/logos/openai.svg",
+        "Google DeepMind": "assets/logos/deepmind.svg"
+      },
       "items": [
         {
           "title": "OpenAI ships a faster model",

@@ -1,6 +1,21 @@
 """B2: issue week number computed from the first-issue date."""
 
-from intelligencer.gather import build_manifest, issue_week_number
+from intelligencer.gather import _drop_boilerplate_images, build_manifest, issue_week_number
+from intelligencer.manifest import Item
+
+
+def test_shared_image_is_dropped_unique_kept():
+    """An image reused across items (feed boilerplate) is nulled; a unique one stays."""
+    shared = "https://cdn.example/generic-thumb.png"
+    unique = "https://cdn.example/real-article.jpg"
+    items = [
+        Item(title="a", url="https://x/a", image=shared),
+        Item(title="b", url="https://x/b", image=shared),
+        Item(title="c", url="https://x/c", image=unique),
+        Item(title="d", url="https://x/d", image=None),
+    ]
+    _drop_boilerplate_images(items)
+    assert [it.image for it in items] == [None, None, unique, None]
 
 
 def test_first_issue_is_week1():

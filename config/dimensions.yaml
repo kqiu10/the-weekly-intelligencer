@@ -25,14 +25,14 @@ dimensions:
     layout: by-source              # one labeled row per lab; labs with no items are skipped
     max_per_source: 2              # at most 2 events per lab
     within_days: 7                 # only items from the past 7 days (else the lab is skipped)
-    sources:                       # `label` is the row heading shown for that lab
-      - { type: feed, label: "OpenAI",          url: "https://openai.com/news/rss.xml" }                                 # native
-      - { type: feed, label: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml" }                            # native
-      - { type: feed, label: "Alibaba Qwen",    url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # no native RSS (blog dormant)
-      - { type: feed, label: "Anthropic",       url: "https://news.google.com/rss/search?q=Anthropic%20Claude&hl=en-US&gl=US&ceid=US:en" }   # no native RSS
-      - { type: feed, label: "xAI",             url: "https://news.google.com/rss/search?q=xAI%20Grok&hl=en-US&gl=US&ceid=US:en" }           # no native RSS
-      - { type: feed, label: "DeepSeek",        url: "https://news.google.com/rss/search?q=DeepSeek&hl=en-US&gl=US&ceid=US:en" }             # no native RSS
-      - { type: feed, label: "Meta",            url: "https://news.google.com/rss/search?q=Meta%20Llama%20AI&hl=en-US&gl=US&ceid=US:en" }    # no native RSS
+    sources:                       # `label` = row heading; `logo` = packaged slug in assets/logos/<slug>.svg
+      - { type: feed, label: "OpenAI",          logo: "openai",    url: "https://openai.com/news/rss.xml" }                                 # native
+      - { type: feed, label: "Google DeepMind", logo: "deepmind",  url: "https://deepmind.google/blog/rss.xml" }                            # native
+      - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # no native RSS (blog dormant)
+      - { type: feed, label: "Anthropic",       logo: "anthropic", url: "https://news.google.com/rss/search?q=Anthropic%20Claude&hl=en-US&gl=US&ceid=US:en" }   # no native RSS
+      - { type: feed, label: "xAI",             logo: "xai",       url: "https://news.google.com/rss/search?q=xAI%20Grok&hl=en-US&gl=US&ceid=US:en" }           # no native RSS
+      - { type: feed, label: "DeepSeek",        logo: "deepseek",  url: "https://news.google.com/rss/search?q=DeepSeek&hl=en-US&gl=US&ceid=US:en" }             # no native RSS
+      - { type: feed, label: "Meta",            logo: "meta",      url: "https://news.google.com/rss/search?q=Meta%20Llama%20AI&hl=en-US&gl=US&ceid=US:en" }    # no native RSS
 
   # - name: "Social Platform AI Trends"
   #   blurb: "What's going viral in AI on social"

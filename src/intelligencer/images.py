@@ -17,6 +17,37 @@ logger = logging.getLogger(__name__)
 
 _IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
+# Company logos ship with the package as monochrome SVGs, keyed by slug
+# (assets/logos/<slug>.svg). They are copied into each issue's dist/ so the
+# rendered HTML stays self-contained and portable.
+LOGO_DIR = Path(__file__).parent / "assets" / "logos"
+
+
+def logo_asset_path(slug: str | None) -> str | None:
+    """Map a logo ``slug`` to its dist-relative path (``assets/logos/<slug>.svg``)
+    if the packaged SVG exists, else None. Keeps a typo'd slug from becoming a
+    broken <img> — it simply renders name-only."""
+    if slug and (LOGO_DIR / f"{slug}.svg").exists():
+        return f"assets/logos/{slug}.svg"
+    return None
+
+
+def copy_logo(rel_path: str, output_dir: str | Path) -> bool:
+    """Copy a packaged logo (referenced by its dist-relative ``rel_path``) into
+    ``output_dir``. No-op if already present or the source is missing. Returns
+    whether the file exists at the destination afterward."""
+    src = Path(__file__).parent / rel_path
+    dest = Path(output_dir) / rel_path
+    if dest.exists():
+        return True
+    if not src.exists():
+        logger.warning("logo asset missing: %s", rel_path)
+        return False
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(src.read_bytes())
+    return True
+
+
 # Statuses that mean "this site won't give us its preview image" — expected and
 # unrecoverable (scraper blocks like Cloudflare 403, or no such page). We treat
 # these as a quiet "no image", not a warning, so a normal run stays clean.

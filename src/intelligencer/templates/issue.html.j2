@@ -38,8 +38,12 @@
       {% if dim.layout == "by-source" %}
       <div class="labs">
         {% for label, group_items in dim.items | groupby_order('group') %}
+        {% set logo = dim.logos.get(label) %}
         <div class="lab">
-          {% if label %}<h4 class="lab-name">{{ label }}</h4>{% endif %}
+          <div class="lab-rail">
+            {% if logo %}<img class="lab-logo" src="{{ logo }}" alt="{{ label }} logo">{% endif %}
+            {% if label %}<div class="lab-name">{{ label }}</div>{% endif %}
+          </div>
           <div class="lab-items">
             {% for item in group_items %}
             <article class="item">
