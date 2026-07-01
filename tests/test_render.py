@@ -28,6 +28,31 @@ def test_tldr_renders_above_sections_when_present_and_omitted_when_empty():
     assert 'class="tldr"' not in hidden
 
 
+def test_trend_strip_renders_flames_per_heat_tier():
+    from intelligencer.manifest import DimensionContent, Issue, Manifest
+
+    dim = DimensionContent(
+        name="Social",
+        layout="by-source",
+        trends=[
+            {"descriptor": "AI cats flying jets", "heat_tier": 3, "direction": "up"},
+            {"descriptor": "singing dogs", "heat_tier": 1, "direction": "up"},
+        ],
+    )
+    html = render_html(Manifest(issue=Issue(date="2026-07-06", title="T"), dimensions=[dim]))
+    assert 'class="trend-strip"' in html
+    assert "AI cats flying jets" in html and "singing dogs" in html
+    assert html.count('class="flame"') == 4  # 3 flames + 1 flame
+    # a dimension without trends renders no strip
+    plain = render_html(
+        Manifest(
+            issue=Issue(date="2026-07-06", title="T"),
+            dimensions=[DimensionContent(name="Labs", layout="by-source")],
+        )
+    )
+    assert 'class="trend-strip"' not in plain
+
+
 def test_social_platform_logos_are_packaged():
     from intelligencer.images import LOGO_DIR, logo_asset_path
 

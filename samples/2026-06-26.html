@@ -61,6 +61,14 @@ a { color: inherit; }
 .tldr { border-bottom: 1px solid var(--hair); padding-bottom: 1.1rem; margin-bottom: 1.25rem; }
 .tldr-body { font-size: 1.15rem; line-height: 1.5; margin: 0.25rem 0 0; }
 
+/* 🔥 trend strip: contexts heating up week-over-week, each with heat_tier flames */
+.trend-strip { margin: 0.4rem 0 1rem; }
+.trend-list { list-style: none; margin: 0.3rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.trend { display: flex; align-items: center; gap: 0.5rem; }
+.flames { display: inline-flex; flex-shrink: 0; }
+.flame { width: 1rem; height: 1rem; }
+.trend-descriptor { font-size: 0.95rem; }
+
 .lead { border-bottom: 1px solid var(--hair); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
 .lead-image { width: 100%; height: auto; display: block; margin-bottom: 0.75rem; }
 .lead-title { font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; margin: 0.25rem 0 0.5rem; }
@@ -185,6 +193,7 @@ a { color: inherit; }
 </style>
 </head>
 <body>
+  
   <header class="masthead">
     <h1 class="masthead-title">The Weekly Intelligencer</h1>
     <p class="masthead-subtitle">A weekly briefing on AI and the work it&#39;s reshaping</p>
@@ -216,6 +225,7 @@ a { color: inherit; }
       <p class="dimension-blurb">What the leading labs shipped this week</p>
       
       
+      
       <div class="items">
         
         
@@ -240,6 +250,7 @@ a { color: inherit; }
       <p class="dimension-blurb">Money flowing into compute</p>
       
       
+      
       <div class="items">
         
         
@@ -260,6 +271,7 @@ a { color: inherit; }
     <section class="dimension">
       <h3 class="dimension-name">Frontier AI Research Labs</h3>
       <p class="dimension-blurb">What the strongest labs shipped this week</p>
+      
       
       
       <div class="labs">
