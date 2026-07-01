@@ -126,6 +126,42 @@ def test_extract_lede_none_when_no_body_text():
     assert extract_lede("<html><body><p>tiny</p></body></html>") is None
 
 
+def test_extract_lede_falls_back_to_jsonld_article_body():
+    """A JS-rendered page (no <p> body) still yields text from NewsArticle JSON-LD."""
+    html = (
+        '<html><head><script type="application/ld+json">'
+        '{"@context":"https://schema.org","@type":"NewsArticle","headline":"H",'
+        '"articleBody":"The agency approved the merger on Monday after a lengthy review. '
+        'Shares of both companies rose in early trading."}'
+        "</script></head><body><div>app shell, no paragraphs</div></body></html>"
+    )
+    lede = extract_lede(html, max_words=50)
+    assert lede.startswith("The agency approved the merger on Monday")
+
+
+def test_extract_lede_jsonld_graph_description_fallback():
+    """When no articleBody exists, an article node's description in @graph is used."""
+    html = (
+        '<html><head><script type="application/ld+json">'
+        '{"@graph":[{"@type":"WebPage"},'
+        '{"@type":"Article","description":"A short official description of the story."}]}'
+        "</script></head><body></body></html>"
+    )
+    assert extract_lede(html, max_words=50) == "A short official description of the story."
+
+
+def test_extract_lede_ends_on_sentence_boundary():
+    """A budget that lands mid-paragraph backs up to the last full sentence."""
+    p = (
+        "Alpha beta gamma delta epsilon zeta eta theta iota kappa. "
+        "Lambda mu nu xi omicron pi rho sigma tau upsilon. "
+        "Phi chi psi omega alpha beta gamma delta epsilon zeta."
+    )
+    html = f"<html><body><article><p>{p}</p></article></body></html>"
+    lede = extract_lede(html, max_words=25)
+    assert lede.endswith(".") and not lede.endswith("…")
+
+
 def test_resolve_google_news_url_ignores_non_gnews():
     """A normal publisher URL isn't a Google News redirect — returns None, no network."""
     assert resolve_google_news_url("https://openai.com/index/some-post") is None

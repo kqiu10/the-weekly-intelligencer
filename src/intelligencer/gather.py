@@ -88,7 +88,7 @@ def _gather_dimension(
     discover_og: bool,
     newsapi: NewsApiClient | None,
     today: _dt.date,
-    blurb_words: int = 160,
+    blurb_words: int = 50,
 ) -> DimensionContent:
     items: list[Item] = []
     notes: list[str] = []
@@ -202,7 +202,7 @@ def build_manifest(
         week=week,
     )
     newsapi = _make_newsapi_client(config)
-    blurb_words = int(config.defaults.get("blurb_words", 160))
+    blurb_words = int(config.defaults.get("blurb_words", 50))
     dimensions = [
         _gather_dimension(
             d, discover_og=discover_og, newsapi=newsapi, today=today, blurb_words=blurb_words

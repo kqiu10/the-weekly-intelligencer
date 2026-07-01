@@ -61,10 +61,13 @@ the link and its `og:image` work) and drops any preview image repeated across it
 each story shows its own picture — or none, rather than boilerplate.
 
 From that same article page, fetch also pulls the story's own **lede** — its first
-`defaults.blurb_words` words (default 160), verbatim, the way a newspaper reprints a
-wire story's opening rather than paraphrasing it. If a page can't be read (scraper-blocked
-or JS-rendered), the feed's own text is kept. A blurb that merely repeats the headline
-(as Google News' "Headline — Publisher" does) is hidden, never printed twice.
+`defaults.blurb_words` words (default 50, NYT-brief length; ~40–60), verbatim, the way a
+newspaper reprints a wire story's opening rather than paraphrasing it, ending on a whole
+sentence. It reads the leading paragraphs, and for JavaScript-rendered pages (no readable
+`<p>` body) falls back to the page's `NewsArticle` JSON-LD (article body, else the
+publisher's description). If even that is missing (a hard scraper block), the item shows
+its headline only — a blurb that merely repeats the headline (as Google News'
+"Headline — Publisher" does) is hidden, never printed twice.
 
 | Source `type`   | Gathered by        | Token cost |
 |-----------------|--------------------|------------|

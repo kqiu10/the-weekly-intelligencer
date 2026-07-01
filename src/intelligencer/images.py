@@ -6,6 +6,7 @@ import hashlib
 import json
 import logging
 import mimetypes
+import re
 from pathlib import Path
 from urllib.parse import quote, urljoin, urlparse
 
@@ -160,15 +161,28 @@ _LEDE_SKIP_HINTS = (
 )
 
 
-def extract_lede(html: str | bytes, max_words: int = 160) -> str | None:
-    """Return the article's own opening (up to ``max_words`` words) — its lede,
-    verbatim, *not* a generated summary — by joining the first substantive
-    paragraphs. Fail-soft → None when the page exposes no extractable body text
-    (JS-rendered, paywalled, unusual markup)."""
-    soup = BeautifulSoup(html, "html.parser")
-    for tag in soup(list(_LEDE_SKIP_TAGS)):
-        tag.decompose()
-    root = soup.find("article") or soup.find("main") or soup.body or soup
+# JSON-LD article types whose body/description we accept as a lede fallback.
+_ARTICLE_LD_TYPES = {
+    "NewsArticle",
+    "Article",
+    "ReportageNewsArticle",
+    "BlogPosting",
+    "LiveBlogPosting",
+    "AnalysisNewsArticle",
+    "OpinionNewsArticle",
+}
+_SENT_END = re.compile(r"[.!?][\"'”’)\]]?(?=\s|$)")
+
+
+def _clean_text(value: str) -> str:
+    """Strip any tags/entities and collapse whitespace (JSON-LD body may carry
+    HTML entities like ``&mdash;`` or stray markup)."""
+    return " ".join(BeautifulSoup(value, "html.parser").get_text(" ").split())
+
+
+def _lede_from_paragraphs(root, max_words: int) -> str:
+    """Join the leading substantive <p> paragraphs (skipping short captions and
+    boilerplate) until about ``max_words`` words are gathered."""
     parts: list[str] = []
     words = 0
     for para in root.find_all("p"):
@@ -181,16 +195,77 @@ def extract_lede(html: str | bytes, max_words: int = 160) -> str | None:
         words += len(text.split())
         if words >= max_words:
             break
-    all_words = " ".join(parts).split()
-    if not all_words:
+    return " ".join(parts)
+
+
+def _lede_from_structured_data(html: str | bytes) -> str:
+    """Article text from a page's ``NewsArticle`` JSON-LD — the fallback for
+    JavaScript-rendered pages, whose served HTML has no <p> body but still ships
+    a JSON-LD block for SEO. Prefers ``articleBody``, else the ``description``."""
+    soup = BeautifulSoup(html, "html.parser")
+    best_desc = ""
+    for tag in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        try:
+            data = json.loads(tag.string or tag.get_text() or "")
+        except (json.JSONDecodeError, TypeError, ValueError):
+            continue
+        stack = [data]
+        while stack:
+            node = stack.pop()
+            if isinstance(node, list):
+                stack.extend(node)
+                continue
+            if not isinstance(node, dict):
+                continue
+            if isinstance(node.get("@graph"), list):
+                stack.extend(node["@graph"])
+            node_type = node.get("@type", "")
+            types = {node_type} if isinstance(node_type, str) else set(node_type or ())
+            if not (types & _ARTICLE_LD_TYPES):
+                continue
+            body = node.get("articleBody")
+            if isinstance(body, str) and body.strip():
+                return _clean_text(body)
+            desc = node.get("description")
+            if isinstance(desc, str) and desc.strip() and not best_desc:
+                best_desc = _clean_text(desc)
+    return best_desc
+
+
+def _clip_lede(text: str, max_words: int) -> str:
+    """Trim to about ``max_words`` words, ending on a sentence boundary when one
+    falls in range (so short blurbs read cleanly), else a hard cut with an ellipsis."""
+    words = text.split()
+    if len(words) <= max_words:
+        return text.strip()
+    clipped = " ".join(words[:max_words])
+    ends = [m.end() for m in _SENT_END.finditer(clipped)]
+    if ends and ends[-1] >= len(clipped) * 0.6:
+        return clipped[: ends[-1]].strip()
+    return clipped.rstrip(",.;:—- ") + "…"
+
+
+def extract_lede(html: str | bytes, max_words: int = 50) -> str | None:
+    """Return the article's own opening (about ``max_words`` words) — its lede,
+    verbatim, *not* a generated summary. Reads the leading <p> paragraphs and, for
+    JavaScript-rendered pages with no readable body, falls back to the NewsArticle
+    JSON-LD (article body, else the publisher's description). Fail-soft → None."""
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup(list(_LEDE_SKIP_TAGS)):
+        tag.decompose()
+    root = soup.find("article") or soup.find("main") or soup.body or soup
+    text = _lede_from_paragraphs(root, max_words)
+    if len(text.split()) < max_words:  # thin/empty body → try structured data
+        structured = _lede_from_structured_data(html)
+        if len(structured.split()) > len(text.split()):
+            text = structured
+    if not text.strip():
         return None
-    if len(all_words) > max_words:
-        return " ".join(all_words[:max_words]).rstrip(",.;:—- ") + "…"
-    return " ".join(all_words)
+    return _clip_lede(text, max_words)
 
 
 def fetch_article_preview(
-    article_url: str, *, timeout: float = DEFAULT_TIMEOUT, max_words: int = 160
+    article_url: str, *, timeout: float = DEFAULT_TIMEOUT, max_words: int = 50
 ) -> tuple[str | None, str | None]:
     """Fetch an article page once and return ``(og:image URL, lede text)`` —
     either may be None. One request feeds both the preview image and the blurb."""
