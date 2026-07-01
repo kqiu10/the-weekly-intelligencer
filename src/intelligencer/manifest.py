@@ -30,6 +30,9 @@ class DimensionContent:
     notes: list[str] = field(default_factory=list)
     # by-source layout: group label -> dist-relative logo path (assets/logos/<slug>.svg)
     logos: dict[str, str] = field(default_factory=dict)
+    # trend rows for the 🔥 "Heating up" strip: {descriptor, tags, magnitude, heat_tier,
+    # direction, recurring, samples} — populated by the trends step (SPEC §10.2)
+    trends: list[dict] = field(default_factory=list)
 
 
 @dataclass
@@ -58,6 +61,7 @@ class Manifest:
                     "items": [asdict(it) for it in d.items],
                     "notes": d.notes,
                     "logos": d.logos,
+                    "trends": d.trends,
                 }
                 for d in self.dimensions
             ],
@@ -78,6 +82,7 @@ class Manifest:
                     items=items,
                     notes=d.get("notes", []),
                     logos=d.get("logos", {}) or {},
+                    trends=d.get("trends", []) or [],
                 )
             )
         return cls(issue=issue, dimensions=dims)
