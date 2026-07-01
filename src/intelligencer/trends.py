@@ -130,3 +130,36 @@ def save_store(store: TrendStore, path: str | Path) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(store.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
     return path
+
+
+def heat_tier(history: list[int]) -> int:
+    """Flame tier 0–3 from a topic's weekly magnitudes (oldest→newest, incl. this week).
+    "Getting hotter" = recurring AND rising: a first appearance or a flat/cooling topic is 0;
+    a small rise is 1; a big jump (≥2× or +3) is 2; a sustained climb (≥3 consecutive rising
+    weeks reaching magnitude ≥5) is 3."""
+    if len(history) < 2:
+        return 0
+    cur, prev = history[-1], history[-2]
+    if cur <= prev:
+        return 0
+    streak = 0
+    for earlier, later in zip(history, history[1:]):
+        streak = streak + 1 if later > earlier else 0
+    if streak >= 3 and cur >= 5:
+        return 3
+    if cur >= 2 * prev or cur - prev >= 3:
+        return 2
+    return 1
+
+
+def direction(history: list[int]) -> str:
+    """'up' / 'down' / 'flat' for the latest week vs. the one before."""
+    if len(history) < 2:
+        return "flat"
+    cur, prev = history[-1], history[-2]
+    return "up" if cur > prev else "down" if cur < prev else "flat"
+
+
+def recurring(history: list[int]) -> bool:
+    """True once a topic has appeared in more than one issue."""
+    return len(history) >= 2
