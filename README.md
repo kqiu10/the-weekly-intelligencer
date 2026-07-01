@@ -72,11 +72,18 @@ If an article can't be read at all (a hard scraper block, e.g. a Cloudflare 403 
 browser User-Agent can't get past), the item has neither image nor blurb, so it's dropped
 rather than shown as a bare headline — a company simply shows fewer stories (0–2).
 
-| Source `type`   | Gathered by        | Token cost |
-|-----------------|--------------------|------------|
-| `feed`          | script (RSS/Atom)  | none       |
-| `api` (NewsAPI) | script (NewsAPI)   | none       |
-| `search`        | Claude web search  | yes        |
+| Source `type`   | Gathered by                     | Token cost |
+|-----------------|---------------------------------|------------|
+| `feed`          | script (RSS/Atom)               | none       |
+| `site`          | script (scrape official index)  | none       |
+| `api` (NewsAPI) | script (NewsAPI)                | none       |
+| `search`        | Claude web search               | yes        |
+
+A `site` source scrapes a company's own newsroom index (for those without a feed): give
+it the listing `url` (e.g. `https://www.anthropic.com/news`) and, optionally,
+`link_contains` to filter article links (it defaults from the URL path). Fetch collects
+each recent article's link + date from the index, then reads its title, image, and lede
+from the article page — no third-party aggregator involved.
 
 | `summary` mode | Behaviour                          | Token cost |
 |----------------|------------------------------------|------------|

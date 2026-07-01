@@ -18,8 +18,8 @@ steps in order.
 
 ## 1. Gather deterministic sources (no tokens)
 Run `uv run intelligencer fetch`. This writes `out/manifest.json` with the issue metadata
-and the items already gathered from `feed` and `api` sources. `search` sources contribute
-nothing yet — you fill them next.
+and the items already gathered from `feed`, `site` (scraped official newsrooms), and `api`
+sources. `search` sources contribute nothing yet — you fill them next.
 
 ## 2. Fill `search` sources (web search)
 For each dimension that has a `search` source, use the **WebSearch** tool with that

@@ -10,6 +10,7 @@ from intelligencer.images import (
     cache_image,
     extract_lede,
     extract_og_image,
+    extract_title,
     image_from_feed_entry,
     resolve_google_news_url,
 )
@@ -160,6 +161,18 @@ def test_extract_lede_ends_on_sentence_boundary():
     html = f"<html><body><article><p>{p}</p></article></body></html>"
     lede = extract_lede(html, max_words=25)
     assert lede.endswith(".") and not lede.endswith("…")
+
+
+def test_extract_title_prefers_og_then_falls_back():
+    assert (
+        extract_title('<meta property="og:title" content="Real Title"><title>Site | Brand</title>')
+        == "Real Title"
+    )
+    assert (
+        extract_title("<html><head><title>Fallback Title</title></head></html>") == "Fallback Title"
+    )
+    assert extract_title("<html><body><h1>H1 Title</h1></body></html>") == "H1 Title"
+    assert extract_title("<html><body><p>no title anywhere</p></body></html>") == ""
 
 
 def test_resolve_google_news_url_ignores_non_gnews():

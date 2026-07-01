@@ -13,7 +13,7 @@ from urllib.parse import quote, urljoin, urlparse
 import httpx
 from bs4 import BeautifulSoup
 
-from .net import DEFAULT_TIMEOUT, USER_AGENT
+from .net import BROWSER_HEADERS, DEFAULT_TIMEOUT, USER_AGENT
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ def _get_article(article_url: str, timeout: float) -> httpx.Response | None:
     try:
         resp = httpx.get(
             article_url,
-            headers={"User-Agent": USER_AGENT},
+            headers=BROWSER_HEADERS,
             follow_redirects=True,
             timeout=timeout,
         )
@@ -264,17 +264,33 @@ def extract_lede(html: str | bytes, max_words: int = 50) -> str | None:
     return _clip_lede(text, max_words)
 
 
+def extract_title(html: str | bytes) -> str:
+    """The article's own title: og:title (cleanest), else <title>, else the first
+    <h1>. Used for scraped ``site`` sources, which have no feed-supplied title."""
+    soup = BeautifulSoup(html, "html.parser")
+    for attrs in ({"property": "og:title"}, {"name": "twitter:title"}):
+        tag = soup.find("meta", attrs=attrs)
+        if tag and (tag.get("content") or "").strip():
+            return tag["content"].strip()
+    if soup.title and soup.title.get_text(strip=True):
+        return soup.title.get_text(strip=True)
+    h1 = soup.find("h1")
+    return h1.get_text(" ", strip=True) if h1 else ""
+
+
 def fetch_article_preview(
     article_url: str, *, timeout: float = DEFAULT_TIMEOUT, max_words: int = 50
-) -> tuple[str | None, str | None]:
-    """Fetch an article page once and return ``(og:image URL, lede text)`` —
-    either may be None. One request feeds both the preview image and the blurb."""
+) -> tuple[str | None, str | None, str | None]:
+    """Fetch an article page once and return ``(title, og:image URL, lede text)``
+    — any may be None. One request feeds the headline, preview image, and blurb."""
     resp = _get_article(article_url, timeout)
     if resp is None:
-        return None, None
+        return None, None, None
+    html = resp.text
     return (
-        extract_og_image(resp.text, base_url=str(resp.url)),
-        extract_lede(resp.text, max_words),
+        extract_title(html) or None,
+        extract_og_image(html, base_url=str(resp.url)),
+        extract_lede(html, max_words),
     )
 
 

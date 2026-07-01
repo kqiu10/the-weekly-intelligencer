@@ -16,7 +16,8 @@ def test_drop_contentless_keeps_items_with_image_or_blurb():
     has_blurb = Item(title="T2", url="u2", raw_text="A real lede sentence about the news.")
     echo_only = Item(title="T3 - Publisher", url="u3", source="pub.com", raw_text="T3 Publisher")
     bare = Item(title="T4", url="u4")
-    kept = _drop_contentless([has_image, has_blurb, echo_only, bare])
+    no_title = Item(title="", url="u5", image="assets/y.jpg")  # scrape failed to get a title
+    kept = _drop_contentless([has_image, has_blurb, echo_only, bare, no_title])
     assert kept == [has_image, has_blurb]
 
 
@@ -81,7 +82,7 @@ def test_og_discovery_only_probes_kept_items(monkeypatch):
     fixtures = Path(__file__).parent / "fixtures"
     calls: list[str] = []
     monkeypatch.setattr(
-        gather, "fetch_article_preview", lambda url, **k: (calls.append(url), (None, None))[1]
+        gather, "fetch_article_preview", lambda url, **k: (calls.append(url), (None, None, None))[1]
     )
     cfg = Config(
         publication=Publication(title="T"),

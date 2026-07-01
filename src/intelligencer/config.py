@@ -8,19 +8,20 @@ from pathlib import Path
 
 import yaml
 
-VALID_SOURCE_TYPES = {"feed", "api", "search"}
+VALID_SOURCE_TYPES = {"feed", "api", "search", "site"}
 VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
 VALID_LAYOUTS = {"grid", "by-source"}
 
 
 @dataclass
 class Source:
-    type: str  # feed | api | search
+    type: str  # feed | api | search | site
     url: str | None = None
     query: str | None = None
     provider: str | None = None
     label: str | None = None  # by-source layout: the row heading (e.g. a lab name)
     logo: str | None = None  # by-source layout: packaged logo slug (e.g. "openai")
+    link_contains: str | None = None  # site: only follow links whose href holds this
 
 
 @dataclass
@@ -108,6 +109,7 @@ def load_config(path: str | Path) -> Config:
                     provider=s.get("provider"),
                     label=s.get("label"),
                     logo=s.get("logo"),
+                    link_contains=s.get("link_contains"),
                 )
             )
         layout = d.get("layout", "grid")
@@ -163,6 +165,8 @@ def validate_config(config: Config) -> tuple[list[str], list[str]]:
         for src in dim.sources:
             if src.type not in VALID_SOURCE_TYPES:
                 errors.append(f"dimension {dim.name!r}: unknown source type {src.type!r}")
+            if src.type in ("feed", "site") and not src.url:
+                errors.append(f"dimension {dim.name!r}: a {src.type} source has no url")
             if dim.layout == "by-source" and src.type in ("feed", "api") and not src.label:
                 warnings.append(
                     f"dimension {dim.name!r}: a {src.type} source has no label; "

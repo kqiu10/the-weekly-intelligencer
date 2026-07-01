@@ -12,10 +12,12 @@ from __future__ import annotations
 import datetime as _dt
 import logging
 import os
+from urllib.parse import urlparse
 
 from .config import Config, Dimension
 from .feeds import fetch_feed
 from .images import fetch_article_preview, logo_asset_path, resolve_google_news_url
+from .sites import default_link_pattern, list_site_articles
 from .text import item_blurb
 from .manifest import DimensionContent, Issue, Item, Manifest
 from .providers.newsapi import NewsApiClient
@@ -45,12 +47,18 @@ def _parse_iso_date(value: str | None) -> _dt.date | None:
         return None
 
 
+def _domain(url: str) -> str:
+    """Bare publisher host for an article URL (``www.anthropic.com`` → ``anthropic.com``)."""
+    host = urlparse(url).netloc
+    return host[4:] if host.startswith("www.") else host
+
+
 def _drop_contentless(items: list[Item]) -> list[Item]:
-    """Drop items we couldn't give real content: no preview image *and* no blurb
-    (a bare headline + link). Happens when a site hard-blocks our fetch (403), so
-    neither an og:image nor a lede is reachable. A source may end up with fewer
-    items — 0, 1, or up to its cap — which is fine."""
-    return [it for it in items if it.image or item_blurb(it)]
+    """Drop items we couldn't give real content: no title, or neither a preview
+    image nor a blurb (a bare headline + link). Happens when a site hard-blocks
+    our fetch (403), so nothing is reachable. A source may end up with fewer items
+    — 0, 1, or up to its cap — which is fine."""
+    return [it for it in items if it.title.strip() and (it.image or item_blurb(it))]
 
 
 def _drop_boilerplate_images(items: list[Item]) -> None:
@@ -140,6 +148,21 @@ def _gather_dimension(
             src_items.extend(result.items)
             if result.note:
                 notes.append(result.note)
+        elif source.type == "site" and source.url:
+            # Scrape an official newsroom index for (url, date); title/image/lede
+            # are filled from each article by the enrichment pass below.
+            pattern = source.link_contains or default_link_pattern(source.url)
+            for url, published in list_site_articles(source.url, pattern):
+                src_items.append(
+                    Item(
+                        title="",
+                        url=url,
+                        source=_domain(url),
+                        published=published,
+                        origin="site",
+                        group=label,
+                    )
+                )
         # search sources are filled by the SKILL.md orchestrator
 
         # Strict recency window (e.g. past 7 days), most-recent first. Also fixes
@@ -169,12 +192,14 @@ def _gather_dimension(
     # items fall through to og:image discovery instead of showing a shared picture.
     _drop_boilerplate_images(items)
     if discover_og:
-        # One fetch per article yields both its preview image and its lede — the
-        # article's own opening words (NYT-style), which replace thin feed text
-        # like Google News' "Headline — Publisher".
+        # One fetch per article yields its title, preview image, and lede — the
+        # article's own opening words (NYT-style). For `site` items this supplies
+        # the title too; for feeds it replaces thin text like "Headline — Publisher".
         for item in items:
-            if item.origin == "feed" and item.url:
-                og_image, lede = fetch_article_preview(item.url, max_words=blurb_words)
+            if item.origin in ("feed", "site") and item.url:
+                title, og_image, lede = fetch_article_preview(item.url, max_words=blurb_words)
+                if title and not item.title:
+                    item.title = title
                 if og_image and not item.image:
                     item.image = og_image
                 if lede:
