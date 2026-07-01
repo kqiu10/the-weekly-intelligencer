@@ -29,9 +29,15 @@ dimensions:
       - { type: site, label: "Meta",            logo: "meta",      url: "https://ai.meta.com/blog/" }                                        # official AI blog (scraped)
       - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # official site is client-only → Google News
 
-  # - name: "Social Platform AI Trends"
-  #   blurb: "What's going viral in AI on social"
-  #   summary: raw
-  #   sources:
-  #     - { type: search, query: "TikTok Instagram AI viral trend this week" }
+  - name: "Trending AI Generative Context & Social Video"
+    blurb: "The week's most-shared AI-generated photos and videos across social platforms"
+    summary: rewrite
+    layout: by-source              # one card per platform; empty platforms are skipped
+    max_per_source: 2              # at most 2 posts per platform
+    within_days: 7                 # only the past 7 days
+    sources:                       # filled in-session by Claude web search (no open API for most)
+      - { type: search, label: "YouTube Shorts", logo: "youtube",   query: "trending AI-generated video YouTube Shorts this week" }
+      - { type: search, label: "TikTok",         logo: "tiktok",    query: "viral AI-generated video TikTok this week" }
+      - { type: search, label: "Instagram",      logo: "instagram", query: "viral AI-generated reel Instagram this week" }
+      - { type: search, label: "Facebook",       logo: "facebook",  query: "viral AI-generated video Facebook this week" }
 

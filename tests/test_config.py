@@ -1,8 +1,30 @@
 """B3: configuration validation."""
 
+from pathlib import Path
+
 import pytest
 
 from intelligencer.config import load_config, validate_config
+
+CONFIG = Path(__file__).parent.parent / "config" / "dimensions.yaml"
+
+
+def test_shipped_config_has_valid_social_video_dimension():
+    cfg = load_config(CONFIG)
+    errors, _ = validate_config(cfg)
+    assert errors == []
+    social = next(
+        (d for d in cfg.dimensions if d.name == "Trending AI Generative Context & Social Video"),
+        None,
+    )
+    assert social is not None, "the social-video dimension is missing from the shipped config"
+    assert social.layout == "by-source"
+    assert [(s.type, s.label, s.logo) for s in social.sources] == [
+        ("search", "YouTube Shorts", "youtube"),
+        ("search", "TikTok", "tiktok"),
+        ("search", "Instagram", "instagram"),
+        ("search", "Facebook", "facebook"),
+    ]
 
 
 def _write(tmp_path, text):
