@@ -110,6 +110,45 @@ def test_by_source_renders_company_logo_when_present():
     assert ">xAI<" in html
 
 
+def test_blurb_hides_title_echoes_shows_real_lede():
+    from intelligencer.manifest import Item
+    from intelligencer.render import _blurb
+
+    # raw_text is just the headline (punctuation aside) -> nothing to show
+    assert (
+        _blurb(
+            Item(
+                title="Grok 4.5 Enters Beta - BASENOR",
+                url="u",
+                source="basenor.com",
+                raw_text="Grok 4.5 Enters Beta BASENOR",
+            )
+        )
+        == ""
+    )
+    # "Headline Publisher-name" echo -> hidden via title+source check
+    assert (
+        _blurb(
+            Item(title="Big News", url="u", source="Example News", raw_text="Big News Example News")
+        )
+        == ""
+    )
+    # empty when there's no text at all
+    assert _blurb(Item(title="X", url="u", raw_text="", summary="")) == ""
+    # a real lede is shown, and a written summary wins over raw_text
+    assert _blurb(
+        Item(
+            title="Grok 4.5 Enters Beta",
+            url="u",
+            source="basenor.com",
+            raw_text="Elon Musk posted a single word late Monday night.",
+        )
+    ).startswith("Elon Musk")
+    assert _blurb(Item(title="X", url="u", raw_text="raw lede", summary="written summary")) == (
+        "written summary"
+    )
+
+
 def test_render_issue_copies_company_logos_into_dist(tmp_path):
     """render_issue makes the issue self-contained: referenced logos land in dist/."""
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest

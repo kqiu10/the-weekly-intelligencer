@@ -22,8 +22,8 @@
     <p class="kicker">{{ dimensions[0].name }}</p>
     {% if lead.image %}<img class="lead-image" src="{{ lead.image }}" alt="">{% endif %}
     <h2 class="lead-title"><a href="{{ lead.url }}">{{ lead.title }}</a></h2>
-    {% if lead.summary %}<p class="lead-summary">{{ lead.summary }}</p>
-    {% elif lead.raw_text %}<p class="lead-summary">{{ lead.raw_text }}</p>{% endif %}
+    {% set lead_blurb = lead | blurb %}
+    {% if lead_blurb %}<p class="lead-summary">{{ lead_blurb }}</p>{% endif %}
     {% if lead.source %}<p class="item-source">{{ lead.source }}</p>{% endif %}
   </article>
   {% endif %}
@@ -49,8 +49,8 @@
             <article class="item">
               {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
               <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h5>
-              {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
-              {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
+              {% set item_blurb = item | blurb %}
+              {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
               <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
             </article>
             {% endfor %}
@@ -65,8 +65,8 @@
         <article class="item">
           {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
           <h4 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h4>
-          {% if item.summary %}<p class="item-summary">{{ item.summary }}</p>
-          {% elif item.raw_text %}<p class="item-summary">{{ item.raw_text }}</p>{% endif %}
+          {% set item_blurb = item | blurb %}
+          {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
           {% if item.source %}<p class="item-source">{{ item.source }}</p>{% endif %}
         </article>
         {% endif %}

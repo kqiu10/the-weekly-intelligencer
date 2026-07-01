@@ -11,6 +11,7 @@ output:
 defaults:
   summary: rewrite                 # raw | rewrite | synthesize
   max_items: 5
+  blurb_words: 160                 # words of the article's own lede to pull as each item's blurb
 
 providers:                         # settings for keyed `api` sources (keys live in .env)
   newsapi:

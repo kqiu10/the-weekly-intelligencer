@@ -15,7 +15,7 @@ import os
 
 from .config import Config, Dimension
 from .feeds import fetch_feed
-from .images import fetch_og_image_url, logo_asset_path, resolve_google_news_url
+from .images import fetch_article_preview, logo_asset_path, resolve_google_news_url
 from .manifest import DimensionContent, Issue, Item, Manifest
 from .providers.newsapi import NewsApiClient
 
@@ -83,7 +83,12 @@ def _make_newsapi_client(config: Config) -> NewsApiClient | None:
 
 
 def _gather_dimension(
-    dim: Dimension, *, discover_og: bool, newsapi: NewsApiClient | None, today: _dt.date
+    dim: Dimension,
+    *,
+    discover_og: bool,
+    newsapi: NewsApiClient | None,
+    today: _dt.date,
+    blurb_words: int = 160,
 ) -> DimensionContent:
     items: list[Item] = []
     notes: list[str] = []
@@ -155,9 +160,16 @@ def _gather_dimension(
     # items fall through to og:image discovery instead of showing a shared picture.
     _drop_boilerplate_images(items)
     if discover_og:
+        # One fetch per article yields both its preview image and its lede — the
+        # article's own opening words (NYT-style), which replace thin feed text
+        # like Google News' "Headline — Publisher".
         for item in items:
-            if not item.image and item.origin == "feed" and item.url:
-                item.image = fetch_og_image_url(item.url)
+            if item.origin == "feed" and item.url:
+                og_image, lede = fetch_article_preview(item.url, max_words=blurb_words)
+                if og_image and not item.image:
+                    item.image = og_image
+                if lede:
+                    item.raw_text = lede
         # An og:image can itself be a publisher-wide default reused across items.
         _drop_boilerplate_images(items)
 
@@ -190,8 +202,11 @@ def build_manifest(
         week=week,
     )
     newsapi = _make_newsapi_client(config)
+    blurb_words = int(config.defaults.get("blurb_words", 160))
     dimensions = [
-        _gather_dimension(d, discover_og=discover_og, newsapi=newsapi, today=today)
+        _gather_dimension(
+            d, discover_og=discover_og, newsapi=newsapi, today=today, blurb_words=blurb_words
+        )
         for d in config.dimensions
     ]
     return Manifest(issue=issue, dimensions=dimensions)

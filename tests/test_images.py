@@ -8,6 +8,7 @@ import feedparser
 from intelligencer.images import (
     _parse_batchexecute_url,
     cache_image,
+    extract_lede,
     extract_og_image,
     image_from_feed_entry,
     resolve_google_news_url,
@@ -87,6 +88,42 @@ def test_og_fetch_500_warns(monkeypatch, caplog):
 
     assert result is None
     assert any(r.levelno >= logging.WARNING for r in caplog.records)
+
+
+_ARTICLE_HTML = """
+<html><body>
+  <nav><p>Home — About — Subscribe now to our daily newsletter for more</p></nav>
+  <article>
+    <p>Byline</p>
+    <p>The company announced on Tuesday a sweeping new policy that will reshape
+       how its largest models are trained and deployed across the whole industry.</p>
+    <p>Analysts said the move could pressure rivals to follow, though questions
+       about cost and safety remain unanswered for the moment.</p>
+  </article>
+</body></html>
+"""
+
+
+def test_extract_lede_joins_body_paragraphs_and_truncates():
+    lede = extract_lede(_ARTICLE_HTML, max_words=10)
+    words = lede.split()
+    assert words[:4] == ["The", "company", "announced", "on"]
+    assert len(words) == 10
+    assert words[-1].endswith("…")
+    assert "Subscribe" not in lede  # nav boilerplate skipped
+    assert "Byline" not in lede  # short paragraph skipped
+
+
+def test_extract_lede_no_truncation_when_short():
+    lede = extract_lede(_ARTICLE_HTML, max_words=500)
+    assert not lede.endswith("…")
+    assert lede.startswith("The company announced")
+    assert "Analysts said the move" in lede
+
+
+def test_extract_lede_none_when_no_body_text():
+    assert extract_lede("<html><body><div>no paragraphs here at all</div></body></html>") is None
+    assert extract_lede("<html><body><p>tiny</p></body></html>") is None
 
 
 def test_resolve_google_news_url_ignores_non_gnews():

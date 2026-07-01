@@ -107,13 +107,10 @@ def image_from_feed_entry(entry) -> str | None:
     return None
 
 
-def fetch_og_image_url(article_url: str, *, timeout: float = DEFAULT_TIMEOUT) -> str | None:
-    """Fetch an article page and return its og:image URL. Fail-soft → None.
-
-    A scraper block (e.g. Cloudflare 403) or a missing page simply means there is
-    no fetchable preview image; that is logged at debug, not as a warning, so a
-    normal run isn't buried in expected noise.
-    """
+def _get_article(article_url: str, timeout: float) -> httpx.Response | None:
+    """GET an article page, fail-soft → None. Expected blocks/absences
+    (Cloudflare 403, missing page, …) are logged at debug, not as a warning, so a
+    normal run isn't buried in expected noise; anything else warns."""
     try:
         resp = httpx.get(
             article_url,
@@ -125,12 +122,85 @@ def fetch_og_image_url(article_url: str, *, timeout: float = DEFAULT_TIMEOUT) ->
     except httpx.HTTPStatusError as exc:
         code = exc.response.status_code
         level = logging.DEBUG if code in _BLOCKED_STATUS else logging.WARNING
-        logger.log(level, "no og:image for %s (HTTP %s)", article_url, code)
+        logger.log(level, "article fetch failed for %s (HTTP %s)", article_url, code)
         return None
     except Exception as exc:  # noqa: BLE001 - network/timeout, fail soft
-        logger.warning("og:image fetch failed for %s: %s", article_url, exc)
+        logger.warning("article fetch failed for %s: %s", article_url, exc)
         return None
-    return extract_og_image(resp.text, base_url=str(resp.url))
+    return resp
+
+
+def fetch_og_image_url(article_url: str, *, timeout: float = DEFAULT_TIMEOUT) -> str | None:
+    """Fetch an article page and return its og:image URL. Fail-soft → None."""
+    resp = _get_article(article_url, timeout)
+    return extract_og_image(resp.text, base_url=str(resp.url)) if resp is not None else None
+
+
+_LEDE_SKIP_TAGS = (
+    "script",
+    "style",
+    "nav",
+    "header",
+    "footer",
+    "aside",
+    "form",
+    "figure",
+    "figcaption",
+    "noscript",
+    "button",
+)
+_LEDE_SKIP_HINTS = (
+    "cookie",
+    "subscribe",
+    "sign up",
+    "advertisement",
+    "newsletter",
+    "all rights reserved",
+    "©",
+)
+
+
+def extract_lede(html: str | bytes, max_words: int = 160) -> str | None:
+    """Return the article's own opening (up to ``max_words`` words) — its lede,
+    verbatim, *not* a generated summary — by joining the first substantive
+    paragraphs. Fail-soft → None when the page exposes no extractable body text
+    (JS-rendered, paywalled, unusual markup)."""
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup(list(_LEDE_SKIP_TAGS)):
+        tag.decompose()
+    root = soup.find("article") or soup.find("main") or soup.body or soup
+    parts: list[str] = []
+    words = 0
+    for para in root.find_all("p"):
+        text = " ".join(para.get_text(" ", strip=True).split())
+        if len(text) < 40:  # skip captions, bylines, and other short boilerplate
+            continue
+        if any(hint in text.lower() for hint in _LEDE_SKIP_HINTS):
+            continue
+        parts.append(text)
+        words += len(text.split())
+        if words >= max_words:
+            break
+    all_words = " ".join(parts).split()
+    if not all_words:
+        return None
+    if len(all_words) > max_words:
+        return " ".join(all_words[:max_words]).rstrip(",.;:—- ") + "…"
+    return " ".join(all_words)
+
+
+def fetch_article_preview(
+    article_url: str, *, timeout: float = DEFAULT_TIMEOUT, max_words: int = 160
+) -> tuple[str | None, str | None]:
+    """Fetch an article page once and return ``(og:image URL, lede text)`` —
+    either may be None. One request feeds both the preview image and the blurb."""
+    resp = _get_article(article_url, timeout)
+    if resp is None:
+        return None, None
+    return (
+        extract_og_image(resp.text, base_url=str(resp.url)),
+        extract_lede(resp.text, max_words),
+    )
 
 
 _GNEWS_BATCHEXECUTE = "https://news.google.com/_/DotsSplashUi/data/batchexecute"

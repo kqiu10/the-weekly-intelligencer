@@ -64,7 +64,9 @@ def test_og_discovery_only_probes_kept_items(monkeypatch):
 
     fixtures = Path(__file__).parent / "fixtures"
     calls: list[str] = []
-    monkeypatch.setattr(gather, "fetch_og_image_url", lambda url, **k: calls.append(url) or None)
+    monkeypatch.setattr(
+        gather, "fetch_article_preview", lambda url, **k: (calls.append(url), (None, None))[1]
+    )
     cfg = Config(
         publication=Publication(title="T"),
         output=Output(),

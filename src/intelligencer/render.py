@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -9,6 +10,28 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from .manifest import Manifest
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
+
+_NORM = re.compile(r"[^a-z0-9]+")
+
+
+def _normkey(text: str) -> str:
+    """Collapse text to lowercase alphanumerics for loose equality checks."""
+    return _NORM.sub("", (text or "").lower())
+
+
+def _blurb(item) -> str:
+    """The blurb to show under a headline: the item's summary or raw lede — but
+    empty when that text just echoes the headline (or 'Headline — Publisher',
+    as Google News feeds give), so we never print the title twice."""
+    text = (getattr(item, "summary", "") or getattr(item, "raw_text", "") or "").strip()
+    if not text:
+        return ""
+    key = _normkey(text)
+    title = getattr(item, "title", "") or ""
+    source = getattr(item, "source", "") or ""
+    if key in (_normkey(title), _normkey(f"{title} {source}")):
+        return ""
+    return text
 
 
 def _groupby_order(items, attr):
@@ -32,6 +55,7 @@ def _env() -> Environment:
         autoescape=select_autoescape(["html", "xml", "j2"]),
     )
     env.filters["groupby_order"] = _groupby_order
+    env.filters["blurb"] = _blurb
     return env
 
 
