@@ -37,8 +37,8 @@ dimensions:
     max_per_source: 2              # at most 2 posts per platform
     within_days: 7                 # only the past 7 days
     trends: true                   # track 🔥 context hotness across issues (SPEC §10.2)
-    sources:                       # filled in-session by Claude web search (no open API for most)
-      - { type: search, label: "YouTube Shorts", logo: "youtube",   query: "trending AI-generated video YouTube Shorts this week" }
+    sources:                       # YouTube via first-party Data API; the rest filled in-session by Claude web search
+      - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "AI generated" }   # Data API; needs YOUTUBE_API_KEY, skipped if unset
       - { type: search, label: "TikTok",         logo: "tiktok",    query: "viral AI-generated video TikTok this week" }
       - { type: search, label: "Instagram",      logo: "instagram", query: "viral AI-generated reel Instagram this week" }
       - { type: search, label: "Facebook",       logo: "facebook",  query: "viral AI-generated video Facebook this week" }

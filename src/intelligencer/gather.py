@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import logging
+import os
 from urllib.parse import urlparse
 
 from .config import Config, Dimension
@@ -19,6 +20,7 @@ from .images import fetch_article_preview, logo_asset_path, resolve_google_news_
 from .sites import default_link_pattern, list_site_articles
 from .text import item_blurb
 from .manifest import DimensionContent, Issue, Item, Manifest
+from .youtube import fetch_youtube
 
 logger = logging.getLogger(__name__)
 
@@ -154,15 +156,30 @@ def _gather_dimension(
                         group=label,
                     )
                 )
+        elif source.type == "youtube":
+            # First-party YouTube Data API (deterministic). Fetch a candidate pool of the
+            # most-viewed short videos in the window; Claude prunes it to the genuinely
+            # AI-generated ones at the write stage. No key → fetch_youtube returns [].
+            within = dim.within_days if dim.within_days is not None else 7
+            since = today - _dt.timedelta(days=within)
+            cap = dim.max_per_source or dim.max_items or 5
+            src_items = fetch_youtube(
+                source.query or "",
+                published_after=f"{since.isoformat()}T00:00:00Z",
+                max_results=min(max(cap * 2, 4), 50),
+                api_key=os.environ.get("YOUTUBE_API_KEY"),
+                group=label or "YouTube Shorts",
+            )
         # search sources are filled by the SKILL.md orchestrator
 
         # Keep only items inside the recency window (e.g. past 7 days), preserving
         # the feed's own order (relevance for Google News, recency for RSS).
         if dim.within_days is not None:
             src_items = _select_in_window(src_items, today, dim.within_days)
-        # Cap each source independently (by-source layout); a source with no items
-        # contributes nothing and its row is simply never rendered.
-        if dim.max_per_source is not None:
+        # Cap each deterministic source independently (by-source layout); a source with no
+        # items contributes nothing and its row is simply never rendered. A youtube source
+        # is left uncapped — it is a candidate pool that Claude prunes at the write stage.
+        if dim.max_per_source is not None and source.type != "youtube":
             src_items = src_items[: dim.max_per_source]
         items.extend(src_items)
 
