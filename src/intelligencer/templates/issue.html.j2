@@ -11,8 +11,8 @@
     <h1 class="masthead-title">{{ issue.title }}</h1>
     {% if issue.subtitle %}<p class="masthead-subtitle">{{ issue.subtitle }}</p>{% endif %}
     <div class="masthead-rule">
-      <span>Week {{ issue.week }}</span>
-      <span>{{ issue.date }}</span>
+      <span>Issue {{ issue.week }}</span>
+      <span>{{ issue | week_range }}</span>
     </div>
   </header>
 
@@ -78,7 +78,7 @@
   </main>
 
   <footer class="colophon">
-    <p>{{ issue.title }} · Week {{ issue.week }} · {{ issue.date }}</p>
+    <p>{{ issue.title }} · Issue {{ issue.week }} · {{ issue | week_range }}</p>
   </footer>
 </body>
 </html>

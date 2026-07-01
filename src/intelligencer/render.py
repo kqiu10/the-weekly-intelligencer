@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from .gather import issue_week_range
 from .manifest import Manifest
 from .text import item_blurb
 
@@ -27,6 +29,16 @@ def _groupby_order(items, attr):
     return groups
 
 
+def _week_range_label(issue) -> str:
+    """Human label for the Mon–Sun week an issue covers, e.g. 'Jun 22 – Jun 28, 2026'."""
+    try:
+        start_iso, end_iso = issue_week_range(issue.date)
+    except (ValueError, TypeError, AttributeError):
+        return ""
+    start, end = date.fromisoformat(start_iso), date.fromisoformat(end_iso)
+    return f"{start:%b} {start.day} – {end:%b} {end.day}, {end:%Y}"
+
+
 def _env() -> Environment:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
@@ -34,6 +46,7 @@ def _env() -> Environment:
     )
     env.filters["groupby_order"] = _groupby_order
     env.filters["blurb"] = item_blurb
+    env.filters["week_range"] = _week_range_label
     return env
 
 

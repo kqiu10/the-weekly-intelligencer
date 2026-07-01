@@ -8,6 +8,7 @@ from intelligencer.gather import (
     _select_in_window,
     build_manifest,
     issue_week_number,
+    issue_week_range,
 )
 from intelligencer.manifest import Item
 
@@ -79,6 +80,15 @@ def test_numbering_is_calendar_week_not_rolling_from_anchor():
     # 2026-07-01 (Wed) is in the second Mon–Sun week → Week 2. A rolling 7-day count
     # from the Friday anchor would wrongly still call it Week 1.
     assert issue_week_number("2026-06-26", "2026-07-01") == 2
+
+
+def test_issue_week_range_is_the_containing_mon_sun_week():
+    # Fri 2026-06-26 → its week runs Mon 06-22 .. Sun 06-28
+    assert issue_week_range("2026-06-26") == ("2026-06-22", "2026-06-28")
+    # Wed 2026-07-01 → Mon 06-29 .. Sun 07-05
+    assert issue_week_range("2026-07-01") == ("2026-06-29", "2026-07-05")
+    # a Sunday is the end of its week, not the start of the next
+    assert issue_week_range("2026-06-28") == ("2026-06-22", "2026-06-28")
 
 
 def test_raw_summary_uses_feed_text():

@@ -44,6 +44,15 @@ def issue_week_number(first_issue_date: str | None, issue_date: str) -> int:
     return max((current_monday - first_monday).days // 7, 0) + 1
 
 
+def issue_week_range(issue_date: str) -> tuple[str, str]:
+    """The Mon–Sun calendar week (start, end as ISO dates) that ``issue_date`` falls
+    in — the same week the issue is numbered by, so 'Issue N' and this range agree."""
+    current = _dt.date.fromisoformat(issue_date)
+    monday = current - _dt.timedelta(days=current.weekday())
+    sunday = monday + _dt.timedelta(days=6)
+    return monday.isoformat(), sunday.isoformat()
+
+
 def _parse_iso_date(value: str | None) -> _dt.date | None:
     if not value:
         return None
