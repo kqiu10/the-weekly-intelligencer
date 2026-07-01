@@ -25,11 +25,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_fetch = sub.add_parser("fetch", help="Gather deterministic sources into a manifest")
     p_fetch.add_argument("--config", default="config/dimensions.yaml", help="config file path")
     p_fetch.add_argument("--dry-run", action="store_true", help="fetch without writing caches")
+    p_fetch.add_argument(
+        "--only", help="only gather dimensions whose name contains this (case-insensitive)"
+    )
 
     p_render = sub.add_parser("render", help="Render a manifest into a self-contained HTML issue")
     p_render.add_argument("--config", default="config/dimensions.yaml", help="config file path")
     p_render.add_argument(
         "--open", action="store_true", dest="open_after", help="open the issue when done"
+    )
+    p_render.add_argument(
+        "--only", help="only render dimensions whose name contains this (case-insensitive)"
     )
 
     p_validate = sub.add_parser("validate", help="Validate the configuration file")
@@ -40,11 +46,24 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _select_dimensions(dimensions: list, only: str | None) -> list:
+    """Dimensions whose name contains ``only`` (case-insensitive); all of them when
+    ``only`` is empty. ``--only`` narrows fetch/render to one section for quick iteration."""
+    if not only:
+        return dimensions
+    needle = only.lower()
+    return [d for d in dimensions if needle in d.name.lower()]
+
+
 def _cmd_fetch(args: argparse.Namespace) -> int:
     from .config import load_config
     from .gather import build_manifest
 
     cfg = load_config(args.config)
+    cfg.dimensions = _select_dimensions(cfg.dimensions, args.only)
+    if not cfg.dimensions:
+        print(f"no dimensions match --only {args.only!r}", file=sys.stderr)
+        return 1
     manifest = build_manifest(cfg, discover_og=True)
     path = manifest.write(MANIFEST_PATH)
     n = sum(len(d.items) for d in manifest.dimensions)
@@ -63,6 +82,10 @@ def _cmd_render(args: argparse.Namespace) -> int:
 
     cfg = load_config(args.config)
     manifest = Manifest.read(MANIFEST_PATH)
+    manifest.dimensions = _select_dimensions(manifest.dimensions, args.only)
+    if not manifest.dimensions:
+        print(f"no dimensions match --only {args.only!r}", file=sys.stderr)
+        return 1
     out = render_issue(manifest, cfg.output.dir, images=cfg.output.images)
     print(f"wrote {out}")
     if getattr(args, "open_after", False):
