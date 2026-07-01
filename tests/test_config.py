@@ -44,6 +44,9 @@ dimensions:
   - name: Beta
     summary: rewrite
     sources: [{type: search, query: "x"}]
+  - name: Gamma
+    layout: by-source
+    sources: [{type: youtube, label: "YouTube Shorts", logo: youtube, query: "AI video"}]
 """
 
 
@@ -70,6 +73,14 @@ dimensions:
 publication: {title: T}
 dimensions:
   - {name: A, sources: [{type: bogus, url: "http://x"}]}
+""",
+        ),
+        (
+            "no query",
+            """
+publication: {title: T}
+dimensions:
+  - {name: A, sources: [{type: youtube, label: X, logo: youtube}]}
 """,
         ),
         (

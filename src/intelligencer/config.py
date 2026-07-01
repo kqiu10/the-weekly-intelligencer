@@ -7,14 +7,14 @@ from pathlib import Path
 
 import yaml
 
-VALID_SOURCE_TYPES = {"feed", "search", "site"}
+VALID_SOURCE_TYPES = {"feed", "search", "site", "youtube"}
 VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
 VALID_LAYOUTS = {"grid", "by-source"}
 
 
 @dataclass
 class Source:
-    type: str  # feed | search | site
+    type: str  # feed | search | site | youtube
     url: str | None = None
     query: str | None = None
     label: str | None = None  # by-source layout: the row heading (e.g. a lab name)
@@ -164,6 +164,8 @@ def validate_config(config: Config) -> tuple[list[str], list[str]]:
                 errors.append(f"dimension {dim.name!r}: unknown source type {src.type!r}")
             if src.type in ("feed", "site") and not src.url:
                 errors.append(f"dimension {dim.name!r}: a {src.type} source has no url")
+            if src.type == "youtube" and not src.query:
+                errors.append(f"dimension {dim.name!r}: a youtube source has no query")
             if dim.layout == "by-source" and src.type == "feed" and not src.label:
                 warnings.append(
                     f"dimension {dim.name!r}: a {src.type} source has no label; "
