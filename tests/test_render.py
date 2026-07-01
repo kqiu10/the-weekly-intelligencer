@@ -28,6 +28,14 @@ def test_tldr_renders_above_sections_when_present_and_omitted_when_empty():
     assert 'class="tldr"' not in hidden
 
 
+def test_social_platform_logos_are_packaged():
+    from intelligencer.images import LOGO_DIR, logo_asset_path
+
+    for slug in ("youtube", "tiktok", "instagram", "facebook"):
+        assert logo_asset_path(slug) == f"assets/logos/{slug}.svg"
+        assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
+
+
 def test_by_source_renders_labeled_rows_with_source_and_date():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 
