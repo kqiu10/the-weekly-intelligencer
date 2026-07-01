@@ -90,7 +90,9 @@ config's per-source `logo` slug — **keep it as-is, don't hand-edit it.** For t
 Run `uv run intelligencer trends`. This records each context's `magnitude` into the committed
 `data/trends.json` time-series and annotates every trend topic with its `heat_tier` (0–3
 flames), `direction`, and `recurring` flag by comparing against prior weeks. Commit
-`data/trends.json` afterward so the history persists (trends need a few weeks to warm up).
+`data/trends.json` afterward so the history persists (trends need a few weeks to warm up) —
+use a Conventional-Commits subject like `chore(trends): record week N magnitudes` (a bare
+`data:` type is rejected by the commit-message hook).
 
 ## 6. Render
 Run `uv run intelligencer render` (add `--open` to open it). Report the output path,
