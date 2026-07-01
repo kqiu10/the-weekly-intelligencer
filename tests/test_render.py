@@ -28,29 +28,31 @@ def test_tldr_renders_above_sections_when_present_and_omitted_when_empty():
     assert 'class="tldr"' not in hidden
 
 
-def test_trend_strip_renders_flames_per_heat_tier():
+def test_trend_strip_shows_only_heating_rows_and_hides_when_none():
     from intelligencer.manifest import DimensionContent, Issue, Manifest
 
-    dim = DimensionContent(
-        name="Social",
-        layout="by-source",
-        trends=[
-            {"descriptor": "AI cats flying jets", "heat_tier": 3, "direction": "up"},
-            {"descriptor": "singing dogs", "heat_tier": 1, "direction": "up"},
-        ],
+    def render(trends):
+        dim = DimensionContent(name="Social", layout="by-source", trends=trends)
+        return render_html(Manifest(issue=Issue(date="2026-07-06", title="T"), dimensions=[dim]))
+
+    # heating rows render one flame glyph per tier; a zero-heat row is suppressed
+    html = render(
+        [
+            {"descriptor": "AI cats flying jets", "heat_tier": 3},
+            {"descriptor": "singing dogs", "heat_tier": 1},
+            {"descriptor": "cold context", "heat_tier": 0},
+        ]
     )
-    html = render_html(Manifest(issue=Issue(date="2026-07-06", title="T"), dimensions=[dim]))
     assert 'class="trend-strip"' in html
     assert "AI cats flying jets" in html and "singing dogs" in html
-    assert html.count('class="flame"') == 4  # 3 flames + 1 flame
-    # a dimension without trends renders no strip
-    plain = render_html(
-        Manifest(
-            issue=Issue(date="2026-07-06", title="T"),
-            dimensions=[DimensionContent(name="Labs", layout="by-source")],
-        )
-    )
-    assert 'class="trend-strip"' not in plain
+    assert "cold context" not in html  # zero-heat rows are hidden
+    assert html.count('class="flame"') == 4  # 3 + 1; none for the suppressed row
+
+    # cold-start week — every context is heat_tier 0 → no strip and no flame symbol
+    cold = render([{"descriptor": "brand new", "heat_tier": 0}])
+    assert 'class="trend-strip"' not in cold and 'id="flame"' not in cold
+    # a dimension with no trends also renders no strip
+    assert 'class="trend-strip"' not in render([])
 
 
 def test_social_platform_logos_are_packaged():

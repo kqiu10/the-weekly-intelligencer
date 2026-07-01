@@ -7,7 +7,7 @@
   <style>{{ css | safe }}</style>
 </head>
 <body>
-  {% if dimensions | selectattr("trends") | first %}
+  {% if dimensions | sum(attribute="trends", start=[]) | selectattr("heat_tier") | first %}
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="flame" viewBox="0 0 24 24"><path fill="#e8291c" d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></symbol></svg>
   {% endif %}
   <header class="masthead">
@@ -45,11 +45,11 @@
       <h3 class="dimension-name">{{ dim.name }}</h3>
       {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
       {% for note in dim.notes %}<p class="dimension-note">{{ note }}</p>{% endfor %}
-      {% if dim.trends %}
+      {% if dim.trends | selectattr("heat_tier") | list %}
       <div class="trend-strip">
         <p class="kicker">Heating up</p>
         <ul class="trend-list">
-          {% for t in dim.trends %}
+          {% for t in dim.trends if t.heat_tier %}
           <li class="trend">
             <span class="flames">{% for _ in range(t.heat_tier) %}<svg class="flame" aria-hidden="true"><use href="#flame"/></svg>{% endfor %}</span>
             <span class="trend-descriptor">{{ t.descriptor }}</span>
