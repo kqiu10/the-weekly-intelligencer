@@ -12,6 +12,7 @@ defaults:
   summary: rewrite                 # raw | rewrite | synthesize
   max_items: 5
   blurb_words: 50                  # words of the article's own lede per item (NYT-brief style; ~40–60)
+  tldr_words: 100                  # issue-level TL;DR target length (SPEC §10.3)
 
 dimensions:
   - name: "Frontier AI Research Labs"

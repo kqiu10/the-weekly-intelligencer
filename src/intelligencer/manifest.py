@@ -16,7 +16,7 @@ class Item:
     image: str | None = None
     raw_text: str = ""
     summary: str = ""
-    origin: str = "feed"  # feed | api | search
+    origin: str = "feed"  # feed | site | search
     group: str = ""  # by-source layout: which source/lab this item belongs to
 
 
