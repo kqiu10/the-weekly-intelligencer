@@ -83,6 +83,20 @@ def map_results(
     return items
 
 
+def _prefer_portrait_thumbnails(items: list[Item], client: httpx.Client) -> None:
+    """Keep the portrait ``oardefault`` frame where it exists, else fall back to the
+    always-present landscape ``hqdefault`` — not every Short has an ``oardefault``. In place."""
+    for it in items:
+        if not (it.image and it.image.endswith("/oardefault.jpg")):
+            continue
+        try:
+            available = client.head(it.image).status_code == 200
+        except httpx.HTTPError:
+            available = False
+        if not available:
+            it.image = it.image[: -len("oardefault.jpg")] + "hqdefault.jpg"
+
+
 def fetch_youtube(
     query: str,
     *,
@@ -131,7 +145,9 @@ def fetch_youtube(
                 )
                 videos_resp.raise_for_status()
                 videos_json = videos_resp.json()
+            items = map_results(search_json, videos_json, group=group)
+            _prefer_portrait_thumbnails(items, client)
     except httpx.HTTPError as exc:  # fail-soft: a bad key/quota/network never aborts the issue
         logger.warning("youtube api error for %r: %s", query, exc)
         return []
-    return map_results(search_json, videos_json, group=group)
+    return items
