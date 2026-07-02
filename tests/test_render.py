@@ -101,6 +101,28 @@ def test_social_item_renders_media_tile_with_overlaid_creator_and_metrics():
     assert "1M" not in html  # views are not displayed on the tile
 
 
+def test_drop_imageless_media_backstops_broken_tiles():
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+    from intelligencer.render import _drop_imageless_media
+
+    labs = DimensionContent(name="Labs", items=[Item(title="a", url="u", image=None)])
+    social = DimensionContent(
+        name="Social",
+        items=[
+            Item(title="ok", url="u1", image="assets/x.jpg", stats={"likes": 10}),
+            Item(title="broken", url="u2", image=None, stats={"likes": 5}),  # media, no image
+            Item(title="relaxed", url="u3", image="assets/y.jpg"),  # media dim, has image
+        ],
+    )
+    m = Manifest(issue=Issue(date="2026-07-02", title="T"), dimensions=[labs, social])
+    _drop_imageless_media(m)
+    assert [it.title for it in m.dimensions[0].items] == ["a"]  # non-media dim keeps imageless item
+    assert [it.title for it in m.dimensions[1].items] == [
+        "ok",
+        "relaxed",
+    ]  # imageless media dropped
+
+
 def test_social_platform_logos_are_packaged():
     from intelligencer.images import LOGO_DIR, logo_asset_path
 

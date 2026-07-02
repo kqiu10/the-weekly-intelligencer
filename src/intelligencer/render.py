@@ -92,11 +92,22 @@ def _copy_logos(manifest: Manifest, output_dir: Path) -> None:
             copy_logo(rel, output_dir)
 
 
+def _drop_imageless_media(manifest: Manifest) -> None:
+    """Backstop for the social-video tiles: in a media dimension (its items carry engagement
+    stats), a portrait tile with no image is broken — so drop any item left without a (cached)
+    image. Makes "every media card has a thumbnail" a code guarantee, not a write-stage hope.
+    Mutates in place; non-media dimensions (e.g. Frontier Labs) are untouched."""
+    for dim in manifest.dimensions:
+        if any(it.stats for it in dim.items):  # a media dimension → its tiles need images
+            dim.items = [it for it in dim.items if it.image]
+
+
 def render_issue(manifest: Manifest, output_dir: str | Path, *, images: str = "hotlink") -> Path:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     if images == "cache":
         _cache_images(manifest, output_dir)
+    _drop_imageless_media(manifest)
     _copy_logos(manifest, output_dir)
     out = output_dir / f"{manifest.issue.date}.html"
     out.write_text(render_html(manifest), encoding="utf-8")
