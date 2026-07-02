@@ -12,7 +12,10 @@ def test_item_stats_round_trips_and_defaults():
     back = Manifest.from_dict(m.to_dict())
     assert back.dimensions[0].items[0].stats == {"views": 1000000, "likes": 12000, "comments": 840}
     # an older manifest item without 'stats' still loads (defaults to {})
-    older = {"issue": {"date": "2026-07-02", "title": "T"}, "dimensions": [{"name": "D", "items": [{"title": "v", "url": "u"}]}]}
+    older = {
+        "issue": {"date": "2026-07-02", "title": "T"},
+        "dimensions": [{"name": "D", "items": [{"title": "v", "url": "u"}]}],
+    }
     assert Manifest.from_dict(older).dimensions[0].items[0].stats == {}
 
 
