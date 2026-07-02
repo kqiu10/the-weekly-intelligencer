@@ -14,15 +14,17 @@ def test_shipped_config_has_valid_social_video_dimension():
     errors, _ = validate_config(cfg)
     assert errors == []
     social = next(
-        (d for d in cfg.dimensions if d.name == "Trending AI Generative Context & Social Video"),
+        (d for d in cfg.dimensions if d.name == "Trending Social Video & Images"),
         None,
     )
     assert social is not None, "the social-video dimension is missing from the shipped config"
     assert social.layout == "by-source"
     assert social.trends is True  # trend tracking is enabled for this dimension
     assert [(s.type, s.label, s.logo) for s in social.sources] == [
-        ("youtube", "YouTube Shorts", "youtube"),  # first-party Data API metrics (SPEC §10.1)
-        ("search", "TikTok", "tiktok"),  # metrics only when a post's counts are readable
+        ("youtube", "YouTube Shorts", "youtube"),  # free official Data API
+        ("search", "TikTok", "tiktok"),
+        ("search", "Instagram", "instagram"),
+        ("search", "Facebook", "facebook"),
     ]
 
 

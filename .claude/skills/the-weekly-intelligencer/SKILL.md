@@ -37,20 +37,20 @@ publisher, date, or preview image. Each item you add must have this exact shape:
 Only use an `image` URL that is the article's real preview image (`og:image`). If you
 can't find one, use `null`.
 
-### The "Trending AI Generative Context & Social Video" dimension
-This dimension is **metrics-forward**: each card shows the platform's own engagement counts
-(the item's `stats`), **not a thumbnail** — set `image: null` on every item here. Rule:
-**include an item only if you can show its real counts.**
-- **YouTube Shorts** is filled first-party by `fetch` (the `youtube` Data API): the card arrives
-  pre-loaded with the week's most-viewed short-video **candidates**, each already carrying
-  `stats` = {views, likes, comments}. **Prune** to the ones you judge **AI-generated** (down to
-  `max_per_source`); leave their `stats` as-is. If it's empty (no `YOUTUBE_API_KEY`) you *may*
-  web-search YouTube and set `stats` yourself from a video's page.
-- **TikTok** (`type: search`) — feature a specific AI-generated post **only if you can read its
-  visible counts**: set `group: "TikTok"` and `stats` = {likes, comments, saves, shares}. If the
-  numbers aren't verifiable, drop it (no card beats an unverified one).
-- **Instagram & Facebook are excluded** — no API and no reliable per-post counts, so under the
-  metrics-only rule we don't include them.
+### The "Trending Social Video & Images" dimension
+Surface the **1–2 most-popular** videos or images **per platform** this week — **any topic**
+(not AI-only; AI-generated content counts only when it's genuinely among the most popular).
+Each card is **metrics-forward**: show the post's real engagement counts in `stats`, not a
+thumbnail (`image: null`). **Add an item only if you can record its real counts; if you can't
+verify a popular post for a platform this week, skip that platform.**
+- **YouTube** is filled by `fetch` (free official Data API) with the week's top videos, each
+  already carrying `stats` = {views, likes, comments}. Keep the 1–2 most popular; leave `stats`
+  as-is.
+- **TikTok, Instagram, Facebook** (`type: search`) — no free trending API, so **you** find each
+  platform's 1–2 most-popular posts by web search, open each post, and record its **visible**
+  counts into `stats` (a TikTok → {likes, comments, saves, shares}; a photo → {likes, comments}).
+  Set `group` to the platform label and `image: null`. Skip a platform if the numbers aren't
+  verifiable.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).

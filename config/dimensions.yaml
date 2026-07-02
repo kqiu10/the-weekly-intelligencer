@@ -30,14 +30,16 @@ dimensions:
       - { type: site, label: "Meta",            logo: "meta",      url: "https://ai.meta.com/blog/" }                                        # official AI blog (scraped)
       - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # official site is client-only → Google News
 
-  - name: "Trending AI Generative Context & Social Video"
-    blurb: "The week's most-shared AI-generated photos and videos across social platforms"
+  - name: "Trending Social Video & Images"
+    blurb: "The week's most-popular videos and images across social platforms, ranked by engagement"
     summary: rewrite
-    layout: by-source              # one card per platform; empty platforms are skipped
-    max_per_source: 2              # at most 2 posts per platform
+    layout: by-source              # one card per platform; a platform with nothing trending that week is skipped
+    max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
     trends: true                   # track 🔥 context hotness across issues (SPEC §10.2)
-    sources:                       # engagement-metrics only — YouTube via the Data API; TikTok when a post's counts are readable
-      - { type: youtube, label: "YouTube Shorts", logo: "youtube", query: "AI generated" }   # Data API; needs YOUTUBE_API_KEY, skipped if unset
-      - { type: search,  label: "TikTok",         logo: "tiktok",  query: "viral AI-generated video TikTok this week" }
+    sources:                       # no paid scrapers — YouTube via its free official API; TikTok/IG/FB filled by Claude web search (reading each post's visible counts)
+      - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "AI generated" }   # free Data API; "most-popular" upgrade (chart=mostPopular) pending — see notes
+      - { type: search,  label: "TikTok",         logo: "tiktok",    query: "most viewed viral TikTok video this week" }
+      - { type: search,  label: "Instagram",      logo: "instagram", query: "most viewed viral Instagram reel this week" }
+      - { type: search,  label: "Facebook",       logo: "facebook",  query: "most viewed viral Facebook video this week" }
 
