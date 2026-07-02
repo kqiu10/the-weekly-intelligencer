@@ -21,10 +21,8 @@ def test_shipped_config_has_valid_social_video_dimension():
     assert social.layout == "by-source"
     assert social.trends is True  # trend tracking is enabled for this dimension
     assert [(s.type, s.label, s.logo) for s in social.sources] == [
-        ("youtube", "YouTube Shorts", "youtube"),  # first-party Data API (SPEC §10.1)
-        ("search", "TikTok", "tiktok"),
-        ("search", "Instagram", "instagram"),
-        ("search", "Facebook", "facebook"),
+        ("youtube", "YouTube Shorts", "youtube"),  # first-party Data API metrics (SPEC §10.1)
+        ("search", "TikTok", "tiktok"),  # metrics only when a post's counts are readable
     ]
 
 
