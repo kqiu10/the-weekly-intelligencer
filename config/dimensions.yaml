@@ -39,7 +39,7 @@ dimensions:
     trends: true                   # track 🔥 context hotness across issues (SPEC §10.2)
     sources:                       # no paid scrapers — YouTube via its free official API; TikTok/IG/FB filled by Claude web search (reading each post's visible counts)
       - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "#shorts" }   # free Data API: most-viewed Shorts this week (videoDuration=short, order=viewCount)
-      - { type: search,  label: "TikTok",         logo: "tiktok",    query: "most viewed viral TikTok video this week" }
-      - { type: search,  label: "Instagram",      logo: "instagram", query: "most viewed viral Instagram reel this week" }
-      - { type: search,  label: "Facebook",       logo: "facebook",  query: "most viewed viral Facebook video this week" }
+      - { type: search,  label: "TikTok",         logo: "tiktok",    query: "TikTok video going viral this week" }        # newly breaking out, not all-time most-viewed
+      - { type: search,  label: "Instagram",      logo: "instagram", query: "Instagram reel going viral this week" }
+      - { type: search,  label: "Facebook",       logo: "facebook",  query: "Facebook video going viral this week" }
 

@@ -38,19 +38,19 @@ Only use an `image` URL that is the article's real preview image (`og:image`). I
 can't find one, use `null`.
 
 ### The "Trending Social Video & Images" dimension
-Surface the **1–2 most-popular** videos or images **per platform** this week — **any topic**
-(not AI-only; AI-generated content counts only when it's genuinely among the most popular).
-Each card is **metrics-forward**: show the post's real engagement counts in `stats`, not a
-thumbnail (`image: null`). **Add an item only if you can record its real counts; if you can't
-verify a popular post for a platform this week, skip that platform.**
-- **YouTube** is filled by `fetch` (free official Data API) with the week's top videos, each
-  already carrying `stats` = {views, likes, comments}. Keep the 1–2 most popular; leave `stats`
-  as-is.
+Surface the **1–2 posts breaking out this week** **per platform** — **any topic** (not AI-only).
+"This week" means *newly* trending — **recently posted and spiking now, not the highest all-time
+view count** (otherwise the same evergreen clip recurs every week). Each card is **metrics-forward**:
+show the post's real engagement counts in `stats`, not a thumbnail (`image: null`). **Add an item
+only if you can record its real counts; skip a platform you can't verify a fresh hit for this week.**
+- **YouTube** is filled by `fetch` (free official Data API), already scoped to *this week's uploads*
+  ranked by views, each carrying `stats` = {views, likes, comments}. Keep the 1–2 biggest; leave
+  `stats` as-is.
 - **TikTok, Instagram, Facebook** (`type: search`) — no free trending API, so **you** find each
-  platform's 1–2 most-popular posts by web search, open each post, and record its **visible**
-  counts into `stats` (a TikTok → {likes, comments, saves, shares}; a photo → {likes, comments}).
-  Set `group` to the platform label and `image: null`. Skip a platform if the numbers aren't
-  verifiable.
+  platform's 1–2 posts that are **going viral this week** (verify the post is recent — days old, not
+  months — and rising now), open each, and record its **visible** counts into `stats` (a TikTok →
+  {likes, comments, saves, shares}; a photo → {likes, comments}). Set `group` to the platform and
+  `image: null`. Skip a platform if you can't verify a fresh viral post.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
