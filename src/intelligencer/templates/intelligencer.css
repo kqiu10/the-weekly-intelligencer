@@ -163,7 +163,7 @@ a { color: inherit; }
 .media-metrics .mm-ic { width: 1.4rem; height: 1.4rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,.55)); }
 .media-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 1.6rem 0.55rem 0.5rem; background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.82)); color: #fff; }
 .media-creator { display: block; font-weight: 700; font-size: 0.74rem; }
-.media-body { align-self: center; }
+.media-body { align-self: start; }
 .media-body .item-title { margin: 0 0 0.3rem; font-size: 1.05rem; }
 .media-body .item-summary { margin-top: 0; }
 .lab-items .item::after { content: ""; display: block; clear: both; }
