@@ -1,106 +1,67 @@
 # The Weekly Intelligencer
 
-A weekly, *New York Times*–style digest of AI-industry news, rendered as a
-self-contained HTML issue you can open in any browser. Sections and sources are fully
-configurable.
+**A weekly digest of AI industry news, featuring updates on frontier labs and the latest trending AI-generated images and video.**
 
-It runs as a **Claude Code skill**: deterministic gathering (RSS feeds, official
-newsrooms) is done by Python scripts with **zero tokens**; web `search` sources and the
-editorial summaries are written by Claude Code in-session — no Anthropic API key, no
-per-token cost.
 
-## How it works
+## Sample
 
-```
-config/dimensions.yaml ─▶ fetch (feeds + sites, scripts) ─▶ out/manifest.json
-                                  │  Claude: fill `search` + write summaries
-                                  ▼
-                          render (Jinja2 + NYT CSS) ─▶ dist/<date>.html
-```
+## Dimensions
 
-The `manifest` is the single source of truth; every stage reads and writes it.
 
-## Setup
+
+## Quick Start
 
 ```bash
-uv sync                    # install dependencies
+git clone https://github.com/kqiu10/the-weekly-intelligencer.git
+cd the-weekly-intelligencer
+uv sync
 ```
 
-## Usage
+<details open>
+<summary><b>As a Claude Code skill (full issue)</b></summary>
 
-### As a Claude Code skill (full issue)
-From the project directory, ask Claude Code to **"generate this week's Intelligencer
-issue."** The skill validates config, gathers deterministic sources, fills `search`
-sources via web search, writes summaries, and renders the issue. The orchestration lives
-in `.claude/skills/the-weekly-intelligencer/SKILL.md`.
+```
+// Run that prompt in Claude Code from the project directory. 
 
-### By hand (deterministic only)
+generate this week's Intelligencer issue
+```
+</details>
+
+<details>
+<summary><b>By hand (deterministic only, zero tokens)</b></summary>
+
 ```bash
-uv run intelligencer validate        # check config/dimensions.yaml
-uv run intelligencer fetch           # feeds + sites → out/manifest.json
-uv run intelligencer render --open   # manifest → dist/<date>.html
+uv run intelligencer validate                 # check config/dimensions.yaml
+uv run intelligencer fetch                    # feeds + sites + YouTube → out/manifest.json
+uv run intelligencer fetch --date 2026-06-28  # …or pin a specific past week
+uv run intelligencer trends                   # fold heat into data/trends.json
+uv run intelligencer render --open            # manifest → dist/<date>.html
 ```
-With an all-`feed` + all-`raw` config this produces a complete issue with **zero** Claude
-tokens.
 
-## Configuring dimensions
+`--only <name>` narrows fetch/render to one dimension. With an all-`feed` + all-`raw` config this produces a complete issue with **zero** Claude tokens.
+</details>
 
-Each section ("dimension") in `config/dimensions.yaml` has a name, blurb, summary mode,
-`max_items`, and a list of sources.
+---
 
-With `layout: by-source`, each source becomes its own card — a left rail with the
-company's name over its logo, and its recent items alongside. Give the source a `label`
-(the displayed name) and a `logo` slug matching a brand-colored SVG in
-`src/intelligencer/assets/logos/<slug>.svg` (bundled: `openai`, `anthropic`, `deepmind`,
-`qwen`, `xai`, `deepseek`, `meta`); the render copies referenced logos into the issue so
-`dist/` stays self-contained.
 
-Google News search feeds hand back opaque `news.google.com` redirect links and a generic
-thumbnail on every item. Fetch resolves those redirects to the real publisher article (so
-the link and its `og:image` work) and drops any preview image repeated across items, so
-each story shows its own picture — or none, rather than boilerplate.
+## Trending
 
-From that same article page, fetch also pulls the story's own **lede** — its first
-`defaults.blurb_words` words (default 50, NYT-brief length; ~40–60), verbatim, the way a
-newspaper reprints a wire story's opening rather than paraphrasing it, ending on a whole
-sentence. It reads the leading paragraphs, and for JavaScript-rendered pages (no readable
-`<p>` body) falls back to the page's `NewsArticle` JSON-LD (article body, else the
-publisher's description). A blurb that merely repeats the headline (as Google News'
-"Headline — Publisher" does) is hidden, never printed twice.
+The social-video dimension tracks which AI-generated **contexts** are heating up week over week. `data/trends.json` is a small, committed time-series — one topic per canonical context (`id`, `descriptor`, `tags`, and a weekly `magnitude` history). `intelligencer trends` folds each week's magnitudes in and computes a `heat_tier` (0–3): a context that is **recurring _and_ rising** earns heat.
 
-If an article can't be read at all (a hard scraper block, e.g. a Cloudflare 403 that a
-browser User-Agent can't get past), the item has neither image nor blurb, so it's dropped
-rather than shown as a bare headline — a company simply shows fewer stories (0–2).
+That heat is stamped onto the individual posts a topic points to (its `samples`), and a **flame renders after that card's title** — only when the card is actually hot. A brand-new or cooling context shows nothing; it needs ≥2 weeks of rising magnitude to light up.
 
-| Source `type`   | Gathered by                     | Token cost |
-|-----------------|---------------------------------|------------|
-| `feed`          | script (RSS/Atom)               | none       |
-| `site`          | script (scrape official index)  | none       |
-| `search`        | Claude web search               | yes        |
-
-A `site` source scrapes a company's own newsroom index (for those without a feed): give
-it the listing `url` (e.g. `https://www.anthropic.com/news`) and, optionally,
-`link_contains` to filter article links (it defaults from the URL path). Fetch collects
-each recent article's link + date from the index, then reads its title, image, and lede
-from the article page — no third-party aggregator involved.
-
-| `summary` mode | Behaviour                          | Token cost |
-|----------------|------------------------------------|------------|
-| `raw`          | feed/snippet text verbatim         | ~none      |
-| `rewrite`      | Claude rewrites each item          | medium     |
-| `synthesize`   | Claude writes one combined section | highest    |
+---
 
 ## Output
 
-A self-contained `dist/<date>.html` with the NYT broadsheet styling inlined. The `dist/`
-bundle is portable — open it locally or host it anywhere. (Publishing into an Eleventy
-site is a planned v2; see `SPEC.md` §9.)
+A self-contained `dist/<date>.html` with the styling inlined and its images/logos alongside in `dist/assets/`. The bundle is portable — open it locally or host the folder anywhere. The masthead range is week-to-date and fully deterministic (derived from the issue date, no wall-clock).
 
-## Development
 
-```bash
-uv run pytest                            # tests (offline, deterministic)
-uv run ruff check . && uv run black .    # lint + format
-```
+## Why Agent Skills
 
-See `tasks/SPEC.md` for the full specification and `tasks/plan.md` for the build plan.
+Most AI news tools force a choice: paraphrase everything through an LLM (expensive, hallucination-prone) or just dump raw feeds (no editorial judgment). Building this as a Claude Code **Agent Skill** splits the difference — **deterministic scripts do the fetching for free**, and the skill hands Claude Code only the part that needs judgment: writing summaries and curating trends, done **in-session, with no API key**. The output is a **single portable HTML file**, not a service to host, and the whole run is reproducible from the manifest.
+
+
+## License
+
+MIT — see [LICENSE](LICENSE).
