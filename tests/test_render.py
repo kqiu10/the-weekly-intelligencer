@@ -67,7 +67,7 @@ def test_compact_filter_formats_counts_like_social_apps():
     assert _compact(1028127) == "1M"
 
 
-def test_social_item_renders_metrics_row_not_thumbnail():
+def test_social_item_renders_thumbnail_and_metrics():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 
     social = DimensionContent(
@@ -76,19 +76,20 @@ def test_social_item_renders_metrics_row_not_thumbnail():
         items=[
             Item(
                 title="AI cat",
-                url="https://youtu.be/x",
+                url="https://www.youtube.com/shorts/x",
                 source="youtube.com",
                 group="YouTube Shorts",
-                image="https://i.ytimg.com/should-not-render.jpg",
+                image="https://i.ytimg.com/vi/x/hqdefault.jpg",
                 stats={"views": 1028127, "likes": 12000, "comments": 840},
             )
         ],
     )
     html = render_html(Manifest(issue=Issue(date="2026-07-02", title="T"), dimensions=[social]))
+    # both the thumbnail and the metrics row render (thumbnail + counts, side by side)
+    assert 'class="item-image"' in html and "hqdefault.jpg" in html
     assert 'class="stats"' in html
     assert "1M" in html and "12K" in html and "840" in html  # compact per-platform counts
     assert 'href="#ic-view"' in html and 'href="#ic-like"' in html  # per-metric icons
-    assert "should-not-render.jpg" not in html  # thumbnail suppressed when stats present
 
 
 def test_social_platform_logos_are_packaged():

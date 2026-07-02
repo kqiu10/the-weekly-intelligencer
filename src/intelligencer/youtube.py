@@ -2,7 +2,7 @@
 
 ``search.list`` finds the most-viewed short videos matching a query within a window;
 ``videos.list`` adds real view/like/comment counts, which become the card's engagement
-metrics (``stats``) — this dimension shows those instead of a thumbnail. Reads
+metrics (``stats``), shown alongside the Short's ``i.ytimg`` thumbnail. Reads
 ``YOUTUBE_API_KEY`` at the call site (passed in by the
 gatherer); when it is unset, :func:`fetch_youtube` is a no-op that returns ``[]`` so the
 keyless pipeline still builds. ``map_results`` is pure (no network) — that is what the
@@ -69,10 +69,10 @@ def map_results(
         items.append(
             Item(
                 title=title,
-                url=f"https://www.youtube.com/watch?v={video_id}",
+                url=f"https://www.youtube.com/shorts/{video_id}",
                 source="youtube.com",
                 published=(snippet.get("publishedAt") or "")[:10] or None,
-                image=None,  # this dimension shows a metrics row, not a thumbnail
+                image=f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg",
                 raw_text=(snippet.get("description") or "").strip(),
                 origin="youtube",
                 group=group,

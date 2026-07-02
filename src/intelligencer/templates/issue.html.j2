@@ -80,7 +80,7 @@
           <div class="lab-items">
             {% for item in group_items %}
             <article class="item">
-              {% if not item.stats and item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
+              {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
               <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h5>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
               {% set item_blurb = item | blurb %}
               {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
@@ -96,7 +96,7 @@
         {% for item in dim.items %}
         {% if not (outer.first and loop.first) %}
         <article class="item">
-          {% if not item.stats and item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
+          {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
           <h4 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
           {% set item_blurb = item | blurb %}
           {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
