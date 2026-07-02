@@ -31,15 +31,15 @@ dimensions:
       - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # official site is client-only → Google News
 
   - name: "Trending Social Video & Images"
-    blurb: "The week's most-popular videos and images across social platforms, ranked by engagement"
+    blurb: "The week's most-shared AI-generated videos and images across social platforms"
     summary: rewrite
     layout: by-source              # one card per platform; a platform with nothing trending that week is skipped
     max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
     trends: true                   # track 🔥 context hotness across issues (SPEC §10.2)
-    sources:                       # no paid scrapers — YouTube via its free official API; TikTok/IG/FB filled by Claude web search (reading each post's visible counts)
-      - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "#shorts" }   # free Data API: most-viewed Shorts this week (videoDuration=short, order=viewCount)
-      - { type: search,  label: "TikTok",         logo: "tiktok",    query: "TikTok video going viral this week" }        # newly breaking out, not all-time most-viewed
-      - { type: search,  label: "Instagram",      logo: "instagram", query: "Instagram reel going viral this week" }
-      - { type: search,  label: "Facebook",       logo: "facebook",  query: "Facebook video going viral this week" }
+    sources:                       # AI-generated + trending; no paid scrapers — YouTube via its free official API; TikTok/IG/FB filled by Claude web search
+      - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "AI generated" }   # most-viewed AI Shorts this week (videoDuration=short, order=viewCount)
+      - { type: search,  label: "TikTok",         logo: "tiktok",    query: "AI generated video going viral TikTok this week" }
+      - { type: search,  label: "Instagram",      logo: "instagram", query: "AI generated reel going viral Instagram this week" }
+      - { type: search,  label: "Facebook",       logo: "facebook",  query: "AI generated video going viral Facebook this week" }
 

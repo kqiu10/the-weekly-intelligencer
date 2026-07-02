@@ -67,7 +67,7 @@ def test_compact_filter_formats_counts_like_social_apps():
     assert _compact(1028127) == "1M"
 
 
-def test_social_item_renders_thumbnail_and_metrics():
+def test_social_item_renders_media_tile_with_overlaid_creator_and_metrics():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 
     social = DimensionContent(
@@ -75,22 +75,26 @@ def test_social_item_renders_thumbnail_and_metrics():
         layout="by-source",
         items=[
             Item(
-                title="AI cat",
+                title="AI cat pilots a jet",
                 url="https://www.youtube.com/shorts/x",
                 source="youtube.com",
                 group="YouTube Shorts",
                 image="https://i.ytimg.com/vi/x/oardefault.jpg",
+                creator="AI Cinema",
                 stats={"views": 1028127, "likes": 12000, "comments": 840},
             )
         ],
     )
     html = render_html(Manifest(issue=Issue(date="2026-07-02", title="T"), dimensions=[social]))
-    # thumbnail + metrics both render, and the card is flagged "media" (bigger portrait image)
-    assert 'class="item-image"' in html and "oardefault.jpg" in html
     assert "labs--media" in html
-    assert 'class="stats"' in html
-    assert "1M" in html and "12K" in html and "840" in html  # compact per-platform counts
-    assert 'href="#ic-view"' in html and 'href="#ic-like"' in html  # per-metric icons
+    assert 'class="media-tile"' in html and "oardefault.jpg" in html  # portrait tile
+    assert 'class="media-creator">AI Cinema' in html  # creator overlaid on the frame
+    assert 'class="media-cap-title">AI cat pilots a jet' in html  # title overlaid
+    # likes + comments overlaid on the tile; the old text metrics row is gone; views not shown
+    assert 'class="media-metrics"' in html and "12K" in html and "840" in html
+    assert 'href="#ic-like"' in html and 'href="#ic-comment"' in html
+    assert 'class="stats"' not in html  # no separate text metrics row
+    assert "1M" not in html  # views are not displayed on the tile
 
 
 def test_social_platform_logos_are_packaged():

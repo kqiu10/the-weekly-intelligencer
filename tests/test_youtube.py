@@ -10,6 +10,7 @@ SEARCH = {
                 "publishedAt": "2026-06-28T12:00:00Z",
                 "title": "Insane AI-generated cat pilots a jet",
                 "description": "Made with Sora. Goes viral.",
+                "channelTitle": "AI Cinema",
             },
         },
         {
@@ -48,6 +49,7 @@ def test_map_results_builds_items_with_engagement_stats():
     assert first.image == "https://i.ytimg.com/vi/aaa111/oardefault.jpg"  # portrait Short frame
     assert first.origin == "youtube"
     assert first.group == "YouTube Shorts"
+    assert first.creator == "AI Cinema"  # channelTitle, overlaid on the tile
     assert first.stats == {"views": 12345678, "likes": 543210, "comments": 6083}
     assert first.raw_text == "Made with Sora. Goes viral."  # description only, no count prefix
 

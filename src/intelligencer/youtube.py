@@ -76,6 +76,7 @@ def map_results(
                 raw_text=(snippet.get("description") or "").strip(),
                 origin="youtube",
                 group=group,
+                creator=(snippet.get("channelTitle") or "").strip(),
                 stats=stats_by_id.get(video_id, {}),
             )
         )

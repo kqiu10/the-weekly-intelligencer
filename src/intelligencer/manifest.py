@@ -18,6 +18,7 @@ class Item:
     summary: str = ""
     origin: str = "feed"  # feed | site | search | youtube
     group: str = ""  # by-source layout: which source/lab this item belongs to
+    creator: str = ""  # social-video: the post's @handle / channel name, overlaid on the tile
     # per-platform engagement counts for the social-video dimension, e.g.
     # {"views": .., "likes": .., "comments": .., "saves": .., "shares": ..} — rendered as a
     # metrics row instead of a preview image; only the keys a platform exposes are set.

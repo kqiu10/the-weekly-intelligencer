@@ -38,19 +38,18 @@ Only use an `image` URL that is the article's real preview image (`og:image`). I
 can't find one, use `null`.
 
 ### The "Trending Social Video & Images" dimension
-Surface the **1–2 posts breaking out this week** **per platform** — **any topic** (not AI-only).
-"This week" means *newly* trending — **recently posted and spiking now, not the highest all-time
-view count** (otherwise the same evergreen clip recurs every week). Every card shows a **thumbnail**
-and, **when you can read them**, the post's **engagement counts** (`stats`).
-- **YouTube** is filled by `fetch` (free official Data API), already scoped to *this week's uploads*
-  ranked by views — each with a `youtube.com/shorts/` link, an `i.ytimg` thumbnail, and `stats` =
-  {views, likes, comments}. Keep the 1–2 biggest; leave them as-is.
-- **TikTok, Instagram, Facebook** (`type: search`) — find each platform's 1–2 posts **going viral
-  this week** (recent — days old, not months — and rising now). For each set the real permalink
-  (`url`), a **thumbnail** as `image` (the post's own preview / `og:image`, or a still from coverage
-  — `cache` downloads it at gen time; use `null` only if you genuinely can't get one), `group` = the
-  platform, and a short `summary`. Add `stats` (visible likes/comments/etc.) **when you can read them
-  — no longer required**; include the post even without counts.
+Surface the **1–2 most-shared AI-generated** videos/images **per platform** this week — the ones
+newly going viral (recently posted, spiking now, not evergreen). Every card is a **portrait media
+tile**: the post's thumbnail with its **creator**, **title**, and **likes + comments** overlaid on
+the image (like the native app); the text beside it is the editorial `summary` only.
+- **YouTube** is filled by `fetch` (free official Data API) with the week's most-viewed Shorts
+  matching "AI generated" — each a `youtube.com/shorts/` link with an `i.ytimg` thumbnail, `creator`
+  (channel name), and `stats` = {views, likes, comments}. **Prune** to the genuinely **AI-generated**
+  ones (drop the rest, down to `max_per_source`); leave the fields as-is.
+- **TikTok, Instagram, Facebook** (`type: search`) — find each platform's 1–2 **AI-generated** posts
+  going viral this week. For each set the real permalink (`url`), a **thumbnail** (`image`),
+  `creator` (the @handle), `group` = platform, a short `summary`, and `stats` (visible likes /
+  comments) **when you can read them** (optional). Skip a platform with no verifiable AI-gen hit.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
@@ -82,8 +81,8 @@ Preserve the schema exactly:
 issue:      { date, title, subtitle, week, tldr }
 dimensions: [ { name, blurb, summary_mode, layout, items: [ ... ], notes: [ ... ],
                 logos: { ... }, trends: [ { id, descriptor, tags: [...], magnitude, samples: [...] } ] } ]
-item:       { title, url, source, published, image, raw_text, summary, origin, group, stats }
-            (stats: social-video only — {views,likes,comments,saves,shares} → the metrics row)
+item:       { title, url, source, published, image, raw_text, summary, origin, group, creator, stats }
+            (social-video only — creator: @handle/channel; stats: {views,likes,comments,…} → overlaid on the tile)
 ```
 
 If a dimension's `layout` is `by-source`, items are rendered grouped by their `group`
