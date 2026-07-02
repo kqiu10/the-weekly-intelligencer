@@ -74,7 +74,7 @@ def _drop_contentless(items: list[Item]) -> list[Item]:
     image nor a blurb (a bare headline + link). Happens when a site hard-blocks
     our fetch (403), so nothing is reachable. A source may end up with fewer items
     — 0, 1, or up to its cap — which is fine."""
-    return [it for it in items if it.title.strip() and (it.image or item_blurb(it))]
+    return [it for it in items if it.title.strip() and (it.image or item_blurb(it) or it.stats)]
 
 
 def _drop_boilerplate_images(items: list[Item]) -> None:

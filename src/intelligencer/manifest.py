@@ -16,8 +16,12 @@ class Item:
     image: str | None = None
     raw_text: str = ""
     summary: str = ""
-    origin: str = "feed"  # feed | site | search
+    origin: str = "feed"  # feed | site | search | youtube
     group: str = ""  # by-source layout: which source/lab this item belongs to
+    # per-platform engagement counts for the social-video dimension, e.g.
+    # {"views": .., "likes": .., "comments": .., "saves": .., "shares": ..} — rendered as a
+    # metrics row instead of a preview image; only the keys a platform exposes are set.
+    stats: dict = field(default_factory=dict)
 
 
 @dataclass

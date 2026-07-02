@@ -1,8 +1,9 @@
 """YouTube Data API v3 source — first-party, deterministic (SPEC §3, §10.1).
 
 ``search.list`` finds the most-viewed short videos matching a query within a window;
-``videos.list`` adds real view counts. Results map to :class:`Item`s with durable
-``i.ytimg.com`` thumbnails. Reads ``YOUTUBE_API_KEY`` at the call site (passed in by the
+``videos.list`` adds real view/like/comment counts, which become the card's engagement
+metrics (``stats``) — this dimension shows those instead of a thumbnail. Reads
+``YOUTUBE_API_KEY`` at the call site (passed in by the
 gatherer); when it is unset, :func:`fetch_youtube` is a no-op that returns ``[]`` so the
 keyless pipeline still builds. ``map_results`` is pure (no network) — that is what the
 tests exercise.
@@ -23,22 +24,28 @@ _SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 _VIDEOS_URL = "https://www.googleapis.com/youtube/v3/videos"
 
 
-def _thumbnail(video_id: str) -> str:
-    """A durable, public, auth-free thumbnail for a video id (survives URL expiry)."""
-    return f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+_STAT_FIELDS = (("viewCount", "views"), ("likeCount", "likes"), ("commentCount", "comments"))
 
 
-def _view_counts(videos_json: dict) -> dict[str, int]:
-    counts: dict[str, int] = {}
+def _stats_by_id(videos_json: dict) -> dict[str, dict]:
+    """Map video id -> {views, likes, comments} from a videos.list response — YouTube's own
+    public engagement counts (rendered as the card's metrics row; no auth, no saves/shares)."""
+    out: dict[str, dict] = {}
     for v in (videos_json or {}).get("items", []):
         vid = v.get("id")
-        raw = (v.get("statistics") or {}).get("viewCount")
-        if vid and raw is not None:
-            try:
-                counts[vid] = int(raw)
-            except (TypeError, ValueError):
-                continue
-    return counts
+        if not vid:
+            continue
+        stats = v.get("statistics") or {}
+        counts: dict[str, int] = {}
+        for api_field, key in _STAT_FIELDS:
+            raw = stats.get(api_field)
+            if raw is not None:
+                try:
+                    counts[key] = int(raw)
+                except (TypeError, ValueError):
+                    continue
+        out[vid] = counts
+    return out
 
 
 def map_results(
@@ -49,7 +56,7 @@ def map_results(
     Entries without a ``videoId`` or a non-blank title are dropped. The real view count
     (when available) is folded into ``raw_text`` so Claude can weigh it for the 🔥 signal.
     """
-    counts = _view_counts(videos_json)
+    stats_by_id = _stats_by_id(videos_json)
     items: list[Item] = []
     for entry in (search_json or {}).get("items", []):
         video_id = (entry.get("id") or {}).get("videoId")
@@ -59,20 +66,17 @@ def map_results(
         title = (snippet.get("title") or "").strip()
         if not title:
             continue
-        published = (snippet.get("publishedAt") or "")[:10] or None
-        description = (snippet.get("description") or "").strip()
-        count = counts.get(video_id)
-        raw_text = f"{count:,} views. {description}".strip() if count is not None else description
         items.append(
             Item(
                 title=title,
                 url=f"https://www.youtube.com/watch?v={video_id}",
                 source="youtube.com",
-                published=published,
-                image=_thumbnail(video_id),
-                raw_text=raw_text,
+                published=(snippet.get("publishedAt") or "")[:10] or None,
+                image=None,  # this dimension shows a metrics row, not a thumbnail
+                raw_text=(snippet.get("description") or "").strip(),
                 origin="youtube",
                 group=group,
+                stats=stats_by_id.get(video_id, {}),
             )
         )
     return items
