@@ -2,11 +2,32 @@
 
 **A weekly digest of AI industry news, featuring updates on frontier labs and the latest trending AI-generated images and video.**
 
+## Preview
+![Scrolling through a sample issue](samples/sample-scroll.gif)
 
-## Sample
 
 ## Dimensions
+Currently tracked AI research labs and social media platforms.  
+**Frontier AI Research Labs**
 
+| AI Lab | Search type | Description |
+|---|---|---|
+| Anthropic | `site` | Official newsroom |
+| Google DeepMind | `feed` | Official RSS |
+| OpenAI | `feed` | Official RSS |
+| xAI | `site` | Official newsroom |
+| DeepSeek | `feed` | Google News |
+| Meta | `site` | Official AI blog |
+| Alibaba Qwen | `feed` | Google News |
+
+**Trending Social Video & Images**
+
+| Social media | Search type | Description |
+|---|---|---|
+| YouTube Shorts | `youtube` | Official Youtube shorts |
+| TikTok | `search` | Web Search |
+| Instagram | `search` | Web Search |
+| Facebook | `search` | Web Search |
 
 
 ## Quick Start
@@ -19,10 +40,9 @@ uv sync
 
 <details open>
 <summary><b>As a Claude Code skill (full issue)</b></summary>
+Run that prompt in Claude Code from the project directory. 
 
 ```
-// Run that prompt in Claude Code from the project directory. 
-
 generate this week's Intelligencer issue
 ```
 </details>
