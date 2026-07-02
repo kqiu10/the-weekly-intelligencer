@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -43,35 +43,37 @@ def _compact(n) -> str:
     return f"{n / 1_000_000:.1f}".rstrip("0").rstrip(".") + "M"
 
 
-def _week_range_label(issue) -> str:
-    """Human label for the span an issue covers: Monday of its calendar week through the issue's
-    own date — week-to-date, e.g. 'Jun 29 – Jul 2, 2026'. The end is capped at the issue date, not
-    the calendar Sunday, so a mid-week issue doesn't advertise a future end date; it matches the
-    week-to-date content window (``_window_start``)."""
+def _week_range_label(issue, today: date | None = None) -> str:
+    """Human label for the span an issue covers: the Monday of its calendar week through
+    ``min(today, that Monday + 7 days)`` — week-to-date as of *now*. A week still in progress stops
+    at today (never advertises a future date); a fully-elapsed week shows its whole 7-day span. So a
+    mid-week Issue 2 reads 'Jun 29 – Jul 2' today, and a past Issue 1 reads 'Jun 22 – Jun 29'."""
     try:
-        start_iso, end_iso = issue_week_range(issue.date)
+        start_iso, _ = issue_week_range(issue.date)
         start = date.fromisoformat(start_iso)
-        end = min(date.fromisoformat(issue.date), date.fromisoformat(end_iso))
     except (ValueError, TypeError, AttributeError):
         return ""
+    if today is None:
+        today = date.today()
+    end = min(today, start + timedelta(days=7))
     return f"{start:%b} {start.day} – {end:%b} {end.day}, {end:%Y}"
 
 
-def _env() -> Environment:
+def _env(today: date | None = None) -> Environment:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(["html", "xml", "j2"]),
     )
     env.filters["groupby_order"] = _groupby_order
     env.filters["blurb"] = item_blurb
-    env.filters["week_range"] = _week_range_label
+    env.filters["week_range"] = lambda issue: _week_range_label(issue, today)
     env.filters["compact"] = _compact
     return env
 
 
-def render_html(manifest: Manifest, *, render_tldr: bool = True) -> str:
+def render_html(manifest: Manifest, *, render_tldr: bool = True, today: date | None = None) -> str:
     css = (TEMPLATE_DIR / "intelligencer.css").read_text(encoding="utf-8")
-    template = _env().get_template("issue.html.j2")
+    template = _env(today).get_template("issue.html.j2")
     return template.render(
         issue=manifest.issue,
         dimensions=manifest.dimensions,
