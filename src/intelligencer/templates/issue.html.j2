@@ -69,7 +69,7 @@
       </div>
       {% endif %}
       {% if dim.layout == "by-source" %}
-      <div class="labs">
+      <div class="labs{% if dim.items | selectattr("stats") | first %} labs--media{% endif %}">
         {% for label, group_items in dim.items | groupby_order('group') %}
         {% set logo = dim.logos.get(label) %}
         <div class="lab">

@@ -45,7 +45,7 @@ def test_map_results_builds_items_with_engagement_stats():
     assert first.url == "https://www.youtube.com/shorts/aaa111"
     assert first.source == "youtube.com"
     assert first.published == "2026-06-28"
-    assert first.image == "https://i.ytimg.com/vi/aaa111/hqdefault.jpg"  # the Short's thumbnail
+    assert first.image == "https://i.ytimg.com/vi/aaa111/oardefault.jpg"  # portrait Short frame
     assert first.origin == "youtube"
     assert first.group == "YouTube Shorts"
     assert first.stats == {"views": 12345678, "likes": 543210, "comments": 6083}
@@ -54,7 +54,7 @@ def test_map_results_builds_items_with_engagement_stats():
     second = items[1]
     assert second.published == "2026-06-27"
     assert second.stats == {}  # missing statistics -> empty stats, no crash
-    assert second.image == "https://i.ytimg.com/vi/bbb222/hqdefault.jpg"
+    assert second.image == "https://i.ytimg.com/vi/bbb222/oardefault.jpg"
 
 
 def test_fetch_youtube_without_key_is_a_no_op():

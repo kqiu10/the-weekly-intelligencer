@@ -79,14 +79,15 @@ def test_social_item_renders_thumbnail_and_metrics():
                 url="https://www.youtube.com/shorts/x",
                 source="youtube.com",
                 group="YouTube Shorts",
-                image="https://i.ytimg.com/vi/x/hqdefault.jpg",
+                image="https://i.ytimg.com/vi/x/oardefault.jpg",
                 stats={"views": 1028127, "likes": 12000, "comments": 840},
             )
         ],
     )
     html = render_html(Manifest(issue=Issue(date="2026-07-02", title="T"), dimensions=[social]))
-    # both the thumbnail and the metrics row render (thumbnail + counts, side by side)
-    assert 'class="item-image"' in html and "hqdefault.jpg" in html
+    # thumbnail + metrics both render, and the card is flagged "media" (bigger portrait image)
+    assert 'class="item-image"' in html and "oardefault.jpg" in html
+    assert "labs--media" in html
     assert 'class="stats"' in html
     assert "1M" in html and "12K" in html and "840" in html  # compact per-platform counts
     assert 'href="#ic-view"' in html and 'href="#ic-like"' in html  # per-metric icons

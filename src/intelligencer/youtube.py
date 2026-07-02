@@ -72,7 +72,7 @@ def map_results(
                 url=f"https://www.youtube.com/shorts/{video_id}",
                 source="youtube.com",
                 published=(snippet.get("publishedAt") or "")[:10] or None,
-                image=f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg",
+                image=f"https://i.ytimg.com/vi/{video_id}/oardefault.jpg",  # portrait Short frame
                 raw_text=(snippet.get("description") or "").strip(),
                 origin="youtube",
                 group=group,
