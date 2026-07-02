@@ -55,6 +55,42 @@ def test_trend_strip_shows_only_heating_rows_and_hides_when_none():
     assert 'class="trend-strip"' not in render([])
 
 
+def test_compact_filter_formats_counts_like_social_apps():
+    from intelligencer.render import _compact
+
+    assert _compact(840) == "840"
+    assert _compact(6083) == "6083"
+    assert _compact(12000) == "12K"
+    assert _compact(98200) == "98.2K"
+    assert _compact(104200) == "104.2K"
+    assert _compact(1300000) == "1.3M"
+    assert _compact(1028127) == "1M"
+
+
+def test_social_item_renders_metrics_row_not_thumbnail():
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+
+    social = DimensionContent(
+        name="Social",
+        layout="by-source",
+        items=[
+            Item(
+                title="AI cat",
+                url="https://youtu.be/x",
+                source="youtube.com",
+                group="YouTube Shorts",
+                image="https://i.ytimg.com/should-not-render.jpg",
+                stats={"views": 1028127, "likes": 12000, "comments": 840},
+            )
+        ],
+    )
+    html = render_html(Manifest(issue=Issue(date="2026-07-02", title="T"), dimensions=[social]))
+    assert 'class="stats"' in html
+    assert "1M" in html and "12K" in html and "840" in html  # compact per-platform counts
+    assert 'href="#ic-view"' in html and 'href="#ic-like"' in html  # per-metric icons
+    assert "should-not-render.jpg" not in html  # thumbnail suppressed when stats present
+
+
 def test_social_platform_logos_are_packaged():
     from intelligencer.images import LOGO_DIR, logo_asset_path
 

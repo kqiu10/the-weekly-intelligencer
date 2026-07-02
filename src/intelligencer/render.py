@@ -29,6 +29,20 @@ def _groupby_order(items, attr):
     return groups
 
 
+def _compact(n) -> str:
+    """Format an engagement count the way social apps do: 6083 → '6083', 98200 → '98.2K',
+    1_300_000 → '1.3M', 1_028_127 → '1M'. Non-numeric input renders as empty."""
+    try:
+        n = int(n)
+    except (TypeError, ValueError):
+        return ""
+    if n < 10_000:
+        return str(n)
+    if n < 1_000_000:
+        return f"{n / 1000:.1f}".rstrip("0").rstrip(".") + "K"
+    return f"{n / 1_000_000:.1f}".rstrip("0").rstrip(".") + "M"
+
+
 def _week_range_label(issue) -> str:
     """Human label for the Mon–Sun week an issue covers, e.g. 'Jun 22 – Jun 28, 2026'."""
     try:
@@ -47,6 +61,7 @@ def _env() -> Environment:
     env.filters["groupby_order"] = _groupby_order
     env.filters["blurb"] = item_blurb
     env.filters["week_range"] = _week_range_label
+    env.filters["compact"] = _compact
     return env
 
 
