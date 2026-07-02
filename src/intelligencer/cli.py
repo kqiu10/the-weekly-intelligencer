@@ -28,6 +28,9 @@ def build_parser() -> argparse.ArgumentParser:
     p_fetch.add_argument(
         "--only", help="only gather dimensions whose name contains this (case-insensitive)"
     )
+    p_fetch.add_argument(
+        "--date", help="issue date YYYY-MM-DD to pin the week window (default: today)"
+    )
 
     p_render = sub.add_parser("render", help="Render a manifest into a self-contained HTML issue")
     p_render.add_argument("--config", default="config/dimensions.yaml", help="config file path")
@@ -56,15 +59,23 @@ def _select_dimensions(dimensions: list, only: str | None) -> list:
 
 
 def _cmd_fetch(args: argparse.Namespace) -> int:
+    import datetime as dt
+
     from .config import load_config
     from .gather import build_manifest
 
+    if args.date:
+        try:
+            dt.date.fromisoformat(args.date)
+        except ValueError:
+            print(f"invalid --date {args.date!r}; expected YYYY-MM-DD", file=sys.stderr)
+            return 1
     cfg = load_config(args.config)
     cfg.dimensions = _select_dimensions(cfg.dimensions, args.only)
     if not cfg.dimensions:
         print(f"no dimensions match --only {args.only!r}", file=sys.stderr)
         return 1
-    manifest = build_manifest(cfg, discover_og=True)
+    manifest = build_manifest(cfg, date=args.date, discover_og=True)
     path = manifest.write(MANIFEST_PATH)
     n = sum(len(d.items) for d in manifest.dimensions)
     missing = sum(1 for d in manifest.dimensions for it in d.items if not it.image)
