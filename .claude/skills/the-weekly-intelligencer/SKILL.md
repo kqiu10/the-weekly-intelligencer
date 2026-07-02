@@ -47,10 +47,13 @@ the image (like the native app); the text beside it is the editorial `summary` o
   (channel name), and `stats` = {views, likes, comments}. **Prune** to the genuinely **AI-generated**
   ones (drop the rest, down to `max_per_source`); leave the fields as-is.
 - **TikTok, Instagram, Facebook** (`type: search`) — find each platform's 1–2 **AI-generated** posts
-  going viral this week. For each set the real permalink (`url`), a **thumbnail** (`image`),
-  `creator` (the @handle), `group` = platform, a short `summary`, and `stats` (visible likes /
-  comments) **when you can read them** (optional). **Silently** skip a platform with no verifiable
-  AI-gen hit — leave `notes` empty; never add a note explaining the absence.
+  going viral this week. The live post pages are login-gated, so get the **thumbnail from the post's
+  *coverage***: a "viral this week" roundup, news write-up, or fact-check that embeds a still of the
+  post — those pages aren't gated, so set `image` to that article's `og:image`/still (`cache`
+  downloads it at gen time). Also set the post permalink (`url`), `creator` (@handle), `group` =
+  platform, a short `summary`, and `stats` (likes / comments) **only if the coverage or post states
+  them** (optional). **Silently** skip a platform when you can't find a verified AI-gen post *with a
+  usable coverage image* — leave `notes` empty; never add a note explaining the absence.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
@@ -109,8 +112,10 @@ e.g. `dist/2026-06-26.html`.
 - **Attribute everything.** Every item links to a real source you actually found.
 - **Never fabricate** headlines, quotes, numbers, dates, or links. If you can't verify
   it, drop it.
-- **No AI-generated images** — only a real preview image (a post's own thumbnail / `og:image`, or an
-  article's image), or `null`. Never a synthesized/generated picture.
+- **Never *generate or fabricate* an image yourself** — every `image` is a real published one: a
+  video's thumbnail, or an article/coverage still (including a screenshot of an AI-generated post
+  that *is* the story), or `null`. The ban is on *you* creating/AI-generating a picture, not on
+  showing a real still of AI content.
 - **Never call the Anthropic API** — all writing happens here in this session.
 - **Social posts & hotness:** link the real permalink; never fabricate a post, a view count,
   or a virality/hotness figure — the 🔥 signal is an editorial estimate over time, not
