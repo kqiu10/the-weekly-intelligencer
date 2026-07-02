@@ -84,9 +84,10 @@
               <a class="media-tile" href="{{ item.url }}">
                 {% if item.image %}<img class="media-thumb" src="{{ item.image }}" alt="">{% endif %}
                 {% if item.stats %}<span class="media-metrics">{% if "likes" in item.stats %}<span class="mm"><svg class="mm-ic" aria-hidden="true"><use href="#ic-like"/></svg>{{ item.stats.likes | compact }}</span>{% endif %}{% if "comments" in item.stats %}<span class="mm"><svg class="mm-ic" aria-hidden="true"><use href="#ic-comment"/></svg>{{ item.stats.comments | compact }}</span>{% endif %}</span>{% endif %}
-                <span class="media-cap">{% if item.creator %}<span class="media-creator">{{ item.creator }}</span>{% endif %}<span class="media-cap-title">{{ item.title }}</span></span>
+                {% if item.creator %}<span class="media-cap"><span class="media-creator">{{ item.creator }}</span></span>{% endif %}
               </a>
               <div class="media-body">
+                <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h5>
                 {% set item_blurb = item | blurb %}
                 {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
                 <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>

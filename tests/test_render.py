@@ -89,7 +89,11 @@ def test_social_item_renders_media_tile_with_overlaid_creator_and_metrics():
     assert "labs--media" in html
     assert 'class="media-tile"' in html and "oardefault.jpg" in html  # portrait tile
     assert 'class="media-creator">AI Cinema' in html  # creator overlaid on the frame
-    assert 'class="media-cap-title">AI cat pilots a jet' in html  # title overlaid
+    # title is a linked heading in the text section (not overlaid on the tile)
+    assert (
+        'class="item-title"><a href="https://www.youtube.com/shorts/x">AI cat pilots a jet' in html
+    )
+    assert "media-cap-title" not in html
     # likes + comments overlaid on the tile; the old text metrics row is gone; views not shown
     assert 'class="media-metrics"' in html and "12K" in html and "840" in html
     assert 'href="#ic-like"' in html and 'href="#ic-comment"' in html

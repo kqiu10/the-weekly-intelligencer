@@ -49,7 +49,8 @@ the image (like the native app); the text beside it is the editorial `summary` o
 - **TikTok, Instagram, Facebook** (`type: search`) — find each platform's 1–2 **AI-generated** posts
   going viral this week. For each set the real permalink (`url`), a **thumbnail** (`image`),
   `creator` (the @handle), `group` = platform, a short `summary`, and `stats` (visible likes /
-  comments) **when you can read them** (optional). Skip a platform with no verifiable AI-gen hit.
+  comments) **when you can read them** (optional). **Silently** skip a platform with no verifiable
+  AI-gen hit — leave `notes` empty; never add a note explaining the absence.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
