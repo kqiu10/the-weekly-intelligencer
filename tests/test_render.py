@@ -101,26 +101,34 @@ def test_social_item_renders_media_tile_with_overlaid_creator_and_metrics():
     assert "1M" not in html  # views are not displayed on the tile
 
 
-def test_drop_imageless_media_backstops_broken_tiles():
+def test_media_dimension_imageless_item_falls_back_to_normal_card():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
-    from intelligencer.render import _drop_imageless_media
 
-    labs = DimensionContent(name="Labs", items=[Item(title="a", url="u", image=None)])
-    social = DimensionContent(
+    dim = DimensionContent(
         name="Social",
+        layout="by-source",
         items=[
-            Item(title="ok", url="u1", image="assets/x.jpg", stats={"likes": 10}),
-            Item(title="broken", url="u2", image=None, stats={"likes": 5}),  # media, no image
-            Item(title="relaxed", url="u3", image="assets/y.jpg"),  # media dim, has image
+            Item(
+                title="has image",
+                url="u1",
+                group="YouTube Shorts",
+                image="https://i.ytimg.com/vi/x/oardefault.jpg",
+                stats={"likes": 12000},
+            ),
+            Item(
+                title="no image",
+                url="u2",
+                group="Instagram",
+                summary="popular AI reel",
+                stats={"likes": 5000},
+            ),
         ],
     )
-    m = Manifest(issue=Issue(date="2026-07-02", title="T"), dimensions=[labs, social])
-    _drop_imageless_media(m)
-    assert [it.title for it in m.dimensions[0].items] == ["a"]  # non-media dim keeps imageless item
-    assert [it.title for it in m.dimensions[1].items] == [
-        "ok",
-        "relaxed",
-    ]  # imageless media dropped
+    html = render_html(Manifest(issue=Issue(date="2026-07-02", title="T"), dimensions=[dim]))
+    # the imaged item is a portrait media tile; the imageless one renders as a plain by-source card
+    assert html.count('class="media-tile"') == 1
+    assert 'class="item-title"><a href="u2">no image' in html
+    assert "popular AI reel" in html
 
 
 def test_social_platform_logos_are_packaged():

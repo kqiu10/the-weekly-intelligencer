@@ -79,7 +79,7 @@
           </div>
           <div class="lab-items">
             {% for item in group_items %}
-            {% if dim.items | selectattr("stats") | first %}
+            {% if (dim.items | selectattr("stats") | first) and item.image %}
             <article class="media-item">
               <a class="media-tile" href="{{ item.url }}">
                 {% if item.image %}<img class="media-thumb" src="{{ item.image }}" alt="">{% endif %}
