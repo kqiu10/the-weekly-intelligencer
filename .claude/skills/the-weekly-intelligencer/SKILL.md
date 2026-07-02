@@ -40,17 +40,17 @@ can't find one, use `null`.
 ### The "Trending Social Video & Images" dimension
 Surface the **1–2 posts breaking out this week** **per platform** — **any topic** (not AI-only).
 "This week" means *newly* trending — **recently posted and spiking now, not the highest all-time
-view count** (otherwise the same evergreen clip recurs every week). Each card is **metrics-forward**:
-show the post's real engagement counts in `stats`, not a thumbnail (`image: null`). **Add an item
-only if you can record its real counts; skip a platform you can't verify a fresh hit for this week.**
+view count** (otherwise the same evergreen clip recurs every week). Every card shows a **thumbnail**
+and, **when you can read them**, the post's **engagement counts** (`stats`).
 - **YouTube** is filled by `fetch` (free official Data API), already scoped to *this week's uploads*
-  ranked by views, each carrying `stats` = {views, likes, comments}. Keep the 1–2 biggest; leave
-  `stats` as-is.
-- **TikTok, Instagram, Facebook** (`type: search`) — no free trending API, so **you** find each
-  platform's 1–2 posts that are **going viral this week** (verify the post is recent — days old, not
-  months — and rising now), open each, and record its **visible** counts into `stats` (a TikTok →
-  {likes, comments, saves, shares}; a photo → {likes, comments}). Set `group` to the platform and
-  `image: null`. Skip a platform if you can't verify a fresh viral post.
+  ranked by views — each with a `youtube.com/shorts/` link, an `i.ytimg` thumbnail, and `stats` =
+  {views, likes, comments}. Keep the 1–2 biggest; leave them as-is.
+- **TikTok, Instagram, Facebook** (`type: search`) — find each platform's 1–2 posts **going viral
+  this week** (recent — days old, not months — and rising now). For each set the real permalink
+  (`url`), a **thumbnail** as `image` (the post's own preview / `og:image`, or a still from coverage
+  — `cache` downloads it at gen time; use `null` only if you genuinely can't get one), `group` = the
+  platform, and a short `summary`. Add `stats` (visible likes/comments/etc.) **when you can read them
+  — no longer required**; include the post even without counts.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
@@ -109,8 +109,8 @@ e.g. `dist/2026-06-26.html`.
 - **Attribute everything.** Every item links to a real source you actually found.
 - **Never fabricate** headlines, quotes, numbers, dates, or links. If you can't verify
   it, drop it.
-- **No AI-generated images** — only a real article preview image, or `null`. (The social-video
-  dimension is metrics-forward: its items carry `stats`, not pictures, so use `image: null`.)
+- **No AI-generated images** — only a real preview image (a post's own thumbnail / `og:image`, or an
+  article's image), or `null`. Never a synthesized/generated picture.
 - **Never call the Anthropic API** — all writing happens here in this session.
 - **Social posts & hotness:** link the real permalink; never fabricate a post, a view count,
   or a virality/hotness figure — the 🔥 signal is an editorial estimate over time, not
