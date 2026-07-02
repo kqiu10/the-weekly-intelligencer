@@ -2,6 +2,8 @@
 
 **A weekly digest of AI industry news, featuring updates on frontier labs and the latest trending AI-generated images and video.**
 
+Frontier labs ship constantly, and social feeds are just as noisy — hard to tell what's real news from what's a flash in the pan. The Weekly Intelligencer filters both down into one newspaper-style issue, once a week.
+
 ## Preview
 ![Scrolling through a sample issue](samples/sample-scroll.gif)
 
