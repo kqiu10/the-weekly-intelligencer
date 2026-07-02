@@ -102,6 +102,15 @@ def _copy_logos(manifest: Manifest, output_dir: Path) -> None:
             copy_logo(rel, output_dir)
 
 
+def _copy_flame(manifest: Manifest, output_dir: Path) -> None:
+    """Copy the 🔥 flame glyph into dist/ when the issue has a heating trend — it's the only
+    thing the 'Heating up' strip references, so skip it when nothing is hot."""
+    from .images import copy_logo
+
+    if any(t.get("heat_tier") for dim in manifest.dimensions for t in dim.trends):
+        copy_logo("assets/flame.png", output_dir)
+
+
 def render_issue(
     manifest: Manifest,
     output_dir: str | Path,
@@ -114,6 +123,7 @@ def render_issue(
     if images == "cache":
         _cache_images(manifest, output_dir)
     _copy_logos(manifest, output_dir)
+    _copy_flame(manifest, output_dir)
     out = output_dir / f"{manifest.issue.date}.html"
     out.write_text(render_html(manifest, render_tldr=render_tldr), encoding="utf-8")
     return out

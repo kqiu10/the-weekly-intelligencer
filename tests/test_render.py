@@ -62,9 +62,9 @@ def test_trend_strip_shows_only_heating_rows_and_hides_when_none():
     assert "cold context" not in html  # zero-heat rows are hidden
     assert html.count('class="flame"') == 4  # 3 + 1; none for the suppressed row
 
-    # cold-start week — every context is heat_tier 0 → no strip and no flame symbol
+    # cold-start week — every context is heat_tier 0 → no strip and no flame glyph
     cold = render([{"descriptor": "brand new", "heat_tier": 0}])
-    assert 'class="trend-strip"' not in cold and 'id="flame"' not in cold
+    assert 'class="trend-strip"' not in cold and 'class="flame"' not in cold
     # a dimension with no trends also renders no strip
     assert 'class="trend-strip"' not in render([])
 
@@ -313,3 +313,22 @@ def test_render_issue_copies_company_logos_into_dist(tmp_path):
     copied = tmp_path / "assets" / "logos" / "openai.svg"
     assert copied.exists()
     assert copied.read_bytes().startswith(b"<svg")
+
+
+def test_render_issue_copies_flame_asset_only_when_a_trend_is_heating(tmp_path):
+    """The flame glyph is copied into dist/ exactly when the 'Heating up' strip references it."""
+    from intelligencer.manifest import DimensionContent, Issue, Manifest
+    from intelligencer.render import render_issue
+
+    def render_into(subdir, trends):
+        out = tmp_path / subdir
+        dim = DimensionContent(name="Social", layout="by-source", trends=trends)
+        render_issue(
+            Manifest(issue=Issue(date="2026-07-06", title="T"), dimensions=[dim]),
+            out,
+            images="hotlink",
+        )
+        return (out / "assets" / "flame.png").exists()
+
+    assert render_into("hot", [{"descriptor": "x", "heat_tier": 2}]) is True
+    assert render_into("cold", [{"descriptor": "x", "heat_tier": 0}]) is False
