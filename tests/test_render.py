@@ -33,22 +33,13 @@ def test_tldr_renders_above_sections_when_present_and_omitted_when_empty():
     assert 'class="tldr"' not in off
 
 
-def test_week_range_label_is_week_to_date_capped_at_start_plus_7():
-    from datetime import date
-
+def test_week_range_label_is_week_to_date_from_the_issue_date():
     from intelligencer.manifest import Issue
     from intelligencer.render import _week_range_label
 
-    # as of Thu Jul 2, the in-progress week stops at today — never a future date
-    assert (
-        _week_range_label(Issue(date="2026-07-02", title="T"), today=date(2026, 7, 2))
-        == "Jun 29 – Jul 2, 2026"
-    )
-    # a fully-elapsed past week shows its whole span: its Monday → Monday + 7
-    assert (
-        _week_range_label(Issue(date="2026-06-26", title="T"), today=date(2026, 7, 2))
-        == "Jun 22 – Jun 29, 2026"
-    )
+    # deterministic from the manifest alone (no wall-clock): the issue's week Monday → its own date
+    assert _week_range_label(Issue(date="2026-07-02", title="T")) == "Jun 29 – Jul 2, 2026"
+    assert _week_range_label(Issue(date="2026-06-26", title="T")) == "Jun 22 – Jun 26, 2026"
 
 
 def test_trend_strip_shows_only_heating_rows_and_hides_when_none():
