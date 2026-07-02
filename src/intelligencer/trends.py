@@ -183,7 +183,15 @@ def apply_trends(manifest, store: TrendStore, *, week: int, issue_date: str):
                 samples=topic.get("samples", []),
             )
             mags = store.magnitudes(tid)
-            topic["heat_tier"] = heat_tier(mags)
+            tier = heat_tier(mags)
+            topic["heat_tier"] = tier
             topic["direction"] = direction(mags)
             topic["recurring"] = recurring(mags)
+            # Stamp the heat onto the posts that depict this context (its ``samples``), so each
+            # card can show a flame after its title — there is no separate "Heating up" strip.
+            if tier:
+                samples = set(topic.get("samples", []))
+                for item in dim.items:
+                    if item.url in samples:
+                        item.heat_tier = max(item.heat_tier, tier)
     return manifest

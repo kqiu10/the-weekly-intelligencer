@@ -23,6 +23,7 @@ class Item:
     # {"views": .., "likes": .., "comments": .., "saves": .., "shares": ..} — rendered as a
     # metrics row instead of a preview image; only the keys a platform exposes are set.
     stats: dict = field(default_factory=dict)
+    heat_tier: int = 0  # >0 when this item's context is heating in the trend db → flame after title
 
 
 @dataclass

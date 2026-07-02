@@ -56,7 +56,7 @@ def test_record_same_week_updates_in_place(tmp_path):
 
 
 def test_apply_trends_records_and_annotates():
-    from intelligencer.manifest import DimensionContent, Issue, Manifest
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
     from intelligencer.trends import apply_trends
 
     store = TrendStore()
@@ -64,8 +64,18 @@ def test_apply_trends_records_and_annotates():
     dim = DimensionContent(
         name="Social",
         trends=[
-            {"id": "cats", "descriptor": "AI cats flying jets", "tags": ["cats"], "magnitude": 7},
+            {
+                "id": "cats",
+                "descriptor": "AI cats flying jets",
+                "tags": ["cats"],
+                "magnitude": 7,
+                "samples": ["https://t/cat"],
+            },
             {"id": "new-meme", "descriptor": "brand new meme", "tags": [], "magnitude": 4},
+        ],
+        items=[
+            Item(title="cat post", url="https://t/cat", group="TikTok"),
+            Item(title="unrelated", url="https://t/other", group="TikTok"),
         ],
     )
     manifest = Manifest(issue=Issue(date="2026-07-06", title="T", week=3), dimensions=[dim])
@@ -76,3 +86,6 @@ def test_apply_trends_records_and_annotates():
     assert cats["heat_tier"] == 2 and cats["direction"] == "up" and cats["recurring"] is True
     new = manifest.dimensions[0].trends[1]
     assert new["heat_tier"] == 0 and new["recurring"] is False  # first appearance
+    # heat is stamped onto the post the heating topic points to (its sample), not the others
+    items = manifest.dimensions[0].items
+    assert items[0].heat_tier == 2 and items[1].heat_tier == 0

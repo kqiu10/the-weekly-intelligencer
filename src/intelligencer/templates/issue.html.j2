@@ -52,19 +52,6 @@
       <h3 class="dimension-name">{{ dim.name }}</h3>
       {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
       {% for note in dim.notes %}<p class="dimension-note">{{ note }}</p>{% endfor %}
-      {% if dim.trends | selectattr("heat_tier") | list %}
-      <div class="trend-strip">
-        <p class="kicker">Heating up</p>
-        <ul class="trend-list">
-          {% for t in dim.trends if t.heat_tier %}
-          <li class="trend">
-            <span class="flames">{% for _ in range(t.heat_tier) %}<img class="flame" src="assets/flame.png" alt="" aria-hidden="true">{% endfor %}</span>
-            <span class="trend-descriptor">{{ t.descriptor }}</span>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
       {% if dim.layout == "by-source" %}
       <div class="labs{% if dim.items | selectattr("stats") | first %} labs--media{% endif %}">
         {% for label, group_items in dim.items | groupby_order('group') %}
@@ -84,7 +71,7 @@
                 {% if item.creator %}<span class="media-cap"><span class="media-creator">{{ item.creator }}</span></span>{% endif %}
               </a>
               <div class="media-body">
-                <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h5>
+                <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
                 {% set item_blurb = item | blurb %}
                 {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
                 <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
@@ -93,7 +80,7 @@
             {% else %}
             <article class="item">
               {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
-              <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h5>
+              <h5 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
               {% set item_blurb = item | blurb %}
               {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
               <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
@@ -110,7 +97,7 @@
         {% if not (outer.first and loop.first) %}
         <article class="item">
           {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
-          <h4 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a></h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
+          <h4 class="item-title"><a href="{{ item.url }}">{{ item.title }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
           {% set item_blurb = item | blurb %}
           {% if item_blurb %}<p class="item-summary">{{ item_blurb }}</p>{% endif %}
           {% if item.source %}<p class="item-source">{{ item.source }}</p>{% endif %}

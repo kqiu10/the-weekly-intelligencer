@@ -103,11 +103,11 @@ def _copy_logos(manifest: Manifest, output_dir: Path) -> None:
 
 
 def _copy_flame(manifest: Manifest, output_dir: Path) -> None:
-    """Copy the 🔥 flame glyph into dist/ when the issue has a heating trend — it's the only
-    thing the 'Heating up' strip references, so skip it when nothing is hot."""
+    """Copy the 🔥 flame glyph into dist/ when at least one card is hot — it's referenced only by
+    a heating item's flame badge, so skip it when nothing is hot."""
     from .images import copy_logo
 
-    if any(t.get("heat_tier") for dim in manifest.dimensions for t in dim.trends):
+    if any(item.heat_tier for dim in manifest.dimensions for item in dim.items):
         copy_logo("assets/flame.png", output_dir)
 
 
