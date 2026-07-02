@@ -40,6 +40,7 @@ class Output:
     dir: str = "./dist"
     images: str = "cache"  # cache | hotlink
     open_after_render: bool = False
+    render_tldr: bool = True  # show the issue TL;DR in the HTML (still written to the manifest)
 
 
 @dataclass
@@ -86,6 +87,7 @@ def load_config(path: str | Path) -> Config:
         dir=out.get("dir", "./dist"),
         images=out.get("images", "cache"),
         open_after_render=bool(out.get("open_after_render", False)),
+        render_tldr=bool(out.get("render_tldr", True)),
     )
 
     defaults = data.get("defaults", {}) or {}

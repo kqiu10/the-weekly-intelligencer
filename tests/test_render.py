@@ -26,6 +26,11 @@ def test_tldr_renders_above_sections_when_present_and_omitted_when_empty():
     assert 'class="tldr"' in shown and text in shown
     hidden = render_html(Manifest(issue=Issue(date="2026-07-01", title="T")))
     assert 'class="tldr"' not in hidden
+    # render_tldr=False suppresses it even when the manifest has one (review-it-first mode)
+    off = render_html(
+        Manifest(issue=Issue(date="2026-07-01", title="T", tldr=text)), render_tldr=False
+    )
+    assert 'class="tldr"' not in off
 
 
 def test_trend_strip_shows_only_heating_rows_and_hides_when_none():

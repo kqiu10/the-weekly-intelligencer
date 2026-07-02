@@ -29,7 +29,7 @@
     </div>
   </header>
 
-  {% if issue.tldr %}
+  {% if issue.tldr and render_tldr %}
   <section class="tldr">
     <p class="kicker">TL;DR</p>
     <p class="tldr-body">{{ issue.tldr }}</p>

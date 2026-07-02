@@ -7,6 +7,7 @@ output:
   dir: "./dist"
   images: cache                    # cache (download alongside) | hotlink (source URL)
   open_after_render: false
+  render_tldr: false               # keep writing issue.tldr to the manifest, but omit it from the HTML for now (review it manually first)
 
 defaults:
   summary: rewrite                 # raw | rewrite | synthesize

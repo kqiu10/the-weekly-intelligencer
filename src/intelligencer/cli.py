@@ -86,7 +86,9 @@ def _cmd_render(args: argparse.Namespace) -> int:
     if not manifest.dimensions:
         print(f"no dimensions match --only {args.only!r}", file=sys.stderr)
         return 1
-    out = render_issue(manifest, cfg.output.dir, images=cfg.output.images)
+    out = render_issue(
+        manifest, cfg.output.dir, images=cfg.output.images, render_tldr=cfg.output.render_tldr
+    )
     print(f"wrote {out}")
     if getattr(args, "open_after", False):
         import webbrowser

@@ -65,10 +65,15 @@ def _env() -> Environment:
     return env
 
 
-def render_html(manifest: Manifest) -> str:
+def render_html(manifest: Manifest, *, render_tldr: bool = True) -> str:
     css = (TEMPLATE_DIR / "intelligencer.css").read_text(encoding="utf-8")
     template = _env().get_template("issue.html.j2")
-    return template.render(issue=manifest.issue, dimensions=manifest.dimensions, css=css)
+    return template.render(
+        issue=manifest.issue,
+        dimensions=manifest.dimensions,
+        css=css,
+        render_tldr=render_tldr,
+    )
 
 
 def _cache_images(manifest: Manifest, output_dir: Path) -> None:
@@ -92,12 +97,18 @@ def _copy_logos(manifest: Manifest, output_dir: Path) -> None:
             copy_logo(rel, output_dir)
 
 
-def render_issue(manifest: Manifest, output_dir: str | Path, *, images: str = "hotlink") -> Path:
+def render_issue(
+    manifest: Manifest,
+    output_dir: str | Path,
+    *,
+    images: str = "hotlink",
+    render_tldr: bool = True,
+) -> Path:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     if images == "cache":
         _cache_images(manifest, output_dir)
     _copy_logos(manifest, output_dir)
     out = output_dir / f"{manifest.issue.date}.html"
-    out.write_text(render_html(manifest), encoding="utf-8")
+    out.write_text(render_html(manifest, render_tldr=render_tldr), encoding="utf-8")
     return out
