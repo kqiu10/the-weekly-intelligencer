@@ -44,12 +44,16 @@ def _compact(n) -> str:
 
 
 def _week_range_label(issue) -> str:
-    """Human label for the Mon–Sun week an issue covers, e.g. 'Jun 22 – Jun 28, 2026'."""
+    """Human label for the span an issue covers: Monday of its calendar week through the issue's
+    own date — week-to-date, e.g. 'Jun 29 – Jul 2, 2026'. The end is capped at the issue date, not
+    the calendar Sunday, so a mid-week issue doesn't advertise a future end date; it matches the
+    week-to-date content window (``_window_start``)."""
     try:
         start_iso, end_iso = issue_week_range(issue.date)
+        start = date.fromisoformat(start_iso)
+        end = min(date.fromisoformat(issue.date), date.fromisoformat(end_iso))
     except (ValueError, TypeError, AttributeError):
         return ""
-    start, end = date.fromisoformat(start_iso), date.fromisoformat(end_iso)
     return f"{start:%b} {start.day} – {end:%b} {end.day}, {end:%Y}"
 
 
