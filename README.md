@@ -81,6 +81,12 @@ A self-contained `dist/<date>.html` with the styling inlined and its images/logo
 
 Most AI news tools force a choice: paraphrase everything through an LLM (expensive, hallucination-prone) or just dump raw feeds (no editorial judgment). Building this as a Claude Code **Agent Skill** splits the difference — **deterministic scripts do the fetching for free**, and the skill hands Claude Code only the part that needs judgment: writing summaries and curating trends, done **in-session, with no API key**. The output is a **single portable HTML file**, not a service to host, and the whole run is reproducible from the manifest.
 
+## Issues
+
+| Issue | Date | Link |
+|---|---|---|
+| Issue 1 | 6/22-6/28 | [`Issue 1`](issues/2026-06-28.html) |
+| Issue 2 | 6/29-7/2 | [`Issue 2`](issues/2026-07-02.html) |
 
 ## License
 
