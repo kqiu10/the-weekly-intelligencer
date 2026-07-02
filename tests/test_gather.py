@@ -13,18 +13,20 @@ from intelligencer.gather import (
 from intelligencer.manifest import Item
 
 
-def test_select_in_window_keeps_feed_order_and_drops_out_of_window():
+def test_select_in_window_caps_start_at_the_issue_week_monday():
+    # generated Wed 2026-07-01 → the issue week starts Mon 2026-06-29, so anything before that
+    # Monday is dropped even if it's within 7 days (window is week-to-date, not a rolling 7 days).
     today = dt.date(2026, 7, 1)
     items = [
-        Item(title="a", url="u1", source="mobileappdaily.com", published="2026-06-30"),
-        Item(title="b", url="u2", source="scmp.com", published="2026-06-24"),
-        Item(title="c", url="u3", source="reuters.com", published="2026-06-25"),
-        Item(title="stale", url="u4", source="reuters.com", published="2026-06-01"),  # >7 days
-        Item(title="undated", url="u5", source="reuters.com", published=None),  # can't place
+        Item(title="mon", url="u1", source="x.com", published="2026-06-29"),  # week Monday — in
+        Item(title="tue", url="u2", source="x.com", published="2026-06-30"),  # in
+        Item(title="today", url="u3", source="x.com", published="2026-07-01"),  # in
+        Item(title="prev-wk", url="u4", source="x.com", published="2026-06-25"),  # last week — out
+        Item(title="undated", url="u5", source="x.com", published=None),  # can't place — out
     ]
     out = _select_in_window(items, today, within_days=7)
-    # stale + undated dropped; the feed's own order (relevance) is taken as given
-    assert [it.title for it in out] == ["a", "b", "c"]
+    # feed order preserved; last-week + undated dropped
+    assert [it.title for it in out] == ["mon", "tue", "today"]
 
 
 def test_drop_contentless_keeps_items_with_image_or_blurb():
@@ -173,7 +175,7 @@ def test_youtube_candidates_land_uncapped_for_claude_to_prune(monkeypatch):
     dim = build_manifest(_youtube_cfg(), date="2026-07-01").dimensions[0]
     assert [it.origin for it in dim.items] == ["youtube"] * 4  # all 4 kept, not capped to 2
     assert all(it.group == "YouTube Shorts" for it in dim.items)
-    assert captured["published_after"] == "2026-06-24T00:00:00Z"  # 2026-07-01 − 7 days
+    assert captured["published_after"] == "2026-06-29T00:00:00Z"  # capped at the issue-week Monday
     assert captured["max_results"] >= 4
 
 

@@ -90,12 +90,18 @@ def _drop_boilerplate_images(items: list[Item]) -> None:
             it.image = None
 
 
+def _window_start(today: _dt.date, within_days: int) -> _dt.date:
+    """Start of the content window: ``within_days`` back, but **never earlier than the issue's own
+    calendar-week Monday** — so content matches the 'Issue N · Mon–Sun' masthead range and a mid-week
+    run doesn't pull in the previous week's posts (the window is week-to-date)."""
+    return max(today - _dt.timedelta(days=within_days), _week_monday(today))
+
+
 def _select_in_window(items: list[Item], today: _dt.date, within_days: int) -> list[Item]:
-    """Keep items published within ``[today - within_days, today]``, dropping
-    undated ones, and preserve the feed's own order — relevance for a Google News
-    search, recency for a chronological RSS feed. We take that ordering as given
-    rather than second-guessing it with a hand-maintained outlet blocklist."""
-    cutoff = today - _dt.timedelta(days=within_days)
+    """Keep items published within ``[window_start, today]`` — the issue's week-to-date (see
+    ``_window_start``) — dropping undated ones, and preserve the feed's own order (relevance for a
+    Google News search, recency for a chronological RSS feed)."""
+    cutoff = _window_start(today, within_days)
     return [
         it
         for it in items
@@ -161,7 +167,7 @@ def _gather_dimension(
             # most-viewed short videos in the window; Claude prunes it to the genuinely
             # AI-generated ones at the write stage. No key → fetch_youtube returns [].
             within = dim.within_days if dim.within_days is not None else 7
-            since = today - _dt.timedelta(days=within)
+            since = _window_start(today, within)
             cap = dim.max_per_source or dim.max_items or 5
             src_items = fetch_youtube(
                 source.query or "",
