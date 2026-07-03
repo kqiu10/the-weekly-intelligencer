@@ -63,6 +63,24 @@ hub directly (e.g. `openai.com/stories`, Microsoft's customer-stories blog, NVID
 newsroom) — these are curated, first-party feeds of exactly this story type, higher
 precision than open web search. Only conclude "nothing qualifies" after that full sweep.
 
+**Known AI-active manufacturers — a search aid, not a qualify restriction.** Any named
+manufacturer still qualifies (per the rule above); this list exists to make queries sharper
+and cheaper. Cross a few of these with the vendor list in a *single* combined query per
+sector rather than one query per company — e.g. `(HP OR Foxconn OR Dell OR Lenovo OR
+Samsung) (OpenAI OR Anthropic OR Microsoft OR NVIDIA) AI partnership this week` — a
+named-pair match like this is sharper than either side alone, and is what should have
+caught HP × OpenAI directly.
+- **Electronics/hardware:** HP, Foxconn, Dell, Lenovo, Samsung
+- **Industrial/automation:** Siemens, ABB, Schneider Electric, Honeywell, Rockwell
+  Automation, Bosch
+- **Automotive:** Toyota, Volkswagen, Hyundai, Ford, BMW
+- **Heavy industry/aerospace:** Caterpillar, John Deere, Boeing, Airbus
+- **Consumer goods:** Unilever, Mattel, Procter & Gamble
+
+Grow this list over time — add a company here once a real, verified story about it is
+found (mirroring how `data/trends.json` accumulates topics), so future searches start
+sharper than this week's did.
+
 **Qualify — needs a named AI vendor AND a named manufacturer applying it:**
 - ✅ HP × OpenAI — "Frontier" partnership for customer experience and internal operations
   (hp.com press release + openai.com confirmation + independent trade press — the reference
