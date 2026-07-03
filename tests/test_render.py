@@ -161,6 +161,17 @@ def test_social_platform_logos_are_packaged():
         assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
 
 
+def test_intelligent_factory_company_logos_are_packaged():
+    # SPEC §10.4: unlike the labs/platforms above, these aren't pre-declared config
+    # sources — Claude adds one here (and a matching assets/logos/<slug>.svg) each time a
+    # new company is confirmed. Grows over time; extend this list alongside the SVGs.
+    from intelligencer.images import LOGO_DIR, logo_asset_path
+
+    for slug in ("hp",):
+        assert logo_asset_path(slug) == f"assets/logos/{slug}.svg"
+        assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
+
+
 def test_by_source_renders_labeled_rows_with_source_and_date():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 

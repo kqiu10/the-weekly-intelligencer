@@ -114,8 +114,19 @@ scoped explicitly to "this week," doesn't have that constraint.
 - **Silently** skip when nothing verifiable qualifies — leave `notes` empty, same as the
   social platforms below.
 - **Set `group`** to the manufacturer's name (e.g. `"HP"`), not `""` — `by-source` layout
-  (like the labs above), one card per company that actually shows up this week. No `logo`
-  needed or expected; the card renders with a label-only rail when there's none.
+  (like the labs above), one card per company that actually shows up this week.
+- **Logo, if you can add one:** run `ls src/intelligencer/assets/logos/` — if a
+  `<slug>.svg` already matches the company (lowercased name, e.g. `hp.svg`), set
+  `dim.logos[group] = "assets/logos/<slug>.svg"`. If none exists yet, either add one
+  (matching the existing style exactly: Simple Icons format — `<svg fill="#<official brand
+  hex>" role="img" viewBox="0 0 24 24" ...><title>Name</title><path d="..."/></svg>` —
+  fetch the real path data, e.g. from
+  `raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/<slug>.svg`, and the
+  brand hex from their `data/simple-icons.json`; never invent path data) or leave the card
+  logo-less — a missing `logo` entry always renders a safe label-only rail, never a broken
+  `<img>`. This library only grows on confirmed, real companies (mirrors `data/trends.json`
+  — small, accumulates over time); extend `tests/test_render.py`'s
+  `test_intelligent_factory_company_logos_are_packaged` with the new slug when you add one.
 
 ### The "Trending Social Video & Images" dimension
 Surface the **1–2 most-shared AI-generated** videos/images **per platform** this week — the ones
