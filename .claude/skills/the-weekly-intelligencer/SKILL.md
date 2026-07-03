@@ -43,9 +43,18 @@ the AI industry's own hardware/infrastructure news. Search-only (a Google News `
 tried and dropped — see below); find up to `max_items` qualifying stories this week, never
 pad to reach it — zero in a quiet week is correct, not a failure.
 
-**Search thoroughly before concluding a quiet week — one or two generic queries is not
-enough** (a real 2026-07-03 run missed HP × OpenAI on the first pass this way, and only
-caught it on a second, more targeted search): run a generic query *and* at least 3–4
+**Step 0, before spending any WebSearch budget — check the labs' own feeds you already
+fetched for free.** Frontier AI Research Labs' `feed`/`site` sources (OpenAI's RSS,
+Anthropic's newsroom, etc.) are capped at `max_per_source: 2` for *that* dimension — the
+raw feed usually has more. Re-pull each tracked lab's feed/site URL from
+`config/dimensions.yaml` directly (`fetch_feed(url)` for RSS, no extra cost, no extra
+search) and scan the *uncapped* list for customer/partnership-shaped headlines the cap
+dropped. This is exactly how a real 2026-07-03 run missed HP × OpenAI: it was item #6 in
+OpenAI's own RSS feed the whole time, cut only because two other OpenAI posts outranked it
+by date for the 2-item cap — zero search would have been needed to find it.
+
+**Only if that turns up nothing, search — and search thoroughly, one or two generic
+queries is not enough:** run a generic query *and* at least 3–4
 vendor-specific ones (`"OpenAI" enterprise OR manufacturing partnership this week`,
 `"NVIDIA" industrial partnership this week`, `"Microsoft" AI deployment manufacturer this
 week`, etc. — prioritize OpenAI, Microsoft, NVIDIA, Anthropic, which have the most
