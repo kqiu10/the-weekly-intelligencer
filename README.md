@@ -9,7 +9,7 @@ Frontier labs ship constantly, and social feeds are just as noisy — hard to te
 
 
 ## Dimensions
-Currently tracked AI research labs and social media platforms.  
+Currently tracked AI research labs, industrial AI adoption, and social media platforms.  
 **Frontier AI Research Labs**
 
 | AI Lab | Search type | Description |
@@ -21,6 +21,10 @@ Currently tracked AI research labs and social media platforms.
 | DeepSeek | `feed` | Google News |
 | Meta | `site` | Official AI blog |
 | Alibaba Qwen | `feed` | Google News |
+
+**The Intelligent Factory**
+
+Frontier AI landing in industry — a named manufacturer adopting a named AI vendor's technology for its own operations (e.g. HP × OpenAI's "Frontier" partnership). No fixed roster like the dimensions above: any qualifying company counts, found fresh each week via `search` and checked against a qualify/reject bar — a real deal, deployment, or disclosed result, not a hardware/infrastructure story or an unnamed "AI-powered" claim — before it's included.
 
 **Trending Social Video & Images**
 
