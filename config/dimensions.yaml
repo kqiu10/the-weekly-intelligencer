@@ -49,7 +49,7 @@ dimensions:
     within_days: 7                 # only the past 7 days
     trends: true                   # track context hotness across issues
     sources:                       # AI-generated + trending; no paid scrapers — YouTube via its free official API; TikTok/IG/FB filled by Claude web search
-      - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "AI generated" }   # most-viewed AI Shorts this week (videoDuration=short, order=viewCount)
+      - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "AI generated" }   # most-viewed AI Shorts this week 
       - { type: search,  label: "TikTok",         logo: "tiktok",    query: "AI generated video going viral TikTok this week" }
       - { type: search,  label: "Instagram",      logo: "instagram", query: "AI generated reel going viral Instagram this week" }
       - { type: search,  label: "Facebook",       logo: "facebook",  query: "AI generated video going viral Facebook this week" }
