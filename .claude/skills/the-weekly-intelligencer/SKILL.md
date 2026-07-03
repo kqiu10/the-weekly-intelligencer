@@ -94,7 +94,10 @@ scoped explicitly to "this week," doesn't have that constraint.
   again here; this dimension is for the industry-adoption angle, usually reported by
   business/trade press or the customer company, not the lab's own blog.
 - **Silently** skip when nothing verifiable qualifies — leave `notes` empty, same as the
-  social platforms below. `group` stays `""` (grid layout, not by-source).
+  social platforms below.
+- **Set `group`** to the manufacturer's name (e.g. `"HP"`), not `""` — `by-source` layout
+  (like the labs above), one card per company that actually shows up this week. No `logo`
+  needed or expected; the card renders with a label-only rail when there's none.
 
 ### The "Trending Social Video & Images" dimension
 Surface the **1–2 most-shared AI-generated** videos/images **per platform** this week — the ones

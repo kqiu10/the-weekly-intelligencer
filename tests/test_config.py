@@ -37,7 +37,8 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
         None,
     )
     assert factory is not None, "The Intelligent Factory dimension is missing from the shipped config"
-    assert factory.layout == "grid"  # open-ended cast of companies, not a fixed roster
+    assert factory.layout == "by-source"  # one card per company found this week (groupby_order is dynamic)
+    assert factory.max_per_source == 2
     assert factory.max_items == 7  # a ceiling, not a target
     assert factory.within_days == 7
     assert factory.trends is False  # SPEC §10.4: not a visual-context beat, no 🔥 signal

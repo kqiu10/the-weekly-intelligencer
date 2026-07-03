@@ -32,13 +32,14 @@ dimensions:
       - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # Google News
 
   - name: "The Intelligent Factory"
-    blurb: "Frontier AI landing on the factory floor and in the back office — the partnerships and deployments taking it from lab to industry"
+    blurb: "The week's partnerships, deployments, and industrial rollouts from lab to factory floor"
     summary: rewrite
-    layout: grid                   # open-ended cast of companies, not a fixed roster — no by-source cards
+    layout: by-source              # one card per company found this week; groupby_order is dynamic —
+                                    # no fixed roster or logo needed, label-only rail when ungrouped
+    max_per_source: 2              # at most 2 stories per company card
     max_items: 7                   # ceiling, not a target
     within_days: 7                 # only the past 7 days
-    sources:                       # search-only: a Google News feed was tried and dropped (SPEC §10.4) —
-                                    # it was either irrelevant-but-recent or relevant-but-months-stale, never both
+    sources:                       # search-only; each item sets its own `group` to the company found
       - { type: search, query: "named manufacturer or industrial company AI partnership or deployment this week" }
 
   - name: "Trending Social Video & Images"
