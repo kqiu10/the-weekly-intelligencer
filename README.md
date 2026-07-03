@@ -1,6 +1,6 @@
 # The Weekly Intelligencer
 
-**A weekly digest of AI industry news, featuring updates on frontier labs and the latest trending AI-generated images and video.**
+**A weekly digest of AI industry news, featuring updates on frontier labs, AI's rollout across industry, and the latest trending AI-generated images and video.**
 
 Frontier labs ship constantly, and social feeds are just as noisy — hard to tell what's real news from what's a flash in the pan. The Weekly Intelligencer filters both down into one newspaper-style issue, once a week.
 
@@ -92,7 +92,7 @@ Most AI news tools force a choice: paraphrase everything through an LLM (expensi
 | Issue | Date | Link |
 |---|---|---|
 | Issue 1 | 6/22-6/28 | [`Issue 1`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-06-28.html) |
-| Issue 2 | 6/29-7/2 | [`Issue 2`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-02.html) |
+| Issue 2 | 6/29-7/3 | [`Issue 2`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-03.html) |
 
 ## License
 
