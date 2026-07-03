@@ -22,7 +22,7 @@ Currently tracked AI research labs, industrial AI adoption, and social media pla
 
 **The Intelligent Factory**
 
-Frontier AI landing in industry — a named manufacturer adopting a named AI vendor's technology for its own operations (e.g. HP × OpenAI's "Frontier" partnership), found fresh each week via `search` and checked against a qualify/reject bar: a real deal, deployment, or disclosed result, not a hardware/infrastructure story or an unnamed "AI-powered" claim. No fixed roster — any qualifying company counts — but a watchlist sharpens the weekly search. A sample:
+Frontier AI landing in industry — a named manufacturer adopting a named AI vendor's technology for its own operations.
 
 | Company | Search type | Sector |
 |---|---|---|
