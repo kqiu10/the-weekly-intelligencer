@@ -6,14 +6,17 @@ from intelligencer.manifest import Manifest
 from intelligencer.render import render_html
 
 FIXTURES = Path(__file__).parent / "fixtures"
-GOLDEN = Path(__file__).parent.parent / "samples" / "2026-06-26.html"
+# Paired with manifest.sample.json (its render input) — kept in fixtures/, not samples/,
+# so a docs/README change to the human-facing samples/ folder can't silently delete a file
+# this test depends on.
+GOLDEN = FIXTURES / "golden_render.html"
 
 
 def test_golden_render():
     manifest = Manifest.read(FIXTURES / "manifest.sample.json")
     html = render_html(manifest)
     assert html == GOLDEN.read_text(encoding="utf-8"), (
-        "Rendered HTML drifted from samples/2026-06-26.html. "
+        "Rendered HTML drifted from tests/fixtures/golden_render.html. "
         "If the change is intended, regenerate the golden file."
     )
 
