@@ -24,18 +24,18 @@ Currently tracked AI research labs, industrial AI adoption, and social media pla
 
 Frontier AI landing in industry — a named manufacturer adopting a named AI vendor's technology for its own operations (e.g. HP × OpenAI's "Frontier" partnership), found fresh each week via `search` and checked against a qualify/reject bar: a real deal, deployment, or disclosed result, not a hardware/infrastructure story or an unnamed "AI-powered" claim. No fixed roster — any qualifying company counts — but a watchlist sharpens the weekly search. A sample:
 
-| Company | Sector |
-|---|---|
-| HP | Electronics/hardware |
-| Foxconn | Electronics/hardware |
-| Siemens | Industrial/automation |
-| ABB | Industrial/automation |
-| Schneider Electric | Industrial/automation |
-| Toyota | Automotive |
-| Hyundai | Automotive |
-| Caterpillar | Heavy industry |
-| Boeing | Aerospace |
-| Unilever | Consumer goods |
+| Company | Search type | Sector |
+|---|---|---|
+| HP | `search` | Electronics/hardware |
+| Foxconn | `search` | Electronics/hardware |
+| Siemens | `search` | Industrial/automation |
+| ABB | `search` | Industrial/automation |
+| Schneider Electric | `search` | Industrial/automation |
+| Toyota | `search` | Automotive |
+| Hyundai | `search` | Automotive |
+| Caterpillar | `search` | Heavy industry |
+| Boeing | `search` | Aerospace |
+| Unilever | `search` | Consumer goods |
 
 **Trending Social Video & Images**
 
