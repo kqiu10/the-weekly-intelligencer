@@ -37,6 +37,33 @@ publisher, date, or preview image. Each item you add must have this exact shape:
 Only use an `image` URL that is the article's real preview image (`og:image`). If you
 can't find one, use `null`.
 
+### The "Intelligent Factory" dimension
+Surface **search-verified** stories of a named industrial/manufacturing company adopting
+one of this issue's tracked frontier labs' AI — a signed partnership, a live deployment, a
+disclosed expansion. The `feed` source already contributes a broader, cheaper net (Google
+News); your job with `search` is **precision, not volume** — add at most 2–3 items on top
+of it, never pad to reach `max_items`, and adding **zero** in a quiet week is correct, not
+a failure.
+- **Qualify:** the AI side must be a frontier lab already tracked in this issue (OpenAI,
+  Anthropic, Google DeepMind, xAI, Meta, DeepSeek, Qwen, or another top-tier lab); the
+  industry side must be a **named** manufacturer/industrial company; the story must
+  describe a **concrete action** (deal signed, product shipped, deployment live, results
+  disclosed) with an on-record source — an executive quote, an official press release, or a
+  reputable outlet naming its sources. HP × OpenAI's "Frontier" partnership is the
+  reference example.
+- **Reject:** opinion/thought-leadership pieces, market-size forecasts, conference/webinar
+  announcements, unconfirmed reports ("sources say"), and anything where "AI" is a passing
+  mention rather than the substance of the story.
+- **Verify with WebFetch** before adding: confirm the named companies, that the date is
+  inside the issue window, and that the link resolves to the real article, not a
+  redirect/paywall stub.
+- **Dedup** against this issue's Frontier AI Research Labs dimension — if the same
+  announcement already appears there (e.g. the lab's own newsroom post), don't add it
+  again here; this dimension is for the industry-adoption angle, usually reported by
+  business/trade press or the customer company, not the lab's own blog.
+- **Silently** skip when nothing verifiable qualifies — leave `notes` empty, same as the
+  social platforms below. `group` stays `""` (grid layout, not by-source).
+
 ### The "Trending Social Video & Images" dimension
 Surface the **1–2 most-shared AI-generated** videos/images **per platform** this week — the ones
 newly going viral (recently posted, spiking now, not evergreen). Every card is a **portrait media
@@ -98,7 +125,7 @@ rail; the `logos` map (group label → packaged logo path) is produced by `fetch
 config's per-source `logo` slug — **keep it as-is, don't hand-edit it.** For the default
 `grid` layout, leave `group` as `""`.
 
-## 5. Fold in the 🔥 trend signal
+## 5. Fold in the hot trend signal
 Run `uv run intelligencer trends`. This records each context's `magnitude` into the committed
 `data/trends.json` time-series and annotates every trend topic with its `heat_tier` (0–3
 flames), `direction`, and `recurring` flag by comparing against prior weeks. Commit
@@ -120,5 +147,5 @@ e.g. `dist/2026-06-26.html`.
   showing a real still of AI content.
 - **Never call the Anthropic API** — all writing happens here in this session.
 - **Social posts & hotness:** link the real permalink; never fabricate a post, a view count,
-  or a virality/hotness figure — the 🔥 signal is an editorial estimate over time, not
+  or a virality/hotness figure — the hot signal is an editorial estimate over time, not
   measured analytics.

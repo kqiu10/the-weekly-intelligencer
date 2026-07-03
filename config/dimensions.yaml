@@ -12,8 +12,8 @@ output:
 defaults:
   summary: rewrite                 # raw | rewrite | synthesize
   max_items: 5
-  blurb_words: 50                  # words of the article's own lede per item (NYT-brief style; ~40–60)
-  tldr_words: 100                  # issue-level TL;DR target length (SPEC §10.3)
+  blurb_words: 50                  # words of the article's own lede per item
+  tldr_words: 100                  # issue-level TL;DR target length
 
 dimensions:
   - name: "Frontier AI Research Labs"
@@ -23,13 +23,23 @@ dimensions:
     max_per_source: 2              # at most 2 events per lab
     within_days: 7                 # only items from the past 7 days (else the lab is skipped)
     sources:                       # `label` = row heading; `logo` = slug in assets/logos/; feed=RSS, site=scrape official index
-      - { type: site, label: "Anthropic",       logo: "anthropic", url: "https://www.anthropic.com/news" }                                  # official newsroom (scraped)
+      - { type: site, label: "Anthropic",       logo: "anthropic", url: "https://www.anthropic.com/news" }                                  # official newsroom 
       - { type: feed, label: "Google DeepMind", logo: "deepmind",  url: "https://deepmind.google/blog/rss.xml" }                            # official RSS
       - { type: feed, label: "OpenAI",          logo: "openai",    url: "https://openai.com/news/rss.xml" }                                 # official RSS
-      - { type: site, label: "xAI",             logo: "xai",       url: "https://x.ai/news" }                                                # official newsroom (scraped)
-      - { type: feed, label: "DeepSeek",        logo: "deepseek",  url: "https://news.google.com/rss/search?q=DeepSeek&hl=en-US&gl=US&ceid=US:en" }             # no official dated blog → Google News
-      - { type: site, label: "Meta",            logo: "meta",      url: "https://ai.meta.com/blog/" }                                        # official AI blog (scraped)
-      - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # official site is client-only → Google News
+      - { type: site, label: "xAI",             logo: "xai",       url: "https://x.ai/news" }                                                # official newsroom
+      - { type: feed, label: "DeepSeek",        logo: "deepseek",  url: "https://news.google.com/rss/search?q=DeepSeek&hl=en-US&gl=US&ceid=US:en" }             # Google News
+      - { type: site, label: "Meta",            logo: "meta",      url: "https://ai.meta.com/blog/" }                                        # official AI blog
+      - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # Google News
+
+  - name: "The Intelligent Factory"
+    blurb: "Frontier AI landing on the factory floor and in the back office — the partnerships and deployments taking it from lab to industry"
+    summary: rewrite
+    layout: grid                   # open-ended cast of companies, not a fixed roster — no by-source cards
+    max_items: 7                   # cap on stories shown (feed + search combined)
+    within_days: 7                 # only the past 7 days
+    sources:                       # feed = broad/cheap net (Google News, anchored on tracked labs); search = editorial precision
+      - { type: feed,   url: "https://news.google.com/rss/search?q=(OpenAI%20OR%20Anthropic%20OR%20%22Google%20DeepMind%22%20OR%20Microsoft%20OR%20NVIDIA)%20(manufacturing%20OR%20%22industrial%20operations%22%20OR%20factory)%20partnership&hl=en-US&gl=US&ceid=US:en" }
+      - { type: search, query: "named manufacturer or industrial company AI partnership or deployment this week" }
 
   - name: "Trending Social Video & Images"
     blurb: "The week's most-shared AI-generated videos and images across social platforms"
@@ -37,7 +47,7 @@ dimensions:
     layout: by-source              # one card per platform; a platform with nothing trending that week is skipped
     max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
-    trends: true                   # track 🔥 context hotness across issues (SPEC §10.2)
+    trends: true                   # track context hotness across issues
     sources:                       # AI-generated + trending; no paid scrapers — YouTube via its free official API; TikTok/IG/FB filled by Claude web search
       - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "AI generated" }   # most-viewed AI Shorts this week (videoDuration=short, order=viewCount)
       - { type: search,  label: "TikTok",         logo: "tiktok",    query: "AI generated video going viral TikTok this week" }
