@@ -43,9 +43,21 @@ the AI industry's own hardware/infrastructure news. Search-only (a Google News `
 tried and dropped — see below); find up to `max_items` qualifying stories this week, never
 pad to reach it — zero in a quiet week is correct, not a failure.
 
+**Search thoroughly before concluding a quiet week — one or two generic queries is not
+enough** (a real 2026-07-03 run missed HP × OpenAI on the first pass this way, and only
+caught it on a second, more targeted search): run a generic query *and* at least 3–4
+vendor-specific ones (`"OpenAI" enterprise OR manufacturing partnership this week`,
+`"NVIDIA" industrial partnership this week`, `"Microsoft" AI deployment manufacturer this
+week`, etc. — prioritize OpenAI, Microsoft, NVIDIA, Anthropic, which have the most
+enterprise/industrial reach). Also check each major vendor's own customer-story/case-study
+hub directly (e.g. `openai.com/stories`, Microsoft's customer-stories blog, NVIDIA's
+newsroom) — these are curated, first-party feeds of exactly this story type, higher
+precision than open web search. Only conclude "nothing qualifies" after that full sweep.
+
 **Qualify — needs a named AI vendor AND a named manufacturer applying it:**
 - ✅ HP × OpenAI — "Frontier" partnership for customer experience and internal operations
-- ✅ "Siemens deploys an OpenAI-powered copilot for factory technicians"
+  (hp.com press release + openai.com confirmation + independent trade press — the reference
+  example; verified real, not hypothetical)
 - ❌ "Siemens deploys a generative-AI copilot" — no vendor named
 - ❌ "Toyota uses AI-powered computer vision for quality control" — no vendor named
 - ❌ "Anthropic in talks with Samsung to manufacture a custom AI chip" — wrong direction,
