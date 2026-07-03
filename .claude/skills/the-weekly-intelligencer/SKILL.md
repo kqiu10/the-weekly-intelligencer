@@ -38,32 +38,33 @@ Only use an `image` URL that is the article's real preview image (`og:image`). I
 can't find one, use `null`.
 
 ### The "Intelligent Factory" dimension
-Surface stories of a named industrial/manufacturing company **adopting** a major AI
-vendor's technology — a signed partnership, a live deployment, a disclosed expansion. The
-`feed` candidates are **not** pre-filtered — Google News keyword matching is a broad, cheap
-net, not an editorial judgment — so **prune them** with the same bar below before counting
-them, the same way the YouTube Shorts candidates get pruned to the genuinely AI-generated
-ones. Add at most 2–3 `search` items on top of whatever survives pruning; never pad to
-reach `max_items`, and ending up with **zero** in a quiet week is correct, not a failure.
-- **Qualify:** the AI side is a major AI vendor — OpenAI, Anthropic, Google DeepMind, xAI,
-  Meta, DeepSeek, Qwen, Microsoft, NVIDIA, or another frontier/infrastructure AI company.
-  This is **broader** than the Frontier AI Research Labs dimension's own roster above — this
-  beat is about frontier AI landing in the wider economy, not limited to which labs that
-  other dimension happens to track. The industry side must be a **named**
-  manufacturer/industrial company **adopting** that AI for its own operations; the story
-  must describe a **concrete action** (deal signed, product shipped, deployment live,
-  results disclosed) with an on-record source — an executive quote, an official press
-  release, or a reputable outlet naming its sources. HP × OpenAI's "Frontier" partnership is
-  the reference example.
-- **Reject — confirmed false-positive patterns from this feed, watch for these
-  specifically:** (1) an AI vendor **sourcing** hardware/chip manufacturing for *itself*
-  (e.g. "Anthropic in talks with Samsung to manufacture a custom AI chip") — that's supply
-  chain, the AI vendor is the *customer*, the wrong direction entirely; (2) NVIDIA-branded
-  **"AI Factory"** data-center/compute-campus stories — marketing language for a GPU data
-  center, not a real factory adopting AI. Also reject opinion/thought-leadership pieces,
-  market-size forecasts, conference/webinar announcements, unconfirmed ("sources say")
-  reports, and anything where "AI" is a passing mention rather than the substance of the
-  story.
+A named manufacturer adopting a **named** AI vendor's tech for its own operations — not
+the AI industry's own hardware/infrastructure news. Search-only (a Google News `feed` was
+tried and dropped — see below); find up to `max_items` qualifying stories this week, never
+pad to reach it — zero in a quiet week is correct, not a failure.
+
+**Qualify — needs a named AI vendor AND a named manufacturer applying it:**
+- ✅ HP × OpenAI — "Frontier" partnership for customer experience and internal operations
+- ✅ "Siemens deploys an OpenAI-powered copilot for factory technicians"
+- ❌ "Siemens deploys a generative-AI copilot" — no vendor named
+- ❌ "Toyota uses AI-powered computer vision for quality control" — no vendor named
+- ❌ "Anthropic in talks with Samsung to manufacture a custom AI chip" — wrong direction,
+  the AI vendor is the customer, not the industry adopting its AI
+- ❌ NVIDIA "AI Factory" data-center campus — marketing term for a GPU data center
+- ❌ opinion pieces, market forecasts, conference PR, unconfirmed "sources say" reports
+
+AI vendor = OpenAI, Anthropic, Google DeepMind, xAI, Meta, DeepSeek, Qwen, Microsoft,
+NVIDIA, or another major AI vendor — broader than the Frontier AI Research Labs roster
+above; this beat is frontier AI landing in the wider economy, not that dimension's list.
+
+**Why search-only:** a Google News feed anchored on these vendors + `manufacturing`/
+`factory` was tested twice. Query 1 (`manufacturing OR factory`) returned only recent
+items, all false positives (the patterns above). Query 2 (application-specific phrasing:
+`"AI-powered" OR "AI copilot"` etc.) found real hits — but zero of them were inside the
+7-day window; Google News ranks by relevance, not recency, and this intersection is rare
+enough that the fresh, relevant story just isn't there most weeks. Claude's own search,
+scoped explicitly to "this week," doesn't have that constraint.
+
 - **Verify with WebFetch** before adding: confirm the named companies, that the date is
   inside the issue window, and that the link resolves to the real article, not a
   redirect/paywall stub.

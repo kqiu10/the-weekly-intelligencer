@@ -35,10 +35,10 @@ dimensions:
     blurb: "Frontier AI landing on the factory floor and in the back office — the partnerships and deployments taking it from lab to industry"
     summary: rewrite
     layout: grid                   # open-ended cast of companies, not a fixed roster — no by-source cards
-    max_items: 7                   # cap on stories shown (feed + search combined)
+    max_items: 7                   # ceiling, not a target
     within_days: 7                 # only the past 7 days
-    sources:                       # feed = broad/cheap net (Google News, anchored on tracked labs); search = editorial precision
-      - { type: feed,   url: "https://news.google.com/rss/search?q=(OpenAI%20OR%20Anthropic%20OR%20%22Google%20DeepMind%22%20OR%20Microsoft%20OR%20NVIDIA)%20(manufacturing%20OR%20%22industrial%20operations%22%20OR%20factory)%20partnership&hl=en-US&gl=US&ceid=US:en" }
+    sources:                       # search-only: a Google News feed was tried and dropped (SPEC §10.4) —
+                                    # it was either irrelevant-but-recent or relevant-but-months-stale, never both
       - { type: search, query: "named manufacturer or industrial company AI partnership or deployment this week" }
 
   - name: "Trending Social Video & Images"

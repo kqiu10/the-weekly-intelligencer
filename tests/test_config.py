@@ -42,15 +42,10 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     assert factory.within_days == 7
     assert factory.trends is False  # SPEC §10.4: not a visual-context beat, no 🔥 signal
 
-    feed_sources = [s for s in factory.sources if s.type == "feed"]
-    search_sources = [s for s in factory.sources if s.type == "search"]
-    assert len(factory.sources) == len(feed_sources) + len(search_sources)  # no site/youtube here
-    assert len(feed_sources) == 1
-    assert feed_sources[0].url is not None and feed_sources[0].url.startswith(
-        "https://news.google.com/rss/search?q="
-    )
-    assert [s.query for s in search_sources] == [
-        "named manufacturer or industrial company AI partnership or deployment this week"
+    # search-only: a Google News feed was tried and dropped (SPEC §10.4) — it was either
+    # irrelevant-but-recent or relevant-but-months-stale, never both
+    assert [(s.type, s.query) for s in factory.sources] == [
+        ("search", "named manufacturer or industrial company AI partnership or deployment this week")
     ]
 
     # SPEC §10.4: positioned after Frontier AI Research Labs, before Trending Social Video & Images
