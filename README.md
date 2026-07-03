@@ -2,8 +2,6 @@
 
 **A weekly digest of AI industry news, featuring updates on frontier labs, AI's rollout across industry, and the latest trending AI-generated images and video.**
 
-Frontier labs ship constantly, and social feeds are just as noisy — hard to tell what's real news from what's a flash in the pan. The Weekly Intelligencer filters both down into one newspaper-style issue, once a week.
-
 ## Preview
 ![Scrolling through a sample issue](samples/sample-scroll.gif)
 
@@ -24,7 +22,20 @@ Currently tracked AI research labs, industrial AI adoption, and social media pla
 
 **The Intelligent Factory**
 
-Frontier AI landing in industry — a named manufacturer adopting a named AI vendor's technology for its own operations (e.g. HP × OpenAI's "Frontier" partnership). No fixed roster like the dimensions above: any qualifying company counts, found fresh each week via `search` and checked against a qualify/reject bar — a real deal, deployment, or disclosed result, not a hardware/infrastructure story or an unnamed "AI-powered" claim — before it's included.
+Frontier AI landing in industry — a named manufacturer adopting a named AI vendor's technology for its own operations (e.g. HP × OpenAI's "Frontier" partnership), found fresh each week via `search` and checked against a qualify/reject bar: a real deal, deployment, or disclosed result, not a hardware/infrastructure story or an unnamed "AI-powered" claim. No fixed roster — any qualifying company counts — but a watchlist sharpens the weekly search. A sample:
+
+| Company | Sector |
+|---|---|
+| HP | Electronics/hardware |
+| Foxconn | Electronics/hardware |
+| Siemens | Industrial/automation |
+| ABB | Industrial/automation |
+| Schneider Electric | Industrial/automation |
+| Toyota | Automotive |
+| Hyundai | Automotive |
+| Caterpillar | Heavy industry |
+| Boeing | Aerospace |
+| Unilever | Consumer goods |
 
 **Trending Social Video & Images**
 
