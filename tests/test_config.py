@@ -28,6 +28,37 @@ def test_shipped_config_has_valid_social_video_dimension():
     ]
 
 
+def test_shipped_config_has_valid_intelligent_factory_dimension():
+    cfg = load_config(CONFIG)
+    errors, _ = validate_config(cfg)
+    assert errors == []
+    factory = next(
+        (d for d in cfg.dimensions if d.name == "The Intelligent Factory"),
+        None,
+    )
+    assert factory is not None, "The Intelligent Factory dimension is missing from the shipped config"
+    assert factory.layout == "grid"  # open-ended cast of companies, not a fixed roster
+    assert factory.max_items == 7  # a ceiling, not a target
+    assert factory.within_days == 7
+    assert factory.trends is False  # SPEC §10.4: not a visual-context beat, no 🔥 signal
+
+    feed_sources = [s for s in factory.sources if s.type == "feed"]
+    search_sources = [s for s in factory.sources if s.type == "search"]
+    assert len(factory.sources) == len(feed_sources) + len(search_sources)  # no site/youtube here
+    assert len(feed_sources) == 1
+    assert feed_sources[0].url is not None and feed_sources[0].url.startswith(
+        "https://news.google.com/rss/search?q="
+    )
+    assert [s.query for s in search_sources] == [
+        "named manufacturer or industrial company AI partnership or deployment this week"
+    ]
+
+    # SPEC §10.4: positioned after Frontier AI Research Labs, before Trending Social Video & Images
+    names = [d.name for d in cfg.dimensions]
+    assert names.index("The Intelligent Factory") == names.index("Frontier AI Research Labs") + 1
+    assert names.index("Trending Social Video & Images") == names.index("The Intelligent Factory") + 1
+
+
 def _write(tmp_path, text):
     p = tmp_path / "config.yaml"
     p.write_text(text, encoding="utf-8")
