@@ -48,6 +48,7 @@
   <main class="sections">
     {% for dim in dimensions %}
     {% set outer = loop %}
+    {% if dim.items or dim.notes %}
     <section class="dimension">
       <h3 class="dimension-name">{{ dim.name }}</h3>
       {% if dim.blurb %}<p class="dimension-blurb">{{ dim.blurb }}</p>{% endif %}
@@ -107,6 +108,7 @@
       </div>
       {% endif %}
     </section>
+    {% endif %}
     {% endfor %}
   </main>
 

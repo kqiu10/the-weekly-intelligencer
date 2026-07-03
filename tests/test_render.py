@@ -36,6 +36,19 @@ def test_tldr_renders_above_sections_when_present_and_omitted_when_empty():
     assert 'class="tldr"' not in off
 
 
+def test_empty_dimension_renders_no_section():
+    from intelligencer.manifest import DimensionContent, Issue, Manifest
+
+    empty = DimensionContent(name="The Intelligent Factory", blurb="A quiet week", layout="grid")
+    manifest = Manifest(issue=Issue(date="2026-07-03", title="T"), dimensions=[empty])
+    html = render_html(manifest)
+    # a dimension with zero items (every source came back empty, e.g. an unfilled search
+    # source) must not leave a title+blurb section with nothing under it
+    assert "The Intelligent Factory" not in html
+    assert "A quiet week" not in html
+    assert 'class="dimension"' not in html
+
+
 def test_week_range_label_is_week_to_date_from_the_issue_date():
     from intelligencer.manifest import Issue
     from intelligencer.render import _week_range_label
