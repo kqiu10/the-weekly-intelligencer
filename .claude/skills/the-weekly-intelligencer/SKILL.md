@@ -15,6 +15,14 @@ steps in order.
 - Read `config/dimensions.yaml`. Note, per dimension: its `summary` mode
   (`raw` / `rewrite` / `synthesize`), its `max_items`, and any `search` sources (their
   `query`).
+- **If the user asks for only certain dimensions** ("just the labs and Cross-Border
+  Branding", "only do 1 and 2", "skip the social one"), resolve their request against the
+  config's **declared order** (1-based: the first dimension is `1`) and pass it to `--only`
+  on both `fetch` and `render` — it takes a comma-separated list of indices and/or name
+  substrings, e.g. `--only 1,3` or `--only "labs,Cross-Border"`. Default (no such request):
+  process **all** dimensions, as normal. Note `fetch --only` now *merges* into any existing
+  `out/manifest.json` (it no longer wipes the untouched dimensions), so a partial refresh is
+  safe — but a search-only dimension still has its items re-filled by you in step 2.
 
 ## 1. Gather deterministic sources (no tokens)
 Run `uv run intelligencer fetch`. This writes `out/manifest.json` with the issue metadata
