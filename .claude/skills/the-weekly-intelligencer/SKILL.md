@@ -128,6 +128,62 @@ scoped explicitly to "this week," doesn't have that constraint.
   — small, accumulates over time); extend `tests/test_render.py`'s
   `test_intelligent_factory_company_logos_are_packaged` with the new slug when you add one.
 
+### The "Rewriting Cross-Border Branding" dimension
+Any real news tying a **named Chinese cross-border / going-global brand** to **AI** — how AI
+is reshaping the way these brands market, localize, sell, and build themselves overseas.
+Search-only; find up to `max_items` (7) qualifying stories this week, never pad — zero in a
+quiet week is correct. **The qualify bar is deliberately broad** (any real brand × AI story,
+not only a signed tool-adoption deal — unlike The Intelligent Factory's stricter
+named-vendor-named-adopter bar); the discipline here is the **reject** list, which keeps it
+from collapsing into "any China-AI news."
+
+**Step 0, same as The Intelligent Factory** — first scan the labs' own already-fetched,
+uncapped feeds (free) for a cross-border-brand angle before spending any WebSearch budget.
+
+**Then search thoroughly** — a generic query *plus* combined watchlist×vendor queries. AI
+vendor can be **any** major AI company, Chinese or Western — Alibaba/Qwen, ByteDance/Doubao,
+Baidu/ERNIE, DeepSeek, Zhipu/GLM, MiniMax, Moonshot/Kimi, Tencent Hunyuan, OpenAI, Anthropic,
+Google DeepMind, Microsoft, NVIDIA — broader than the Frontier AI Research Labs roster (same
+principle as The Intelligent Factory; don't re-narrow it to the 7 labs). Also check the
+cross-border platforms' own AI newsrooms (Alibaba International / Aidge, AliExpress, TikTok
+Shop) — first-party feeds of exactly this story type.
+
+**Watchlist — a search aid, not a qualify restriction (grows over time from verified finds):**
+- **E-commerce/platforms:** SHEIN, Temu (PDD), AliExpress/Alibaba.com, TikTok Shop, DHgate
+- **Consumer electronics/smart home:** Anker (Eufy, Soundcore), Ecovacs, Roborock, DJI, Insta360, UBTECH, Xiaomi
+- **Home appliances:** TCL, Hisense, Midea
+- **EV/auto:** BYD, NIO, XPeng
+- **Gaming/entertainment:** miHoYo/HoYoverse, Tencent (global titles)
+
+**Qualify — a named cross-border/going-global brand whose story materially involves AI:**
+- ✅ A brand adopting an AI tool/platform capability to go global — marketing, localization,
+  customer service, demand forecasting, logistics. *Real, verifiable examples of this
+  tooling: Alibaba International's **Aidge** multilingual localization/marketing AI suite and
+  its **Marco** merchant AI agents (openly announced, cross-border-seller-facing) — a named
+  brand using these to expand overseas qualifies.*
+- ✅ A named brand shipping an AI-powered product built for overseas markets (e.g. Anker's
+  AI-driven smart-home line sold internationally).
+- ✅ A cross-border platform's AI capability explicitly enabling a **named** brand's
+  international push ("[platform]'s AI helped [named brand] reach $X in [overseas market]").
+
+**Reject — the guardrails that keep this dimension distinct:**
+- ❌ A Chinese **AI vendor's own** product/model gaining overseas *users*, with no other
+  named brand involved (DeepSeek/Qwen/Kimi/Kling expanding abroad) — that's the vendor's own
+  market expansion, already Frontier AI Research Labs' beat, not a *brand* using AI to go
+  global. **This is the most common false positive — watch for it.**
+- ❌ Domestic-only stories with no cross-border/international angle.
+- ❌ A pure factory-floor / production AI deployment with no brand-facing or go-to-market
+  angle — that's The Intelligent Factory (§10.4); dedup against it.
+- ❌ Opinion pieces, market forecasts, conference PR, unconfirmed "sources say" reports.
+
+**Verify / Dedup / Silently skip / Set `group` / Logo — identical mechanics to The
+Intelligent Factory above:** WebFetch to confirm the named brand, the AI angle, the date is
+inside the window, and the link resolves; dedup against the other dimensions this issue;
+leave `notes` empty when nothing qualifies; set `group` to the brand's name (`by-source`
+layout, one card per brand); add a real Simple-Icons logo for a newly-confirmed brand only if
+one doesn't exist yet (never invent path data), else a safe label-only rail — and extend
+`tests/test_render.py`'s logo test with any slug you add.
+
 ### The "Trending Social Video & Images" dimension
 Surface the **1–2 most-shared AI-generated** videos/images **per platform** this week — the ones
 newly going viral (recently posted, spiking now, not evergreen). Every card is a **portrait media
