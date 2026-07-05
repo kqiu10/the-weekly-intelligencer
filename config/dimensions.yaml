@@ -42,6 +42,17 @@ dimensions:
     sources:                       # search-only; each item sets its own `group` to the company found
       - { type: search, query: "named manufacturer or industrial company AI partnership or deployment this week" }
 
+  - name: "Rewriting Cross-Border Branding"
+    blurb: "How AI is reshaping the way Chinese cross-border brands market and build themselves overseas"
+    summary: rewrite
+    layout: by-source              # one card per brand found this week; groupby_order is dynamic —
+                                    # no fixed roster or logo needed, label-only rail when ungrouped
+    max_per_source: 2              # at most 2 stories per brand card
+    max_items: 7                   # ceiling, not a target
+    within_days: 7                 # only the past 7 days
+    sources:                       # search-only; any real cross-border-brand × AI story qualifies (SPEC §10.5)
+      - { type: search, query: "Chinese cross-border brand going global with AI this week" }
+
   - name: "Trending Social Video & Images"
     blurb: "The week's most-shared AI-generated videos and images across social platforms"
     summary: rewrite

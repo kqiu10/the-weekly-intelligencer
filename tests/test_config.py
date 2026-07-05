@@ -49,10 +49,44 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
         ("search", "named manufacturer or industrial company AI partnership or deployment this week")
     ]
 
-    # SPEC §10.4: positioned after Frontier AI Research Labs, before Trending Social Video & Images
+    # SPEC §10.4: positioned after Frontier AI Research Labs; Rewriting Cross-Border Branding
+    # (SPEC §10.5) now sits immediately after it, before Trending Social Video & Images.
     names = [d.name for d in cfg.dimensions]
     assert names.index("The Intelligent Factory") == names.index("Frontier AI Research Labs") + 1
-    assert names.index("Trending Social Video & Images") == names.index("The Intelligent Factory") + 1
+    assert names.index("Rewriting Cross-Border Branding") == names.index("The Intelligent Factory") + 1
+
+
+def test_shipped_config_has_valid_cross_border_branding_dimension():
+    cfg = load_config(CONFIG)
+    errors, _ = validate_config(cfg)
+    assert errors == []
+    brand = next(
+        (d for d in cfg.dimensions if d.name == "Rewriting Cross-Border Branding"),
+        None,
+    )
+    assert brand is not None, "Rewriting Cross-Border Branding is missing from the shipped config"
+    assert brand.layout == "by-source"  # one card per brand found this week (groupby_order is dynamic)
+    assert brand.max_per_source == 2
+    assert brand.max_items == 7  # a ceiling, not a target (SPEC §10.5)
+    assert brand.within_days == 7
+    assert brand.trends is False  # SPEC §10.5: announcement-driven text, no 🔥 signal
+
+    # search-only: same rationale as The Intelligent Factory — a keyword feed can't resolve
+    # this cross-cutting, low-volume intersection query (SPEC §10.5)
+    assert [(s.type, s.query) for s in brand.sources] == [
+        ("search", "Chinese cross-border brand going global with AI this week")
+    ]
+
+    # SPEC §10.5: positioned after The Intelligent Factory, before Trending Social Video & Images
+    names = [d.name for d in cfg.dimensions]
+    assert (
+        names.index("Rewriting Cross-Border Branding")
+        == names.index("The Intelligent Factory") + 1
+    )
+    assert (
+        names.index("Trending Social Video & Images")
+        == names.index("Rewriting Cross-Border Branding") + 1
+    )
 
 
 def _write(tmp_path, text):
