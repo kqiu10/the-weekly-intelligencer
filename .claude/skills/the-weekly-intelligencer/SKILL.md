@@ -47,29 +47,27 @@ can't find one, use `null`.
 
 ### The "Intelligent Factory" dimension
 A named manufacturer adopting a **named** AI vendor's tech for its own operations — not
-the AI industry's own hardware/infrastructure news. Search-only (a Google News `feed` was
-tried and dropped — see below); find up to `max_items` qualifying stories this week, never
-pad to reach it — zero in a quiet week is correct, not a failure.
+the AI industry's own hardware/infrastructure news. Find up to `max_items` qualifying
+stories this week, never pad to reach it — zero in a quiet week is correct, not a failure.
 
-**Step 0, before spending any WebSearch budget — check the labs' own feeds you already
-fetched for free.** Frontier AI Research Labs' `feed`/`site` sources (OpenAI's RSS,
-Anthropic's newsroom, etc.) are capped at `max_per_source: 2` for *that* dimension — the
-raw feed usually has more. Re-pull each tracked lab's feed/site URL from
-`config/dimensions.yaml` directly (`fetch_feed(url)` for RSS, no extra cost, no extra
-search) and scan the *uncapped* list for customer/partnership-shaped headlines the cap
-dropped. This is exactly how a real 2026-07-03 run missed HP × OpenAI: it was item #6 in
-OpenAI's own RSS feed the whole time, cut only because two other OpenAI posts outranked it
-by date for the 2-item cap — zero search would have been needed to find it.
+**This dimension is feed-sourced now — `fetch` already handed you a candidate pool.** Its
+two `feed` sources (Manufacturing Dive's RSS + a recency-scoped `when:7d` Google News
+proxy) land in this dimension's `items` as an ungrouped, deterministically gathered batch
+(`group: ""`). **Your job is to *filter*, not to search from scratch:** read that pool and
+keep only the entries that pass the qualify bar below, dropping the rest. (This replaced
+the old search-only design: a keyword feed alone can't judge direction/recency, but a feed
+*plus your judgment as the filter* can — the same split that already works for YouTube.)
 
-**Only if that turns up nothing, search — and search thoroughly, one or two generic
-queries is not enough:** run a generic query *and* at least 3–4
-vendor-specific ones (`"OpenAI" enterprise OR manufacturing partnership this week`,
-`"NVIDIA" industrial partnership this week`, `"Microsoft" AI deployment manufacturer this
-week`, etc. — prioritize OpenAI, Microsoft, NVIDIA, Anthropic, which have the most
-enterprise/industrial reach). Also check each major vendor's own customer-story/case-study
-hub directly (e.g. `openai.com/stories`, Microsoft's customer-stories blog, NVIDIA's
-newsroom) — these are curated, first-party feeds of exactly this story type, higher
-precision than open web search. Only conclude "nothing qualifies" after that full sweep.
+**Step 0 — also scan the labs' own already-fetched feeds (free).** Frontier AI Research
+Labs' `feed`/`site` sources are capped at `max_per_source: 2` for *that* dimension; re-pull
+each (`fetch_feed(url)`) and scan the *uncapped* list for a customer/partnership headline
+the cap dropped. This is how a 2026-07-03 run missed HP × OpenAI (item #6 in OpenAI's RSS).
+
+**The `search` supplement is the long tail.** After filtering the feed pool, if it's thin,
+run the dimension's `search` source — a generic query plus combined watchlist×vendor
+queries (`(HP OR Foxconn OR …) (OpenAI OR Microsoft OR NVIDIA) AI partnership this week`)
+and vendor customer-story hubs (`openai.com/stories`, Microsoft/NVIDIA newsrooms). If the
+feed pool already yields enough qualifying stories, you can skip it.
 
 **Known AI-active manufacturers — a search aid, not a qualify restriction.** Any named
 manufacturer still qualifies (per the rule above); this list exists to make queries sharper
@@ -104,25 +102,24 @@ AI vendor = OpenAI, Anthropic, Google DeepMind, xAI, Meta, DeepSeek, Qwen, Micro
 NVIDIA, or another major AI vendor — broader than the Frontier AI Research Labs roster
 above; this beat is frontier AI landing in the wider economy, not that dimension's list.
 
-**Why search-only:** a Google News feed anchored on these vendors + `manufacturing`/
-`factory` was tested twice. Query 1 (`manufacturing OR factory`) returned only recent
-items, all false positives (the patterns above). Query 2 (application-specific phrasing:
-`"AI-powered" OR "AI copilot"` etc.) found real hits — but zero of them were inside the
-7-day window; Google News ranks by relevance, not recency, and this intersection is rare
-enough that the fresh, relevant story just isn't there most weeks. Claude's own search,
-scoped explicitly to "this week," doesn't have that constraint.
+**Freshness — re-check every kept item's real date.** The `when:7d` proxy and
+`within_days: 7` already drop stale items, but confirm each kept story's *actual* published
+date is inside this issue's week before adding it — don't trust the feed's recency setting
+alone (a `when:7d` query is the belt, the parsed-date check is the suspenders).
 
 - **Verify with WebFetch** before adding: confirm the named companies, that the date is
   inside the issue window, and that the link resolves to the real article, not a
-  redirect/paywall stub.
+  redirect/paywall stub. (Feed-pool items arrive with a title but often no image/lede —
+  fetch the ones you keep to fill `image`/`raw_text`; Google News proxy links resolve to
+  the real publisher on fetch.)
 - **Dedup** against this issue's Frontier AI Research Labs dimension — if the same
   announcement already appears there (e.g. the lab's own newsroom post), don't add it
   again here; this dimension is for the industry-adoption angle, usually reported by
   business/trade press or the customer company, not the lab's own blog.
 - **Silently** skip when nothing verifiable qualifies — leave `notes` empty, same as the
   social platforms below.
-- **Set `group`** to the manufacturer's name (e.g. `"HP"`), not `""` — `by-source` layout
-  (like the labs above), one card per company that actually shows up this week.
+- **Set `group`** to the manufacturer's name (e.g. `"HP"`) on every kept item — the feed
+  left it `""`; you reassign it so `by-source` renders one card per company (like the labs).
 - **Logo, if you can add one:** run `ls src/intelligencer/assets/logos/` — if a
   `<slug>.svg` already matches the company (lowercased name, e.g. `hp.svg`), set
   `dim.logos[group] = "assets/logos/<slug>.svg"`. If none exists yet, either add one
@@ -145,16 +142,20 @@ not only a signed tool-adoption deal — unlike The Intelligent Factory's strict
 named-vendor-named-adopter bar); the discipline here is the **reject** list, which keeps it
 from collapsing into "any China-AI news."
 
-**Step 0, same as The Intelligent Factory** — first scan the labs' own already-fetched,
-uncapped feeds (free) for a cross-border-brand angle before spending any WebSearch budget.
+**Feed-sourced, same as The Intelligent Factory — `fetch` gave you a candidate pool.** Its
+two `feed` sources — a 中文 `when:7d` Google News proxy (which aggregates 白鲸出海, 雨果跨境,
+36氪出海, AMZ123 and the rest) plus 白鲸出海's own RSS — land here ungrouped (`group: ""`).
+**Filter the pool** to the entries passing the qualify bar; this China-first beat breaks
+first in Chinese-media coverage, which English/US search misses. AI vendor can be **any**
+major AI company, Chinese or Western — Alibaba/Qwen, ByteDance/Doubao, Baidu/ERNIE, DeepSeek,
+Zhipu/GLM, Moonshot/Kimi, Tencent, OpenAI, Anthropic, Microsoft, NVIDIA — broader than the
+Frontier AI Research Labs roster (don't re-narrow it to the 7 labs).
 
-**Then search thoroughly** — a generic query *plus* combined watchlist×vendor queries. AI
-vendor can be **any** major AI company, Chinese or Western — Alibaba/Qwen, ByteDance/Doubao,
-Baidu/ERNIE, DeepSeek, Zhipu/GLM, MiniMax, Moonshot/Kimi, Tencent Hunyuan, OpenAI, Anthropic,
-Google DeepMind, Microsoft, NVIDIA — broader than the Frontier AI Research Labs roster (same
-principle as The Intelligent Factory; don't re-narrow it to the 7 labs). Also check the
-cross-border platforms' own AI newsrooms (Alibaba International / Aidge, AliExpress, TikTok
-Shop) — first-party feeds of exactly this story type.
+**Step 0** — also scan the labs' own already-fetched uncapped feeds for a cross-border-brand
+angle. **The `search` supplement** catches the long tail if the feed pool is thin (skip it
+if the pool already yields enough). **Re-check each kept item's real published date** is
+inside this week — don't trust the `when:7d` setting alone. **Set `group`** to the brand's
+name on every kept item (the feed left it `""`), so `by-source` renders one card per brand.
 
 **Watchlist — a search aid, not a qualify restriction (grows over time from verified finds):**
 - **E-commerce/platforms:** SHEIN, Temu (PDD), AliExpress/Alibaba.com, TikTok Shop, DHgate
