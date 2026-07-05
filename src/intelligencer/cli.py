@@ -27,8 +27,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_fetch.add_argument("--dry-run", action="store_true", help="fetch without writing caches")
     p_fetch.add_argument(
         "--only",
-        help="only gather these dimensions: comma-separated 1-based indices and/or "
-        "name substrings (e.g. '1,3' or 'Cross-Border')",
+        help="only gather these dimensions: comma-separated 1-based indices and/or name "
+        "substrings (e.g. '1,3' or 'Cross-Border'); merges into any existing manifest",
     )
     p_fetch.add_argument(
         "--date", help="issue date YYYY-MM-DD to pin the week window (default: today)"
@@ -79,11 +79,32 @@ def _select_dimensions(dimensions: list, only: str | None) -> list:
     return [d for i, d in enumerate(dimensions) if i in selected]
 
 
+def _merge_dimensions(base_dims: list, fresh_dims: list, order_names: list[str]) -> list:
+    """Splice freshly-fetched dimensions into the ones already in the manifest (SPEC §10.6).
+
+    Walks ``order_names`` (the config's full declared order) and, for each, prefers the
+    freshly-fetched version, falling back to the existing manifest's version — so a partial
+    ``fetch --only`` refreshes just the selected dimensions and leaves every untouched one's
+    data (including Claude-authored search items/summaries) exactly as it was. A base
+    dimension no longer present in the config order is dropped (config is the authority)."""
+    fresh_by_name = {d.name: d for d in fresh_dims}
+    base_by_name = {d.name: d for d in base_dims}
+    merged = []
+    for name in order_names:
+        if name in fresh_by_name:
+            merged.append(fresh_by_name[name])
+        elif name in base_by_name:
+            merged.append(base_by_name[name])
+    return merged
+
+
 def _cmd_fetch(args: argparse.Namespace) -> int:
     import datetime as dt
+    from pathlib import Path
 
     from .config import load_config
     from .gather import build_manifest
+    from .manifest import Manifest
 
     if args.date:
         try:
@@ -92,6 +113,7 @@ def _cmd_fetch(args: argparse.Namespace) -> int:
             print(f"invalid --date {args.date!r}; expected YYYY-MM-DD", file=sys.stderr)
             return 1
     cfg = load_config(args.config)
+    full_order = [d.name for d in cfg.dimensions]  # declared order, captured before filtering
     try:
         cfg.dimensions = _select_dimensions(cfg.dimensions, args.only)
     except ValueError as exc:
@@ -101,6 +123,12 @@ def _cmd_fetch(args: argparse.Namespace) -> int:
         print(f"no dimensions match --only {args.only!r}", file=sys.stderr)
         return 1
     manifest = build_manifest(cfg, date=args.date, discover_og=True)
+    # A partial fetch (--only) merges into any existing manifest rather than replacing it
+    # wholesale — otherwise refreshing one dimension would wipe the others' authored content.
+    if args.only and Path(MANIFEST_PATH).exists():
+        base = Manifest.read(MANIFEST_PATH)
+        manifest.dimensions = _merge_dimensions(base.dimensions, manifest.dimensions, full_order)
+        manifest.issue = base.issue  # keep the established issue (incl. hand-written TL;DR)
     path = manifest.write(MANIFEST_PATH)
     n = sum(len(d.items) for d in manifest.dimensions)
     missing = sum(1 for d in manifest.dimensions for it in d.items if not it.image)

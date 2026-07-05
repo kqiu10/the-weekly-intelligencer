@@ -126,3 +126,92 @@ def test_fetch_out_of_range_index_exits_1_without_fetching(capsys):
     # index 99 against the shipped config raises inside selection → clean exit 1, no network
     assert main(["fetch", "--only", "99"]) == 1
     assert "out of range" in capsys.readouterr().err
+
+
+# --- fetch --only merge (SPEC §10.6): partial fetch splices into the existing manifest ---
+
+
+def _dc(name, marker):
+    from intelligencer.manifest import DimensionContent, Item
+
+    return DimensionContent(name=name, items=[Item(title=marker, url="http://x")])
+
+
+def test_merge_uses_fresh_for_selected_base_for_untouched_in_config_order():
+    from intelligencer.cli import _merge_dimensions
+
+    base = [_dc("Alpha", "base-a"), _dc("Beta", "base-b"), _dc("Gamma", "base-g")]
+    fresh = [_dc("Beta", "fresh-b")]  # only Beta was refreshed this run
+    merged = _merge_dimensions(base, fresh, ["Alpha", "Beta", "Gamma"])
+    assert [(d.name, d.items[0].title) for d in merged] == [
+        ("Alpha", "base-a"),
+        ("Beta", "fresh-b"),
+        ("Gamma", "base-g"),
+    ]
+
+
+def test_merge_includes_fresh_dimension_absent_from_base():
+    from intelligencer.cli import _merge_dimensions
+
+    base = [_dc("Alpha", "base-a")]
+    fresh = [_dc("Beta", "fresh-b")]  # newly added dimension, not in the old manifest
+    merged = _merge_dimensions(base, fresh, ["Alpha", "Beta"])
+    assert [d.name for d in merged] == ["Alpha", "Beta"]
+
+
+def test_merge_drops_base_dimension_no_longer_in_config_order():
+    from intelligencer.cli import _merge_dimensions
+
+    base = [_dc("Alpha", "a"), _dc("Removed", "r")]  # Removed dropped from config
+    merged = _merge_dimensions(base, [], ["Alpha"])
+    assert [d.name for d in merged] == ["Alpha"]
+
+
+def test_fetch_only_merges_and_preserves_untouched_dimension_and_tldr(tmp_path, monkeypatch):
+    """A partial `fetch --only` must not wipe the rest of the manifest (the footgun this
+    fixes). Two search-only dimensions → fetch touches no network; refreshing one leaves
+    the other's hand-authored items and the issue TL;DR intact."""
+    from types import SimpleNamespace
+
+    from intelligencer import cli
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+
+    cfg = tmp_path / "c.yaml"
+    cfg.write_text(
+        "publication: {title: T, first_issue_date: '2026-06-26'}\n"
+        "output: {dir: ./dist}\n"
+        "dimensions:\n"
+        "  - {name: Alpha, layout: by-source, sources: [{type: search, query: a}]}\n"
+        "  - {name: Beta, layout: by-source, sources: [{type: search, query: b}]}\n",
+        encoding="utf-8",
+    )
+    manifest_path = tmp_path / "manifest.json"
+    monkeypatch.setattr(cli, "MANIFEST_PATH", str(manifest_path))
+
+    # Base manifest: both dimensions carry hand-authored search items; issue has a TL;DR.
+    Manifest(
+        issue=Issue(date="2026-06-28", title="T", week=1, tldr="hand-written summary"),
+        dimensions=[
+            DimensionContent(
+                name="Alpha",
+                layout="by-source",
+                items=[Item(title="A-old", url="http://a", origin="search", group="X")],
+            ),
+            DimensionContent(
+                name="Beta",
+                layout="by-source",
+                items=[Item(title="B-keep", url="http://b", origin="search", group="Y")],
+            ),
+        ],
+    ).write(manifest_path)
+
+    args = SimpleNamespace(config=str(cfg), only="Alpha", date=None, dry_run=False)
+    assert cli._cmd_fetch(args) == 0
+
+    result = Manifest.read(manifest_path)
+    assert [d.name for d in result.dimensions] == ["Alpha", "Beta"]  # full config order
+    beta = next(d for d in result.dimensions if d.name == "Beta")
+    assert [it.title for it in beta.items] == ["B-keep"]  # untouched dimension survived
+    alpha = next(d for d in result.dimensions if d.name == "Alpha")
+    assert alpha.items == []  # targeted dim refreshed (search-only → empty until re-filled)
+    assert result.issue.tldr == "hand-written summary"  # base issue (incl. TL;DR) preserved
