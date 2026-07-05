@@ -167,7 +167,7 @@ def test_intelligent_factory_company_logos_are_packaged():
     # new company is confirmed. Grows over time; extend this list alongside the SVGs.
     from intelligencer.images import LOGO_DIR, logo_asset_path
 
-    for slug in ("hp",):
+    for slug in ("hp", "unilever"):
         assert logo_asset_path(slug) == f"assets/logos/{slug}.svg"
         assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
 
