@@ -47,14 +47,16 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     assert factory.within_days == 7
     assert factory.trends is False  # SPEC §10.4: not a visual-context beat, no 🔥 signal
 
-    # search-only: a Google News feed was tried and dropped (SPEC §10.4) — it was either
-    # irrelevant-but-recent or relevant-but-months-stale, never both
-    assert [(s.type, s.query) for s in factory.sources] == [
-        (
-            "search",
-            "named manufacturer or industrial company AI partnership or deployment this week",
-        )
-    ]
+    # feed candidate pools (Manufacturing Dive + a recency-scoped Google News proxy) that
+    # Claude prunes + regroups to the company, plus a search supplement (SPEC §10.4)
+    assert [s.type for s in factory.sources] == ["feed", "feed", "search"]
+    assert any("manufacturingdive.com" in (s.url or "") for s in factory.sources)
+    assert any(
+        "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in factory.sources
+    )
+    # candidate-pool feeds are unlabeled — Claude regroups each kept item to its company
+    assert all(s.label is None for s in factory.sources if s.type == "feed")
+    assert factory.sources[-1].type == "search" and factory.sources[-1].query
 
     # SPEC §10.4: positioned after Frontier AI Research Labs; Rewriting Cross-Border Branding
     # (SPEC §10.5) now sits immediately after it, before Trending Social Video & Images.
@@ -82,11 +84,15 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
     assert brand.within_days == 7
     assert brand.trends is False  # SPEC §10.5: announcement-driven text, no 🔥 signal
 
-    # search-only: same rationale as The Intelligent Factory — a keyword feed can't resolve
-    # this cross-cutting, low-volume intersection query (SPEC §10.5)
-    assert [(s.type, s.query) for s in brand.sources] == [
-        ("search", "Chinese cross-border brand going global with AI this week")
-    ]
+    # feed candidate pools (中文 Google News proxy + 白鲸出海) that Claude prunes + regroups
+    # to the brand, plus a search supplement (SPEC §10.5)
+    assert [s.type for s in brand.sources] == ["feed", "feed", "search"]
+    assert any("baijing.cn" in (s.url or "") for s in brand.sources)
+    assert any(
+        "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in brand.sources
+    )
+    assert all(s.label is None for s in brand.sources if s.type == "feed")
+    assert brand.sources[-1].type == "search" and brand.sources[-1].query
 
     # SPEC §10.5: positioned after The Intelligent Factory, before Trending Social Video & Images
     names = [d.name for d in cfg.dimensions]
