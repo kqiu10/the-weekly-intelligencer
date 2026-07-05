@@ -36,8 +36,12 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
         (d for d in cfg.dimensions if d.name == "The Intelligent Factory"),
         None,
     )
-    assert factory is not None, "The Intelligent Factory dimension is missing from the shipped config"
-    assert factory.layout == "by-source"  # one card per company found this week (groupby_order is dynamic)
+    assert (
+        factory is not None
+    ), "The Intelligent Factory dimension is missing from the shipped config"
+    assert (
+        factory.layout == "by-source"
+    )  # one card per company found this week (groupby_order is dynamic)
     assert factory.max_per_source == 2
     assert factory.max_items == 7  # a ceiling, not a target
     assert factory.within_days == 7
@@ -46,14 +50,19 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     # search-only: a Google News feed was tried and dropped (SPEC §10.4) — it was either
     # irrelevant-but-recent or relevant-but-months-stale, never both
     assert [(s.type, s.query) for s in factory.sources] == [
-        ("search", "named manufacturer or industrial company AI partnership or deployment this week")
+        (
+            "search",
+            "named manufacturer or industrial company AI partnership or deployment this week",
+        )
     ]
 
     # SPEC §10.4: positioned after Frontier AI Research Labs; Rewriting Cross-Border Branding
     # (SPEC §10.5) now sits immediately after it, before Trending Social Video & Images.
     names = [d.name for d in cfg.dimensions]
     assert names.index("The Intelligent Factory") == names.index("Frontier AI Research Labs") + 1
-    assert names.index("Rewriting Cross-Border Branding") == names.index("The Intelligent Factory") + 1
+    assert (
+        names.index("Rewriting Cross-Border Branding") == names.index("The Intelligent Factory") + 1
+    )
 
 
 def test_shipped_config_has_valid_cross_border_branding_dimension():
@@ -65,7 +74,9 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
         None,
     )
     assert brand is not None, "Rewriting Cross-Border Branding is missing from the shipped config"
-    assert brand.layout == "by-source"  # one card per brand found this week (groupby_order is dynamic)
+    assert (
+        brand.layout == "by-source"
+    )  # one card per brand found this week (groupby_order is dynamic)
     assert brand.max_per_source == 2
     assert brand.max_items == 7  # a ceiling, not a target (SPEC §10.5)
     assert brand.within_days == 7
@@ -80,8 +91,7 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
     # SPEC §10.5: positioned after The Intelligent Factory, before Trending Social Video & Images
     names = [d.name for d in cfg.dimensions]
     assert (
-        names.index("Rewriting Cross-Border Branding")
-        == names.index("The Intelligent Factory") + 1
+        names.index("Rewriting Cross-Border Branding") == names.index("The Intelligent Factory") + 1
     )
     assert (
         names.index("Trending Social Video & Images")
