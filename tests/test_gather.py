@@ -179,6 +179,34 @@ def test_youtube_candidates_land_uncapped_for_claude_to_prune(monkeypatch):
     assert captured["max_results"] >= 4
 
 
+def test_unlabeled_by_source_feed_is_a_candidate_pool_not_capped_per_source():
+    """An *unlabeled* by-source feed is a candidate pool (like youtube): gather does NOT cap
+    it to max_per_source — Claude prunes it at the write stage — and leaves group empty for
+    Claude to set to the company each kept item is about. (A *labeled* by-source feed stays a
+    display row, capped per source — see test_by_source_caps_each_lab_and_skips_empty.)"""
+    from pathlib import Path
+
+    from intelligencer.config import Config, Dimension, Output, Publication, Source
+
+    fixtures = Path(__file__).parent / "fixtures"
+    cfg = Config(
+        publication=Publication(title="T"),
+        output=Output(),
+        dimensions=[
+            Dimension(
+                name="Factory",
+                layout="by-source",
+                max_per_source=2,
+                # feed_many.xml has 5 entries; unlabeled → candidate pool, all 5 survive
+                sources=[Source(type="feed", url=f"file://{fixtures / 'feed_many.xml'}")],
+            )
+        ],
+    )
+    dim = build_manifest(cfg).dimensions[0]
+    assert len(dim.items) == 5  # NOT capped to 2 — a candidate pool for Claude to prune
+    assert all(it.group == "" for it in dim.items)  # ungrouped; Claude assigns the company
+
+
 def test_by_source_caps_each_lab_and_skips_empty():
     """Each source is capped independently; a source with no items is skipped."""
     from pathlib import Path

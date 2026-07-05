@@ -168,9 +168,7 @@ def validate_config(config: Config) -> tuple[list[str], list[str]]:
                 errors.append(f"dimension {dim.name!r}: a {src.type} source has no url")
             if src.type == "youtube" and not src.query:
                 errors.append(f"dimension {dim.name!r}: a youtube source has no query")
-            if dim.layout == "by-source" and src.type == "feed" and not src.label:
-                warnings.append(
-                    f"dimension {dim.name!r}: a {src.type} source has no label; "
-                    "its row will be unlabeled"
-                )
+            # An unlabeled by-source feed is intentional — a candidate pool Claude prunes and
+            # regroups to the company each kept item is about (see gather.CANDIDATE_POOL_CAP),
+            # so it is not warned about here.
     return errors, warnings

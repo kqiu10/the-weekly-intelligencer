@@ -213,11 +213,15 @@ dimensions:
     assert load_config(_write(tmp_path, text)).dimensions[0].max_per_source == 2
 
 
-def test_by_source_unlabeled_source_warns(tmp_path):
+def test_by_source_unlabeled_feed_is_a_valid_candidate_pool(tmp_path):
+    """An unlabeled by-source feed is an intentional candidate pool (gather brings a bounded
+    batch; Claude prunes + regroups to the company each kept item is about) — it validates
+    cleanly, with no 'unlabeled' warning."""
     text = """
 publication: {title: T}
 dimensions:
   - {name: A, layout: by-source, sources: [{type: feed, url: "http://x"}]}
 """
-    _errors, warnings = validate_config(load_config(_write(tmp_path, text)))
-    assert any("unlabeled" in w for w in warnings)
+    errors, warnings = validate_config(load_config(_write(tmp_path, text)))
+    assert errors == []
+    assert not any("unlabeled" in w for w in warnings)
