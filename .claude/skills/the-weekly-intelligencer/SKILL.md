@@ -97,6 +97,13 @@ item; add your `search` items into their dimensions; fill in summaries. Also:
 - **Issue TL;DR** — write `issue.tldr`: a one-paragraph, ~`defaults.tldr_words` (≈100-word)
   executive summary of the whole issue across all dimensions (NYT briefing register). It may
   open with what's heating up this week.
+- **Bilingual i18n (SPEC §10.9)** — for **every item** write
+  `i18n: {"zh": {title, summary, raw_text}, "en": {...}}`: the **source-language entry is
+  the original values verbatim**; the other entry is your faithful translation — ledes
+  (`raw_text`) translate too; company/brand/product names stay untranslated inside
+  sentences. For each dimension write `name_i18n`/`blurb_i18n` `{"zh","en"}` pairs, and
+  for the issue write `tldr_i18n`. The rendered page defaults to 中文; the masthead
+  translate icon flips languages (pure CSS, no JS).
 - **Trend topics** — for each dimension with `trends: true` (the social-video one), add a
   `trends` list of the week's key contexts. For each: use the posts' titles + descriptions
   to write a canonical `descriptor` + `tags` of *what the media
@@ -109,10 +116,12 @@ item; add your `search` items into their dimensions; fill in summaries. Also:
 Preserve the schema exactly:
 
 ```
-issue:      { date, title, subtitle, week, tldr }
-dimensions: [ { name, blurb, summary_mode, layout, items: [ ... ], notes: [ ... ],
-                logos: { ... }, trends: [ { id, descriptor, tags: [...], magnitude, samples: [...] } ] } ]
-item:       { title, url, source, published, image, raw_text, summary, origin, group, creator, stats }
+issue:      { date, title, subtitle, week, tldr, tldr_i18n }
+dimensions: [ { name, name_i18n, blurb, blurb_i18n, summary_mode, layout, items: [ ... ],
+                notes: [ ... ], logos: { ... },
+                trends: [ { id, descriptor, tags: [...], magnitude, samples: [...] } ] } ]
+item:       { title, url, source, published, image, raw_text, summary, origin, group,
+              creator, stats, i18n }
             (social-video only — creator: @handle/channel; stats: {views,likes,comments,…} → overlaid on the tile)
 ```
 
