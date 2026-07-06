@@ -174,6 +174,76 @@ def test_intelligent_factory_company_logos_are_packaged():
         assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
 
 
+def test_item_images_lazy_load_and_lead_stays_eager():
+    """Perf audit 2026-07-06: thumbnails get loading=lazy decoding=async (+ intrinsic
+    width/height when known); the lead image — the LCP candidate — stays eager with
+    fetchpriority=high instead."""
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+    from intelligencer.render import render_html
+
+    m = Manifest(
+        issue=Issue(date="2026-07-05", title="T", week=2),
+        dimensions=[
+            DimensionContent(
+                name="Grid",
+                layout="grid",
+                items=[
+                    Item(title="Lead", url="u0", image="assets/d/lead.png", summary="s"),
+                    Item(title="Second", url="u1", image="assets/d/a.png", summary="s"),
+                ],
+            ),
+            DimensionContent(
+                name="Labs",
+                layout="by-source",
+                items=[
+                    Item(title="Row", url="u2", group="G", image="assets/d/b.png", summary="s")
+                ],
+            ),
+        ],
+    )
+    dims = {
+        "assets/d/lead.png": (600, 338),
+        "assets/d/a.png": (600, 400),
+        "assets/d/b.png": (132, 88),
+    }
+    html = render_html(m, image_dims=dims)
+    # lead: eager + high priority + dimensions, never lazy
+    assert (
+        'src="assets/d/lead.png" fetchpriority="high" decoding="async"'
+        ' width="600" height="338"' in html
+    )
+    lead_tag = html.split('class="lead-image"')[1].split(">")[0]
+    assert "lazy" not in lead_tag
+    # grid + by-source thumbnails: lazy + async + dimensions
+    assert 'src="assets/d/a.png" loading="lazy" decoding="async" width="600" height="400"' in html
+    assert 'src="assets/d/b.png" loading="lazy" decoding="async" width="132" height="88"' in html
+
+
+def test_collect_image_dims_reads_local_cached_files(tmp_path):
+    from PIL import Image
+
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+    from intelligencer.render import _collect_image_dims
+
+    (tmp_path / "assets" / "d").mkdir(parents=True)
+    Image.new("RGB", (300, 200)).save(tmp_path / "assets" / "d" / "x.png")
+    m = Manifest(
+        issue=Issue(date="d", title="T"),
+        dimensions=[
+            DimensionContent(
+                name="D",
+                items=[
+                    Item(title="a", url="u", image="assets/d/x.png"),
+                    Item(title="b", url="u", image="https://hotlinked.example/y.jpg"),
+                    Item(title="c", url="u", image="assets/d/missing.png"),
+                ],
+            )
+        ],
+    )
+    dims = _collect_image_dims(m, tmp_path)
+    assert dims == {"assets/d/x.png": (300, 200)}  # local file measured; hotlink/missing skipped
+
+
 def _bilingual_manifest():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 

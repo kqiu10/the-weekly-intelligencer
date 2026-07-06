@@ -70,7 +70,9 @@ def _env() -> Environment:
     return env
 
 
-def render_html(manifest: Manifest, *, render_tldr: bool = True) -> str:
+def render_html(
+    manifest: Manifest, *, render_tldr: bool = True, image_dims: dict | None = None
+) -> str:
     css = (TEMPLATE_DIR / "intelligencer.css").read_text(encoding="utf-8")
     template = _env().get_template("issue.html.j2")
     return template.render(
@@ -78,7 +80,31 @@ def render_html(manifest: Manifest, *, render_tldr: bool = True) -> str:
         dimensions=manifest.dimensions,
         css=css,
         render_tldr=render_tldr,
+        image_dims=image_dims or {},
     )
+
+
+def _collect_image_dims(manifest: Manifest, output_dir: Path) -> dict[str, tuple[int, int]]:
+    """Measure intrinsic width/height of locally cached item images (perf audit
+    2026-07-06: emitting the attributes lets the browser reserve layout space — no CLS
+    when a lead/grid image loads). Hotlinked URLs and missing files are skipped."""
+    from PIL import Image
+
+    dims: dict[str, tuple[int, int]] = {}
+    for dim in manifest.dimensions:
+        for item in dim.items:
+            rel = item.image
+            if not rel or not rel.startswith("assets/") or rel in dims:
+                continue
+            path = Path(output_dir) / rel
+            if not path.exists():
+                continue
+            try:
+                with Image.open(path) as img:
+                    dims[rel] = img.size
+            except Exception:  # noqa: BLE001 - an unreadable image just gets no attributes
+                continue
+    return dims
 
 
 def _cache_images(manifest: Manifest, output_dir: Path) -> None:
@@ -124,6 +150,10 @@ def render_issue(
         _cache_images(manifest, output_dir)
     _copy_logos(manifest, output_dir)
     _copy_flame(manifest, output_dir)
+    image_dims = _collect_image_dims(manifest, output_dir)
     out = output_dir / f"{manifest.issue.date}.html"
-    out.write_text(render_html(manifest, render_tldr=render_tldr), encoding="utf-8")
+    out.write_text(
+        render_html(manifest, render_tldr=render_tldr, image_dims=image_dims),
+        encoding="utf-8",
+    )
     return out

@@ -8,6 +8,10 @@
 {%- macro bi(zh, en, fallback) -%}
 {%- if zh and en -%}<span lang="zh">{{ zh }}</span><span lang="en">{{ en }}</span>{%- else -%}{{ fallback }}{%- endif -%}
 {%- endmacro -%}
+{%- macro wh(path) -%}
+{%- set d = image_dims.get(path) -%}
+{%- if d %} width="{{ d[0] }}" height="{{ d[1] }}"{% endif -%}
+{%- endmacro -%}
 <!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
@@ -43,7 +47,7 @@
   {% set lzh = lead.i18n.get("zh", {}) %}{% set len_ = lead.i18n.get("en", {}) %}
   <article class="lead">
     <p class="kicker">{{ bi(dimensions[0].name_i18n.get("zh"), dimensions[0].name_i18n.get("en"), dimensions[0].name) }}</p>
-    {% if lead.image %}<img class="lead-image" src="{{ lead.image }}" alt="">{% endif %}
+    {% if lead.image %}<img class="lead-image" src="{{ lead.image }}" fetchpriority="high" decoding="async"{{ wh(lead.image) }} alt="">{% endif %}
     <h2 class="lead-title"><a href="{{ lead.url }}">{{ bi(lzh.get("title"), len_.get("title"), lead.title) }}</a></h2>
     {% set b_zh = lzh.get("summary") or lzh.get("raw_text") %}{% set b_en = len_.get("summary") or len_.get("raw_text") %}
     {% set lead_blurb = lead | blurb %}
@@ -67,14 +71,14 @@
         <div class="lab">
           <div class="lab-rail">
             {% if label %}<div class="lab-name">{{ label }}</div>{% endif %}
-            {% if logo %}<img class="lab-logo" src="{{ logo }}" alt="{{ label }} logo">{% endif %}
+            {% if logo %}<img class="lab-logo" src="{{ logo }}" loading="lazy" decoding="async" alt="{{ label }} logo">{% endif %}
           </div>
           <div class="lab-items">
             {% for item in group_items %}
             {% if (dim.items | selectattr("stats") | first) and item.image %}
             <article class="media-item">
               <a class="media-tile" href="{{ item.url }}">
-                {% if item.image %}<img class="media-thumb" src="{{ item.image }}" alt="">{% endif %}
+                {% if item.image %}<img class="media-thumb" src="{{ item.image }}" loading="lazy" decoding="async"{{ wh(item.image) }} alt="">{% endif %}
                 {% if item.stats %}<span class="media-metrics">{% if "likes" in item.stats %}<span class="mm"><svg class="mm-ic" aria-hidden="true"><use href="#ic-like"/></svg>{{ item.stats.likes | compact }}</span>{% endif %}{% if "comments" in item.stats %}<span class="mm"><svg class="mm-ic" aria-hidden="true"><use href="#ic-comment"/></svg>{{ item.stats.comments | compact }}</span>{% endif %}</span>{% endif %}
                 {% if item.creator %}<span class="media-cap"><span class="media-creator">{{ item.creator }}</span></span>{% endif %}
               </a>
@@ -90,7 +94,7 @@
             {% else %}
             <article class="item">
               {% set izh = item.i18n.get("zh", {}) %}{% set ien = item.i18n.get("en", {}) %}
-              {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
+              {% if item.image %}<img class="item-image" src="{{ item.image }}" loading="lazy" decoding="async"{{ wh(item.image) }} alt="">{% endif %}
               <h5 class="item-title"><a href="{{ item.url }}">{{ bi(izh.get("title"), ien.get("title"), item.title) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
               {% set b_zh = izh.get("summary") or izh.get("raw_text") %}{% set b_en = ien.get("summary") or ien.get("raw_text") %}
               {% set item_blurb = item | blurb %}
@@ -109,7 +113,7 @@
         {% if not (outer.first and loop.first) %}
         <article class="item">
           {% set izh = item.i18n.get("zh", {}) %}{% set ien = item.i18n.get("en", {}) %}
-          {% if item.image %}<img class="item-image" src="{{ item.image }}" alt="">{% endif %}
+          {% if item.image %}<img class="item-image" src="{{ item.image }}" loading="lazy" decoding="async"{{ wh(item.image) }} alt="">{% endif %}
           <h4 class="item-title"><a href="{{ item.url }}">{{ bi(izh.get("title"), ien.get("title"), item.title) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
           {% set b_zh = izh.get("summary") or izh.get("raw_text") %}{% set b_en = ien.get("summary") or ien.get("raw_text") %}
           {% set item_blurb = item | blurb %}
