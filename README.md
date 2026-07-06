@@ -69,23 +69,13 @@ generate this week's Intelligencer issue
 
 ```bash
 uv run intelligencer validate                 # check config/dimensions.yaml
-uv run intelligencer fetch                    # feeds + sites + YouTube → out/manifest.json
+uv run intelligencer fetch                    # feeds + sites → out/manifest.json
 uv run intelligencer fetch --date 2026-06-28  # …or pin a specific past week
-uv run intelligencer trends                   # fold heat into data/trends.json
 uv run intelligencer render --open            # manifest → dist/<date>.html
 ```
 
 `--only <name>` narrows fetch/render to one dimension. With an all-`feed` + all-`raw` config this produces a complete issue with **zero** Claude tokens.
 </details>
-
----
-
-
-## Trending
-
-The social-video dimension tracks which AI-generated **contexts** are heating up week over week. `data/trends.json` is a small, committed time-series — one topic per canonical context (`id`, `descriptor`, `tags`, and a weekly `magnitude` history). `intelligencer trends` folds each week's magnitudes in and computes a `heat_tier` (0–3): a context that is **recurring _and_ rising** earns heat.
-
-That heat is stamped onto the individual posts a topic points to (its `samples`), and a **flame renders after that card's title** — only when the card is actually hot. A brand-new or cooling context shows nothing; it needs ≥2 weeks of rising magnitude to light up.
 
 ---
 
@@ -96,7 +86,7 @@ A self-contained `dist/<date>.html` with the styling inlined and its images/logo
 
 ## Why Agent Skills
 
-Most AI news tools force a choice: paraphrase everything through an LLM (expensive, hallucination-prone) or just dump raw feeds (no editorial judgment). Building this as a Claude Code **Agent Skill** splits the difference — **deterministic scripts do the fetching for free**, and the skill hands Claude Code only the part that needs judgment: writing summaries and curating trends, done **in-session, with no API key**. The output is a **single portable HTML file**, not a service to host, and the whole run is reproducible from the manifest.
+Most AI news tools force a choice: paraphrase everything through an LLM (expensive, hallucination-prone) or just dump raw feeds (no editorial judgment). Building this as a Claude Code **Agent Skill** splits the difference — **deterministic scripts do the fetching for free**, and the skill hands Claude Code only the part that needs judgment: pruning the candidate pools and writing summaries, done **in-session, with no API key**. The output is a **single portable HTML file**, not a service to host, and the whole run is reproducible from the manifest.
 
 ## Issues
 

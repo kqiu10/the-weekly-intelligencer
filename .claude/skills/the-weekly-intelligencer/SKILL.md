@@ -103,22 +103,12 @@ item; add your `search` items into their dimensions; fill in summaries. Also:
   sentences. For each dimension write `name_i18n`/`blurb_i18n` `{"zh","en"}` pairs, and
   for the issue write `tldr_i18n`. The rendered page defaults to 中文; the masthead
   translate icon flips languages (pure CSS, no JS).
-- **Trend topics** — for each dimension with `trends: true` (the social-video one), add a
-  `trends` list of the week's key contexts. For each: use the posts' titles + descriptions
-  to write a canonical `descriptor` + `tags` of *what the media
-  depicts*; assign a stable `id` by semantic-matching against recent descriptors already in
-  `data/trends.json` — **reuse the same `id`** when it's the same context as a prior week so
-  the streak builds; estimate a `magnitude` (distinct posts/sources found + real view counts
-  where available) and list a few `samples` (permalinks). Leave `heat_tier`/`direction`/
-  `recurring` out — step 5 computes them.
-
 Preserve the schema exactly:
 
 ```
 issue:      { date, title, subtitle, week, tldr, tldr_i18n }
 dimensions: [ { name, name_i18n, blurb, blurb_i18n, summary_mode, layout, items: [ ... ],
-                notes: [ ... ], logos: { ... },
-                trends: [ { id, descriptor, tags: [...], magnitude, samples: [...] } ] } ]
+                notes: [ ... ], logos: { ... } } ]
 item:       { title, url, source, published, image, raw_text, summary, origin, group,
               creator, stats, i18n }
             (social-video only — creator: @handle/channel; stats: {views,likes,comments,…} → overlaid on the tile)
@@ -131,15 +121,7 @@ rail; the `logos` map (group label → packaged logo path) is produced by `fetch
 config's per-source `logo` slug — **keep it as-is, don't hand-edit it.** For the default
 `grid` layout, leave `group` as `""`.
 
-## 5. Fold in the hot trend signal
-Run `uv run intelligencer trends`. This records each context's `magnitude` into the committed
-`data/trends.json` time-series and annotates every trend topic with its `heat_tier` (0–3
-flames), `direction`, and `recurring` flag by comparing against prior weeks. Commit
-`data/trends.json` afterward so the history persists (trends need a few weeks to warm up) —
-use a Conventional-Commits subject like `chore(trends): record week N magnitudes` (a bare
-`data:` type is rejected by the commit-message hook).
-
-## 6. Render
+## 5. Render
 Run `uv run intelligencer render` (add `--open` to open it). Report the output path,
 e.g. `dist/2026-06-26.html`.
 
@@ -152,6 +134,5 @@ e.g. `dist/2026-06-26.html`.
   that *is* the story), or `null`. The ban is on *you* creating/AI-generating a picture, not on
   showing a real still of AI content.
 - **Never call the Anthropic API** — all writing happens here in this session.
-- **Social posts & hotness:** link the real permalink; never fabricate a post, a view count,
-  or a virality/hotness figure — the hot signal is an editorial estimate over time, not
-  measured analytics.
+- **Social posts:** link the real permalink; never fabricate a post, a view count, or an
+  engagement figure — `stats` only carry numbers a platform actually exposes.
