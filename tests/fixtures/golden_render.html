@@ -11,10 +11,14 @@
   --hair: #ddd;
   --accent: #8b0000;
   --paper: #fafaf8;
+  /* Latin faces first — fonts cascade per glyph, so English keeps Georgia/Arial while CJK
+     falls to the named 宋体 (broadsheet serif) / 黑体 (UI sans) classes, not the OS default. */
+  --font-serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", SimSun, serif;
+  --font-sans: Arial, Helvetica, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
 }
 * { box-sizing: border-box; }
 body {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-serif);
   color: var(--ink);
   background: var(--paper);
   max-width: 1100px;
@@ -53,7 +57,7 @@ a { color: inherit; }
   letter-spacing: 0.12em;
   font-size: 0.72rem;
   color: var(--accent);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   margin: 0 0 0.35rem;
 }
 
@@ -133,7 +137,7 @@ a { color: inherit; }
   display: block;
 }
 .lab-name {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -171,7 +175,7 @@ a { color: inherit; }
 .lab-items .item-title { margin-top: 0; }
 
 .item-link {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 0.7rem;
   margin: 0.35rem 0 0;
   word-break: break-all;            /* long Google News URLs wrap, never overflow */
@@ -221,6 +225,8 @@ a { color: inherit; }
 [lang="en"] { display: none; }
 .lang-switch:checked ~ * [lang="en"] { display: inline; }
 .lang-switch:checked ~ * [lang="zh"] { display: none; }
+/* CJK micro-typography: 中文 lines breathe with more leading + a hair of tracking. */
+[lang="zh"] { line-height: 1.75; letter-spacing: 0.015em; }
 </style>
 </head>
 <body>
