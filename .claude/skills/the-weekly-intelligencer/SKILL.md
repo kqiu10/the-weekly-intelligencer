@@ -46,15 +46,39 @@ Only use an `image` URL that is the article's real preview image (`og:image`). I
 can't find one, use `null`.
 
 ### The Intelligent Factory, Rewriting Cross-Border Branding & Trending Social Video & Images
-**No editorial filtering** (prune bars removed 2026-07-06 per review): whatever the
-configured feeds/sites gathered flows into the issue **as-is** — the deterministic layer
-(date window, per-source candidate cap, contentless drop, boilerplate-image drop) is the
-only filter. Leave `group` as gathered (`""` renders one unlabeled card per dimension);
-don't drop, reorder, or add items; apply the dimension's `summary` mode to what's there.
+All three arrive **pre-filled by `fetch`** as ungrouped candidate pools. **Prune** each
+pool to its bar below (rebalanced 2026-07-06 — the middle between the original strict bars
+and none), set each kept item's `group` (company / brand / platform / publication — one
+card per group), drop the rest. If more than `max_items` qualify, keep the **newest
+`max_items`** — a mechanical ceiling, no judgment. Zero in a quiet week is fine — an empty
+dimension doesn't render; leave `notes` empty.
 
-The one floor that stays (safety, not relevance): remove an item only if it is
-misinformation, violence, gore, or a harmful deepfake — and, as everywhere, never
-fabricate a title, link, stat, or image.
+- **The Intelligent Factory** keeps: a named manufacturer/industrial company with a
+  concrete AI adoption, deployment, or partnership — **vendor named or not**; substantive
+  industrial-AI trade coverage (cobots, digital twins, robotics in production); and **The
+  Batch weekly as a standing recap card** (group `"The Batch"`). Reject: AI vendors' own
+  chip/data-center/infrastructure moves (wrong direction), M&A with no AI angle,
+  conference calendars, how-tos, promos.
+- **Rewriting Cross-Border Branding** keeps: a named Chinese cross-border/going-global
+  brand × AI story; a **major milestone of such a brand even without an AI angle** (IPO,
+  market entry, flagship launch — e.g. Anker's HKEX listing); and a platform-AI feature
+  that materially affects Chinese sellers going global. Reject: market/stock digests and
+  morning briefs, ESG/finance notes, trademark/patent warnings, how-to guides,
+  domestic-only stories, and a Chinese AI vendor's own overseas expansion (that's
+  Frontier AI Research Labs' beat).
+- **Trending Social Video & Images** keeps: a curator tweet **showcasing a specific
+  AI-generated work** (media attached or a link to one) — virality **not** required; the
+  curator's pick is the signal. Link the underlying post when the tweet points at one
+  (`group` = the platform it lives on), else the tweet itself (`group: "X"`). `creator`
+  always; `image`/`stats` only when actually visible. Reject: personal/admin posts,
+  milestones, promos, link-less chatter.
+
+Safety floor everywhere (non-negotiable): no misinformation, violence, gore, or harmful
+deepfakes — and never fabricate a title, link, stat, or image. For kept items: WebFetch to
+confirm/fill `image` (real og:image, else null) and `raw_text`; dedup against the other
+dimensions this issue; set `dim.logos[group]` when a packaged slug exists (or add a real
+Simple Icons SVG — never invent path data — extending the logo test), else the label-only
+rail is fine.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
