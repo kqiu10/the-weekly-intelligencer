@@ -64,8 +64,7 @@ dimensions:
     max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
     trends: true                   # track context hotness across issues
-    sources:                       # YouTube via its free official API; X curator roundups via private RSSHub (candidate pool, Claude prunes) — replaced TikTok/IG/FB web search
-      - { type: youtube, label: "YouTube Shorts", logo: "youtube",   query: "AI generated" }   # most-viewed AI Shorts this week
+    sources:                       # X curator roundups via private RSSHub (candidate pools, Claude prunes) — replaced YouTube API + TikTok/IG/FB web search
       - { type: feed, url: "${RSSHUB_BASE}/twitter/user/RowanCheung" }                          # @RowanCheung — weekly wildest-AI-videos roundups
       - { type: feed, url: "${RSSHUB_BASE}/twitter/user/icreatelife" }                          # @icreatelife — AI video/art curation
 

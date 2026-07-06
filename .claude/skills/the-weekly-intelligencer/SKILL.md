@@ -79,10 +79,6 @@ Surface the **1–2 most-shared AI-generated** videos/images **per platform** th
 newly going viral (recently posted, spiking now, not evergreen). Every card is a **portrait media
 tile**: the post's thumbnail with its **creator**, **title**, and **likes + comments** overlaid on
 the image (like the native app); the text beside it is the editorial `summary` only.
-- **YouTube** is filled by `fetch` (free official Data API) with the week's most-viewed Shorts
-  matching "AI generated" — each a `youtube.com/shorts/` link with an `i.ytimg` thumbnail, `creator`
-  (channel name), and `stats` = {views, likes, comments}. **Prune** to the genuinely **AI-generated**
-  ones (drop the rest, down to `max_per_source`); leave the fields as-is.
 - **X curator pool** (`feed` via the private RSSHub instance — replaced the old TikTok/IG/FB
   web search) — @RowanCheung and @icreatelife curate the week's hottest AI videos/images;
   their tweets arrive as an **ungrouped candidate pool** (like the Factory/Cross-Border

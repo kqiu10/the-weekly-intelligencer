@@ -20,16 +20,15 @@ def test_shipped_config_has_valid_social_video_dimension():
     assert social is not None, "the social-video dimension is missing from the shipped config"
     assert social.layout == "by-source"
     assert social.trends is True  # trend tracking is enabled for this dimension
-    # YouTube stays first-party API; TikTok/IG/FB web search replaced by X curator feeds via
-    # the private RSSHub instance (2026-07-06) — unlabeled candidate pools Claude prunes
+    # X curator feeds via the private RSSHub instance only (2026-07-06; ck also dropped the
+    # YouTube API source) — unlabeled candidate pools Claude prunes
     assert [(s.type, s.label, s.logo) for s in social.sources] == [
-        ("youtube", "YouTube Shorts", "youtube"),  # free official Data API
         ("feed", None, None),
         ("feed", None, None),
     ]
     assert any("/twitter/user/RowanCheung" in (s.url or "") for s in social.sources)
     assert any("/twitter/user/icreatelife" in (s.url or "") for s in social.sources)
-    assert not any(s.type == "search" for s in social.sources)
+    assert not any(s.type in ("search", "youtube") for s in social.sources)
 
 
 def test_shipped_config_has_valid_intelligent_factory_dimension():
