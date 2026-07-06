@@ -55,7 +55,7 @@ dimension doesn't render; leave `notes` empty.
 - **The Intelligent Factory** keeps: a named manufacturer/industrial company with a
   concrete AI adoption, deployment, or partnership — **vendor named or not**; substantive
   industrial-AI trade coverage (cobots, digital twins, robotics in production); and **The
-  Batch weekly as a standing recap card** (group `"The Batch"`). Reject: AI vendors' own
+  Batch weekly as a standing recap card** (group `"DeepLearning.AI"`). Reject: AI vendors' own
   chip/data-center/infrastructure moves (wrong direction), M&A with no AI angle,
   conference calendars, how-tos, promos.
 - **Rewriting Cross-Border Branding** keeps: a named Chinese cross-border/going-global

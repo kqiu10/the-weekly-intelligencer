@@ -41,7 +41,7 @@ dimensions:
     within_days: 7                 # only the past 7 days
     sources:                       # feed candidate pools only (Claude prunes + regroups to the company); no search
       - { type: feed, url: "https://www.manufacturingdive.com/feeds/topic/technology/" }                                                        # Manufacturing Dive's tech/AI-in-manufacturing
-      - { type: feed, url: "${RSSHUB_BASE}/deeplearning/the-batch" }                                                                             # The Batch weekly
+      - { type: feed, url: "${RSSHUB_BASE}/deeplearning/the-batch" }                                                                             # The Batch weekly (card: DeepLearning.AI)
 
   - name: "Rewriting Cross-Border Branding"
     blurb: "How AI is reshaping the way Chinese cross-border brands market and build themselves overseas"

@@ -26,15 +26,12 @@ LOGO_DIR = Path(__file__).parent / "assets" / "logos"
 
 
 def logo_asset_path(slug: str | None) -> str | None:
-    """Map a logo ``slug`` to its dist-relative path if a packaged file exists, else
-    None (a typo'd slug simply renders name-only, never a broken <img>). SVG is the
-    preferred format; ``.png`` is the fallback for brands with no authoritative vector
-    mark anywhere (a real user-supplied raster beats an invented vector)."""
-    if not slug:
-        return None
-    for ext in ("svg", "png"):
-        if (LOGO_DIR / f"{slug}.{ext}").exists():
-            return f"assets/logos/{slug}.{ext}"
+    """Map a logo ``slug`` to its dist-relative path (``assets/logos/<slug>.svg``)
+    if the packaged SVG exists, else None. Keeps a typo'd slug from becoming a
+    broken <img> — it simply renders name-only. SVG-only by design; a brand whose
+    only real artwork is raster ships it embedded as a data URI inside the SVG."""
+    if slug and (LOGO_DIR / f"{slug}.svg").exists():
+        return f"assets/logos/{slug}.svg"
     return None
 
 
