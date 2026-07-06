@@ -45,52 +45,16 @@ publisher, date, or preview image. Each item you add must have this exact shape:
 Only use an `image` URL that is the article's real preview image (`og:image`). If you
 can't find one, use `null`.
 
-### The "Intelligent Factory" and "Rewriting Cross-Border Branding" dimensions
-Both arrive **pre-filled by `fetch`** as ungrouped candidate pools from their configured
-feeds (`group: ""`) — no searching. Your only job is to **prune**: keep the few items that
-pass the dimension's bar, drop the rest from the manifest, and set each kept item's `group`
-to the company/brand it is about (`by-source` renders one card per group). Zero kept in a
-quiet week is correct — an empty dimension simply doesn't render; leave `notes` empty.
+### The Intelligent Factory, Rewriting Cross-Border Branding & Trending Social Video & Images
+**No editorial filtering** (prune bars removed 2026-07-06 per review): whatever the
+configured feeds/sites gathered flows into the issue **as-is** — the deterministic layer
+(date window, per-source candidate cap, contentless drop, boilerplate-image drop) is the
+only filter. Leave `group` as gathered (`""` renders one unlabeled card per dimension);
+don't drop, reorder, or add items; apply the dimension's `summary` mode to what's there.
 
-- **The Intelligent Factory** keeps: a **named manufacturer/industrial company adopting a
-  named AI vendor's technology for its own operations** (HP × OpenAI's "Frontier"
-  partnership; Takeda × Insilico's Pharma.AI deal). Reject: an AI vendor's own
-  chip/data-center/infrastructure news (wrong direction — e.g. Anthropic sourcing Samsung
-  chips, NVIDIA "AI Factory" campuses), "AI-powered" claims naming no vendor, and
-  opinion/forecast/conference PR.
-- **Rewriting Cross-Border Branding** keeps: a **named Chinese cross-border/going-global
-  brand whose story materially involves AI** — adopting AI to market/localize/sell
-  overseas, shipping an AI product for overseas markets, or a platform's AI enabling a
-  named brand's push. Reject: a Chinese AI vendor's own overseas expansion with no other
-  named brand involved (DeepSeek/Qwen/Kimi going global — that's Frontier AI Research
-  Labs' beat, and the most common false positive), domestic-only stories, factory-floor
-  stories (that's The Intelligent Factory), and trend analysis / summit PR with no
-  discrete brand event.
-
-For each kept item: **WebFetch the article** to confirm the companies and fill `image`
-(the real og:image, else null) and `raw_text`; **dedup** against the other dimensions this
-issue. **Logo:** if `src/intelligencer/assets/logos/<slug>.svg` exists for the company, set
-`dim.logos[group]`; else either add a real Simple Icons SVG (fetch the real path data and
-official brand hex — never invent path data — and extend the logo test in
-`tests/test_render.py`) or leave it — a missing logo renders a safe label-only rail.
-
-### The "Trending Social Video & Images" dimension
-Surface the **1–2 most-shared AI-generated** videos/images **per platform** this week — the ones
-newly going viral (recently posted, spiking now, not evergreen). Every card is a **portrait media
-tile**: the post's thumbnail with its **creator**, **title**, and **likes + comments** overlaid on
-the image (like the native app); the text beside it is the editorial `summary` only.
-- **X curator pool** (`feed` via the private RSSHub instance — replaced the old TikTok/IG/FB
-  web search) — @RowanCheung and @icreatelife curate the week's hottest AI videos/images;
-  their tweets arrive as an **ungrouped candidate pool** (like the Factory/Cross-Border
-  feeds). Prune to posts showcasing a **specific, genuinely viral AI-generated** piece of
-  entertainment (funny / creative / artful — **not** misinformation, violence, gore, or
-  harmful deepfakes); drop link-less commentary, promo, and anything not AI-generated. When
-  the tweet points at the underlying post, use **that** permalink and set `group` to the
-  platform it lives on (TikTok / Instagram / X / …); otherwise link the tweet itself with
-  `group: "X"`. Set `dim.logos[group]` when a packaged slug exists (`tiktok`, `instagram`,
-  `facebook` are packaged; add others per the logo rules above). `creator` (@handle) always;
-  `image` and `stats` (likes/views) **only when actually visible** — never invented. A quiet
-  curator week yields nothing from that feed — **silently** skip; leave `notes` empty.
+The one floor that stays (safety, not relevance): remove an item only if it is
+misinformation, violence, gore, or a harmful deepfake — and, as everywhere, never
+fabricate a title, link, stat, or image.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
