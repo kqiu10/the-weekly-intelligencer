@@ -24,6 +24,9 @@ class Item:
     # metrics row instead of a preview image; only the keys a platform exposes are set.
     stats: dict = field(default_factory=dict)
     heat_tier: int = 0  # >0 when this item's context is heating in the trend db → flame after title
+    # SPEC §10.9 bilingual issue: {"zh": {title, summary, raw_text}, "en": {...}} — the
+    # source-language entry is the original, the other its translation; empty = monolingual.
+    i18n: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -39,6 +42,9 @@ class DimensionContent:
     # trend rows for the 🔥 "Heating up" strip: {descriptor, tags, magnitude, heat_tier,
     # direction, recurring, samples} — populated by the trends step (SPEC §10.2)
     trends: list[dict] = field(default_factory=list)
+    # SPEC §10.9: {"zh": str, "en": str} pairs for the section heading and blurb
+    name_i18n: dict = field(default_factory=dict)
+    blurb_i18n: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -48,6 +54,7 @@ class Issue:
     subtitle: str = ""
     week: int = 1
     tldr: str = ""  # issue-level TL;DR (~100 words), written at the write stage
+    tldr_i18n: dict = field(default_factory=dict)  # SPEC §10.9: {"zh": str, "en": str}
 
 
 @dataclass
@@ -68,6 +75,8 @@ class Manifest:
                     "notes": d.notes,
                     "logos": d.logos,
                     "trends": d.trends,
+                    "name_i18n": d.name_i18n,
+                    "blurb_i18n": d.blurb_i18n,
                 }
                 for d in self.dimensions
             ],
@@ -89,6 +98,8 @@ class Manifest:
                     notes=d.get("notes", []),
                     logos=d.get("logos", {}) or {},
                     trends=d.get("trends", []) or [],
+                    name_i18n=d.get("name_i18n", {}) or {},
+                    blurb_i18n=d.get("blurb_i18n", {}) or {},
                 )
             )
         return cls(issue=issue, dimensions=dims)
