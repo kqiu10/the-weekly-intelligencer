@@ -65,6 +65,5 @@ dimensions:
     layout: by-source              # one card per platform; a platform with nothing trending that week is skipped
     max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
-    trends: true                   # track context hotness across issues
     sources:                       
       - { type: feed, url: "https://old.reddit.com/r/aivideo/top/.rss?t=week" }                 # r/aivideo weekly top — native first-party RSS

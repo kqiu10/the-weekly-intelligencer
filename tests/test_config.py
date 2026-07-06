@@ -19,7 +19,6 @@ def test_shipped_config_has_valid_social_video_dimension():
     )
     assert social is not None, "the social-video dimension is missing from the shipped config"
     assert social.layout == "by-source"
-    assert social.trends is True  # trend tracking is enabled for this dimension
     # r/aivideo's native weekly-top RSS only (civitai skipped per review 2026-07-06 —
     # Cloudflare-blocked at ck's browser + VPS level; the module stays dormant in the
     # codebase like youtube's, one config line to revive)
@@ -46,7 +45,6 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     assert factory.max_per_source == 2
     assert factory.max_items == 7  # a ceiling, not a target
     assert factory.within_days == 7
-    assert factory.trends is False  # SPEC §10.4: not a visual-context beat, no 🔥 signal
 
     # all-feed candidate pools — no search, and no Google proxies (dropped per ck's review
     # 2026-07-06, direct sources only): Manufacturing Dive's technology topic feed + The
@@ -82,7 +80,6 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
     assert brand.max_per_source == 2
     assert brand.max_items == 7  # a ceiling, not a target (SPEC §10.5)
     assert brand.within_days == 7
-    assert brand.trends is False  # SPEC §10.5: announcement-driven text, no 🔥 signal
 
     # feed/site candidate pools — no search, and no Google proxies (dropped per ck's
     # review 2026-07-06, direct sources only): 白鲸/36氪快讯/钛媒体最新 via the private

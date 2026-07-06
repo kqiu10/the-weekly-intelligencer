@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
 
@@ -23,7 +23,6 @@ class Item:
     # {"views": .., "likes": .., "comments": .., "saves": .., "shares": ..} — rendered as a
     # metrics row instead of a preview image; only the keys a platform exposes are set.
     stats: dict = field(default_factory=dict)
-    heat_tier: int = 0  # >0 when this item's context is heating in the trend db → flame after title
     # SPEC §10.9 bilingual issue: {"zh": {title, summary, raw_text}, "en": {...}} — the
     # source-language entry is the original, the other its translation; empty = monolingual.
     i18n: dict = field(default_factory=dict)
@@ -39,9 +38,6 @@ class DimensionContent:
     notes: list[str] = field(default_factory=list)
     # by-source layout: group label -> dist-relative logo path (assets/logos/<slug>.svg)
     logos: dict[str, str] = field(default_factory=dict)
-    # trend rows for the 🔥 "Heating up" strip: {descriptor, tags, magnitude, heat_tier,
-    # direction, recurring, samples} — populated by the trends step (SPEC §10.2)
-    trends: list[dict] = field(default_factory=list)
     # SPEC §10.9: {"zh": str, "en": str} pairs for the section heading and blurb
     name_i18n: dict = field(default_factory=dict)
     blurb_i18n: dict = field(default_factory=dict)
@@ -77,7 +73,6 @@ class Manifest:
                     "items": [asdict(it) for it in d.items],
                     "notes": d.notes,
                     "logos": d.logos,
-                    "trends": d.trends,
                     "name_i18n": d.name_i18n,
                     "blurb_i18n": d.blurb_i18n,
                 }
@@ -87,10 +82,16 @@ class Manifest:
 
     @classmethod
     def from_dict(cls, data: dict) -> "Manifest":
+        # Tolerate keys from older schema versions (e.g. the removed heat_tier/trends of
+        # the 2026-07 trend feature) so previously written manifests keep loading.
+        item_fields = {f.name for f in fields(Item)}
         issue = Issue(**data["issue"])
         dims: list[DimensionContent] = []
         for d in data.get("dimensions", []):
-            items = [Item(**it) for it in d.get("items", [])]
+            items = [
+                Item(**{k: v for k, v in it.items() if k in item_fields})
+                for it in d.get("items", [])
+            ]
             dims.append(
                 DimensionContent(
                     name=d["name"],
@@ -100,7 +101,6 @@ class Manifest:
                     items=items,
                     notes=d.get("notes", []),
                     logos=d.get("logos", {}) or {},
-                    trends=d.get("trends", []) or [],
                     name_i18n=d.get("name_i18n", {}) or {},
                     blurb_i18n=d.get("blurb_i18n", {}) or {},
                 )

@@ -33,7 +33,6 @@ class Dimension:
     layout: str = "grid"  # grid | by-source
     max_per_source: int | None = None  # by-source: cap items shown per source
     within_days: int | None = None  # keep only items published within N days
-    trends: bool = False  # enable 🔥 trend tracking for this dimension (SPEC §10.2)
     sources: list[Source] = field(default_factory=list)
 
 
@@ -146,7 +145,6 @@ def load_config(path: str | Path) -> Config:
                 layout=layout,
                 max_per_source=max_per_source,
                 within_days=within_days,
-                trends=bool(d.get("trends", False)),
                 sources=sources,
             )
         )

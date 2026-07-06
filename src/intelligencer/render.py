@@ -128,15 +128,6 @@ def _copy_logos(manifest: Manifest, output_dir: Path) -> None:
             copy_logo(rel, output_dir)
 
 
-def _copy_flame(manifest: Manifest, output_dir: Path) -> None:
-    """Copy the 🔥 flame glyph into dist/ when at least one card is hot — it's referenced only by
-    a heating item's flame badge, so skip it when nothing is hot."""
-    from .images import copy_logo
-
-    if any(item.heat_tier for dim in manifest.dimensions for item in dim.items):
-        copy_logo("assets/flame.png", output_dir)
-
-
 def _prune_issue_assets(manifest: Manifest, output_dir: Path) -> None:
     """Delete files in ``assets/<date>/`` that the manifest doesn't reference (perf audit
     2026-07-06: sha1-named leftovers from re-gathered runs accumulate in the deploy
@@ -164,7 +155,6 @@ def render_issue(
         _cache_images(manifest, output_dir)
     _prune_issue_assets(manifest, output_dir)
     _copy_logos(manifest, output_dir)
-    _copy_flame(manifest, output_dir)
     image_dims = _collect_image_dims(manifest, output_dir)
     out = output_dir / f"{manifest.issue.date}.html"
     out.write_text(

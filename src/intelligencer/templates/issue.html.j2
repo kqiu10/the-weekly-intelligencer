@@ -91,7 +91,7 @@
                 {% if item.creator %}<span class="media-cap"><span class="media-creator">{{ item.creator }}</span></span>{% endif %}
               </a>
               <div class="media-body">
-                <h5 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
+                <h5 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a></h5>
                 {{ blurb_p(item) }}
                 <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
               </div>
@@ -99,7 +99,7 @@
             {% else %}
             <article class="item">
               {% if item.image %}<img class="item-image" src="{{ item.image }}" loading="lazy" decoding="async"{{ wh(item.image) }} alt="">{% endif %}
-              <h5 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
+              <h5 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a></h5>
               {{ blurb_p(item) }}
               <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
             </article>
@@ -115,7 +115,7 @@
         {% if not (outer.first and loop.first) %}
         <article class="item">
           {% if item.image %}<img class="item-image" src="{{ item.image }}" loading="lazy" decoding="async"{{ wh(item.image) }} alt="">{% endif %}
-          <h4 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
+          <h4 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a></h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
           {{ blurb_p(item) }}
           {% if item.source %}<p class="item-source">{{ item.source }}</p>{% endif %}
         </article>

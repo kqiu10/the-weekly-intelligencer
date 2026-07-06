@@ -20,17 +20,6 @@ def test_manifest_round_trips_all_fields_and_defaults_for_older_dicts():
         name_i18n={"zh": "重塑跨境品牌", "en": "Rewriting Cross-Border Branding"},
         blurb_i18n={"zh": "AI 如何重塑品牌出海", "en": "How AI reshapes brands abroad"},
         items=[item],
-        trends=[
-            {
-                "descriptor": "AI cats flying jets",
-                "tags": ["cats"],
-                "magnitude": 7,
-                "heat_tier": 2,
-                "direction": "up",
-                "recurring": True,
-                "samples": ["https://x"],
-            }
-        ],
     )
     issue = Issue(
         date="2026-07-05",
@@ -49,15 +38,22 @@ def test_manifest_round_trips_all_fields_and_defaults_for_older_dicts():
     dim = back.dimensions[0]
     assert dim.name_i18n["zh"] == "重塑跨境品牌"
     assert dim.blurb_i18n["en"] == "How AI reshapes brands abroad"
-    assert dim.trends[0]["heat_tier"] == 2
     assert back.issue.tldr == "week" and back.issue.tldr_i18n["zh"] == "本周"
     assert back.issue.title_i18n["zh"] == "周悉智能"
     assert back.issue.subtitle_i18n["zh"] == "每周简报"
 
-    # An older manifest dict without any of the optional fields still loads with defaults.
+    # An older manifest dict still loads: missing optional fields get defaults, and stale
+    # keys from removed schema versions (heat_tier/trends, the 2026-07 trend feature) are
+    # tolerated rather than crashing Item(**...).
     older = {
         "issue": {"date": "2026-07-05", "title": "T"},
-        "dimensions": [{"name": "D", "items": [{"title": "v", "url": "u"}]}],
+        "dimensions": [
+            {
+                "name": "D",
+                "trends": [{"descriptor": "stale"}],
+                "items": [{"title": "v", "url": "u", "heat_tier": 2}],
+            }
+        ],
     }
     old = Manifest.from_dict(older)
     assert old.issue.tldr == "" and old.issue.tldr_i18n == {}

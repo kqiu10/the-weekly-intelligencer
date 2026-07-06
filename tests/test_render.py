@@ -58,25 +58,6 @@ def test_week_range_label_is_week_to_date_from_the_issue_date():
     assert _week_range_label(Issue(date="2026-06-26", title="T")) == "Jun 22 – Jun 26, 2026"
 
 
-def test_hot_item_shows_a_flame_after_its_title_and_cold_item_does_not():
-    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
-
-    dim = DimensionContent(
-        name="Social",
-        layout="by-source",
-        items=[
-            Item(title="hot post", url="u1", group="TikTok", summary="s", heat_tier=2),
-            Item(title="cold post", url="u2", group="TikTok", summary="s"),
-        ],
-    )
-    html = render_html(Manifest(issue=Issue(date="2026-07-06", title="T"), dimensions=[dim]))
-    # one flame, on the hot card right after its title — and no separate "Heating up" strip
-    assert html.count('class="flame"') == 1
-    assert "Heating up" not in html and 'class="trend-strip"' not in html
-    assert 'hot post</a><img class="flame" src="assets/flame.png"' in html
-    assert "cold post</a><img" not in html
-
-
 def test_compact_filter_formats_counts_like_social_apps():
     from intelligencer.render import _compact
 
@@ -428,26 +409,3 @@ def test_render_issue_copies_company_logos_into_dist(tmp_path):
     copied = tmp_path / "assets" / "logos" / "openai.svg"
     assert copied.exists()
     assert copied.read_bytes().startswith(b"<svg")
-
-
-def test_render_issue_copies_flame_asset_only_when_an_item_is_hot(tmp_path):
-    """The flame glyph is copied into dist/ exactly when a card needs its badge."""
-    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
-    from intelligencer.render import render_issue
-
-    def render_into(subdir, tier):
-        out = tmp_path / subdir
-        dim = DimensionContent(
-            name="Social",
-            layout="by-source",
-            items=[Item(title="p", url="u", group="TikTok", summary="s", heat_tier=tier)],
-        )
-        render_issue(
-            Manifest(issue=Issue(date="2026-07-06", title="T"), dimensions=[dim]),
-            out,
-            images="hotlink",
-        )
-        return (out / "assets" / "flame.png").exists()
-
-    assert render_into("hot", 2) is True
-    assert render_into("cold", 0) is False
