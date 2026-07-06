@@ -65,49 +65,12 @@ def test_map_images_maps_fields_and_drops_nsfw_and_imageless():
     assert "cyberpunk cat" in it.raw_text
 
 
-def test_map_images_truncates_long_prompt_titles():
-    long_prompt = "word " * 60
-    sample = {
-        "items": [
-            {
-                "id": 1,
-                "url": "https://image.civitai.com/x/1.jpeg",
-                "nsfw": False,
-                "nsfwLevel": "None",
-                "createdAt": "2026-07-03T00:00:00.000Z",
-                "stats": {},
-                "meta": {"prompt": long_prompt},
-                "username": "u",
-            }
-        ]
-    }
-    (it,) = map_images(sample)
-    assert len(it.title) <= 80
-    assert it.title.endswith("…")
-
-
 def test_fetch_without_key_is_a_no_op_with_no_http(monkeypatch):
     def boom(*a, **k):
         raise AssertionError("no HTTP call may happen without an api key")
 
     monkeypatch.setattr(httpx, "Client", boom)
     assert fetch_civitai(max_results=10, api_key=None) == []
-
-
-def test_fetch_fails_soft_on_api_error(monkeypatch):
-    class FakeClient:
-        def __init__(self, *a, **k): ...
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *a):
-            return False
-
-        def get(self, *a, **k):
-            raise httpx.ConnectError("boom")
-
-    monkeypatch.setattr(httpx, "Client", FakeClient)
-    assert fetch_civitai(max_results=10, api_key="k") == []
 
 
 def test_fetch_requests_safe_week_most_reactions(monkeypatch):

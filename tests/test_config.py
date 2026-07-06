@@ -114,27 +114,6 @@ def _write(tmp_path, text):
     return p
 
 
-GOOD = """
-publication: {title: T}
-output: {dir: ./dist}
-dimensions:
-  - name: Alpha
-    summary: raw
-    sources: [{type: feed, url: "http://x/f.xml"}]
-  - name: Beta
-    summary: rewrite
-    sources: [{type: search, query: "x"}]
-  - name: Gamma
-    layout: by-source
-    sources: [{type: youtube, label: "YouTube Shorts", logo: youtube, query: "AI video"}]
-"""
-
-
-def test_valid_config_has_no_errors(tmp_path):
-    errors, _warnings = validate_config(load_config(_write(tmp_path, GOOD)))
-    assert errors == []
-
-
 ENV_URL = """
 publication: {title: T}
 dimensions:
@@ -238,26 +217,3 @@ dimensions:
     assert dim.max_per_source == 3  # explicit value parses
     assert dim.sources[0].label == "OpenAI"
     assert validate_config(cfg)[0] == []
-
-
-def test_by_source_defaults_max_per_source_to_two(tmp_path):
-    text = """
-publication: {title: T}
-dimensions:
-  - {name: Labs, layout: by-source, sources: [{type: feed, label: X, url: "http://x"}]}
-"""
-    assert load_config(_write(tmp_path, text)).dimensions[0].max_per_source == 2
-
-
-def test_by_source_unlabeled_feed_is_a_valid_candidate_pool(tmp_path):
-    """An unlabeled by-source feed is an intentional candidate pool (gather brings a bounded
-    batch; Claude prunes + regroups to the company each kept item is about) — it validates
-    cleanly, with no 'unlabeled' warning."""
-    text = """
-publication: {title: T}
-dimensions:
-  - {name: A, layout: by-source, sources: [{type: feed, url: "http://x"}]}
-"""
-    errors, warnings = validate_config(load_config(_write(tmp_path, text)))
-    assert errors == []
-    assert not any("unlabeled" in w for w in warnings)

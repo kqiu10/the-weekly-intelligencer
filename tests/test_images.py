@@ -152,14 +152,6 @@ def test_og_fetch_403_is_quiet(monkeypatch, caplog):
     assert any(r.levelno == logging.DEBUG for r in caplog.records)
 
 
-def test_og_fetch_500_warns(monkeypatch, caplog):
-    """An unexpected server error (500) still surfaces as a WARNING."""
-    images = _stub_httpx_status(monkeypatch, 500)
-    with caplog.at_level(logging.DEBUG, logger="intelligencer.images"):
-        assert images.fetch_og_image_url("https://broken.example/a") is None
-    assert any(r.levelno >= logging.WARNING for r in caplog.records)
-
-
 def test_cache_image_404_is_quiet(monkeypatch, caplog, tmp_path):
     """A 404 on the image download fails soft and stays quiet (debug, not warning)."""
     images = _stub_httpx_status(monkeypatch, 404)

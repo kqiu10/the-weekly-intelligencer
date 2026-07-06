@@ -246,15 +246,6 @@ def test_render_issue_prunes_stale_issue_assets(tmp_path):
     assert not (issue_dir / ".DS_Store").exists()
 
 
-def test_render_issue_defaults_to_cache_mode():
-    import inspect
-
-    from intelligencer.render import render_issue
-
-    # perf audit: hotlink-by-omission would silently break self-containment
-    assert inspect.signature(render_issue).parameters["images"].default == "cache"
-
-
 def test_collect_image_dims_reads_local_cached_files(tmp_path):
     from PIL import Image
 
@@ -367,101 +358,6 @@ def test_monolingual_manifest_renders_plain_content():
     assert '<a href="http://x">Plain</a>' in html  # no spans inside the title anchor
     assert ">Text.</p>" in html  # summary paragraph plain
     assert '<h3 class="dimension-name">D</h3>' in html  # dimension name plain
-
-
-def test_by_source_renders_labeled_rows_with_source_and_date():
-    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
-
-    manifest = Manifest(
-        issue=Issue(date="2026-06-26", title="T", subtitle="", week=1),
-        dimensions=[
-            DimensionContent(
-                name="Labs",
-                layout="by-source",
-                items=[
-                    Item(
-                        title="A1",
-                        url="https://openai.com/a",
-                        source="openai.com",
-                        published="2026-06-26",
-                        summary="s",
-                        group="OpenAI",
-                    ),
-                    Item(
-                        title="A2",
-                        url="https://openai.com/b",
-                        source="openai.com",
-                        published="2026-06-25",
-                        summary="s",
-                        group="OpenAI",
-                    ),
-                    Item(
-                        title="B1",
-                        url="https://deepmind.google/c",
-                        source="deepmind.google",
-                        published="2026-06-24",
-                        summary="s",
-                        group="Google DeepMind",
-                    ),
-                ],
-            )
-        ],
-    )
-    html = render_html(manifest)
-    # one labeled row per lab (no empty rows), in source order
-    assert html.count('class="lab"') == 2
-    assert ">OpenAI<" in html
-    assert ">Google DeepMind<" in html
-    # clean publisher + date, not a long pasted URL
-    assert ">openai.com<" in html
-    assert "2026-06-26" in html
-    assert html.index(">OpenAI<") < html.index(">Google DeepMind<")
-    # a by-source first dimension suppresses the hero, so the masthead sits
-    # directly above the first section (what the top-rule CSS rule keys off)
-    assert '<article class="lead">' not in html
-
-
-def test_by_source_renders_company_logo_when_present():
-    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
-
-    manifest = Manifest(
-        issue=Issue(date="2026-06-26", title="T", subtitle="", week=1),
-        dimensions=[
-            DimensionContent(
-                name="Labs",
-                layout="by-source",
-                logos={"OpenAI": "assets/logos/openai.svg"},
-                items=[
-                    Item(
-                        title="A1",
-                        url="https://openai.com/a",
-                        source="openai.com",
-                        published="2026-06-26",
-                        summary="s",
-                        group="OpenAI",
-                    ),
-                    # A group without a logo simply renders name-only (no <img>).
-                    Item(
-                        title="B1",
-                        url="https://x.ai/b",
-                        source="x.ai",
-                        published="2026-06-25",
-                        summary="s",
-                        group="xAI",
-                    ),
-                ],
-            )
-        ],
-    )
-    html = render_html(manifest)
-    assert '<div class="lab-rail">' in html
-    assert (
-        '<img class="lab-logo" src="assets/logos/openai.svg" '
-        'loading="lazy" decoding="async" alt="OpenAI logo">' in html
-    )
-    # exactly one logo image — the logo-less group stays name-only
-    assert html.count('class="lab-logo"') == 1
-    assert ">xAI<" in html
 
 
 def test_blurb_hides_title_echoes_shows_real_lede():

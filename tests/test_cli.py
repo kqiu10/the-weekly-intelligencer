@@ -1,50 +1,20 @@
-"""A1 scaffold smoke test: the CLI exposes the three subcommands."""
+"""CLI crucial paths: `--only` dimension selection (SPEC §10.6) and the fetch merge that
+guards against the destructive wholesale-replace footgun. Trivial argparse plumbing is
+deliberately untested (SPEC §8: crucial, fiddly, non-obvious logic only)."""
+
+from types import SimpleNamespace
 
 import pytest
 
-from intelligencer.cli import build_parser, main
-
-
-@pytest.mark.parametrize("command", ["fetch", "render", "validate", "trends"])
-def test_subcommand_parses(command):
-    args = build_parser().parse_args([command])
-    assert args.command == command
-
-
-def test_no_command_is_allowed_by_parser():
-    # No subcommand parses cleanly; main() decides what to do with it.
-    args = build_parser().parse_args([])
-    assert args.command is None
-
-
-def test_only_flag_parses_for_fetch_and_render():
-    assert build_parser().parse_args(["fetch", "--only", "Trending"]).only == "Trending"
-    assert build_parser().parse_args(["render", "--only", "Social"]).only == "Social"
-    assert build_parser().parse_args(["fetch"]).only is None  # optional
-
-
-def test_select_dimensions_filters_by_name_substring():
-    from intelligencer.cli import _select_dimensions
-    from intelligencer.manifest import DimensionContent
-
-    dims = [
-        DimensionContent(name="Frontier AI Research Labs"),
-        DimensionContent(name="Trending AI Generative Context & Social Video"),
-    ]
-    assert _select_dimensions(dims, None) == dims  # no filter → all
-    picked = _select_dimensions(dims, "trending")  # case-insensitive substring
-    assert [d.name for d in picked] == ["Trending AI Generative Context & Social Video"]
-    assert _select_dimensions(dims, "nope") == []  # no match → empty
+from intelligencer.cli import _merge_dimensions, _select_dimensions, main
 
 
 def _named(*names):
     """Lightweight stand-ins — _select_dimensions only reads `.name`."""
-    from types import SimpleNamespace
-
     return [SimpleNamespace(name=n) for n in names]
 
 
-# Config declared order used by the index-selection tests below (SPEC §10.6).
+# Config declared order used by the selection tests (SPEC §10.6).
 FOUR = _named(
     "Frontier AI Research Labs",  # index 1
     "The Intelligent Factory",  # index 2
@@ -53,73 +23,32 @@ FOUR = _named(
 )
 
 
-def _picked(only):
-    from intelligencer.cli import _select_dimensions
-
-    return [d.name for d in _select_dimensions(FOUR, only)]
-
-
-def test_single_index_is_one_based():
-    assert _picked("2") == ["The Intelligent Factory"]
-
-
-def test_comma_separated_indices():
-    assert _picked("1,3") == ["Frontier AI Research Labs", "Rewriting Cross-Border Branding"]
-
-
-def test_selection_preserves_config_order_not_typed_order():
-    # typed "3,1" but returned in declared config order (1 before 3)
-    assert _picked("3,1") == ["Frontier AI Research Labs", "Rewriting Cross-Border Branding"]
-
-
-def test_mix_of_index_and_substring_is_unioned():
-    assert _picked("1,Trending") == [
-        "Frontier AI Research Labs",
-        "Trending Social Video & Images",
-    ]
+@pytest.mark.parametrize(
+    "only, expected",
+    [
+        (None, [d.name for d in FOUR]),  # no filter → all
+        ("2", ["The Intelligent Factory"]),  # 1-based index
+        ("1,3", ["Frontier AI Research Labs", "Rewriting Cross-Border Branding"]),
+        (
+            "3,1",
+            ["Frontier AI Research Labs", "Rewriting Cross-Border Branding"],
+        ),  # config order wins
+        ("1,Trending", ["Frontier AI Research Labs", "Trending Social Video & Images"]),  # mixed
+        ("1,Frontier", ["Frontier AI Research Labs"]),  # overlapping tokens dedup
+        (" 1 , 4 ", ["Frontier AI Research Labs", "Trending Social Video & Images"]),  # whitespace
+        ("cross-border", ["Rewriting Cross-Border Branding"]),  # case-insensitive substring
+        ("nonexistent", []),  # no match → empty (caller reports it)
+    ],
+)
+def test_select_dimensions(only, expected):
+    assert [d.name for d in _select_dimensions(FOUR, only)] == expected
 
 
-def test_overlapping_tokens_dedup():
-    # index 1 and substring "Frontier" select the same dimension → included once
-    assert _picked("1,Frontier") == ["Frontier AI Research Labs"]
-
-
-def test_whitespace_around_tokens_is_ignored():
-    assert _picked(" 1 , 4 ") == [
-        "Frontier AI Research Labs",
-        "Trending Social Video & Images",
-    ]
-
-
-def test_out_of_range_index_raises_with_valid_range():
-    from intelligencer.cli import _select_dimensions
-
+@pytest.mark.parametrize("bad", ["0", "9"])  # indices are 1-based; out-of-range is a typo
+def test_select_dimensions_bad_index_raises_naming_the_range(bad):
     with pytest.raises(ValueError) as exc:
-        _select_dimensions(FOUR, "9")
-    msg = str(exc.value)
-    assert "9" in msg and "1" in msg and "4" in msg  # names the bad index and valid range
-
-
-def test_zero_index_raises():
-    from intelligencer.cli import _select_dimensions
-
-    with pytest.raises(ValueError):
-        _select_dimensions(FOUR, "0")  # indices are 1-based
-
-
-def test_main_validate_ok(tmp_path):
-    cfg = tmp_path / "c.yaml"
-    cfg.write_text(
-        "publication: {title: T}\n"
-        "dimensions:\n"
-        "  - {name: A, summary: raw, sources: [{type: search, query: x}]}\n",
-        encoding="utf-8",
-    )
-    assert main(["validate", "--config", str(cfg)]) == 0
-
-
-def test_main_no_command_returns_1():
-    assert main([]) == 1
+        _select_dimensions(FOUR, bad)
+    assert bad in str(exc.value) and "1" in str(exc.value) and "4" in str(exc.value)
 
 
 def test_fetch_out_of_range_index_exits_1_without_fetching(capsys):
@@ -137,42 +66,24 @@ def _dc(name, marker):
     return DimensionContent(name=name, items=[Item(title=marker, url="http://x")])
 
 
-def test_merge_uses_fresh_for_selected_base_for_untouched_in_config_order():
-    from intelligencer.cli import _merge_dimensions
-
-    base = [_dc("Alpha", "base-a"), _dc("Beta", "base-b"), _dc("Gamma", "base-g")]
-    fresh = [_dc("Beta", "fresh-b")]  # only Beta was refreshed this run
-    merged = _merge_dimensions(base, fresh, ["Alpha", "Beta", "Gamma"])
+def test_merge_rules_fresh_wins_base_survives_removed_drops_new_joins():
+    """One scenario, all four rules: freshly-fetched dims replace their base version,
+    untouched base dims survive, a dim removed from the config order drops, and a dim
+    new to the config (absent from base) joins — all in declared config order."""
+    base = [_dc("Alpha", "base-a"), _dc("Beta", "base-b"), _dc("Removed", "r")]
+    fresh = [_dc("Beta", "fresh-b"), _dc("New", "fresh-n")]
+    merged = _merge_dimensions(base, fresh, ["Alpha", "Beta", "New"])
     assert [(d.name, d.items[0].title) for d in merged] == [
         ("Alpha", "base-a"),
         ("Beta", "fresh-b"),
-        ("Gamma", "base-g"),
+        ("New", "fresh-n"),
     ]
-
-
-def test_merge_includes_fresh_dimension_absent_from_base():
-    from intelligencer.cli import _merge_dimensions
-
-    base = [_dc("Alpha", "base-a")]
-    fresh = [_dc("Beta", "fresh-b")]  # newly added dimension, not in the old manifest
-    merged = _merge_dimensions(base, fresh, ["Alpha", "Beta"])
-    assert [d.name for d in merged] == ["Alpha", "Beta"]
-
-
-def test_merge_drops_base_dimension_no_longer_in_config_order():
-    from intelligencer.cli import _merge_dimensions
-
-    base = [_dc("Alpha", "a"), _dc("Removed", "r")]  # Removed dropped from config
-    merged = _merge_dimensions(base, [], ["Alpha"])
-    assert [d.name for d in merged] == ["Alpha"]
 
 
 def test_fetch_only_merges_and_preserves_untouched_dimension_and_tldr(tmp_path, monkeypatch):
     """A partial `fetch --only` must not wipe the rest of the manifest (the footgun this
     fixes). Two search-only dimensions → fetch touches no network; refreshing one leaves
     the other's hand-authored items and the issue TL;DR intact."""
-    from types import SimpleNamespace
-
     from intelligencer import cli
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 
