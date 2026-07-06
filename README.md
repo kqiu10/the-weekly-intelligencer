@@ -37,10 +37,9 @@ Frontier AI landing in industry — named manufacturers adopting AI for their ow
 | Manufacturing Dive | `feed` | Technology-topic RSS of the manufacturing trade press |
 | DeepLearning.AI | `feed` | Andrew Ng's *The Batch* weekly, via a self-hosted RSSHub instance |
 
-**Rewriting Cross-Border Branding** · 重塑跨境品牌
+**Rewriting Cross-Border Branding** 
 
-How AI is reshaping the way Chinese cross-border brands market and build themselves overseas — brand × AI stories, major brand milestones, and platform-AI features affecting Chinese sellers. Chinese-language sources, summarized in 中文.
-
+How AI is reshaping the way Chinese cross-border brands market and build themselves overseas — brand × AI stories, major brand milestones, and platform-AI features affecting Chinese sellers.
 | Source | Type | Description |
 |---|---|---|
 | 白鲸出海 | `feed` | Cross-border tech vertical, via self-hosted RSSHub |
@@ -66,12 +65,23 @@ uv sync
 ```
 
 <details open>
-<summary><b>As a Claude Code skill (full issue)</b></summary>
-Run that prompt in Claude Code from the project directory. 
+<summary><b>As a Claude Code skill (full issue, or selected dimensions)</b></summary>
+Run a prompt in Claude Code from the project directory:
 
 ```
 generate this week's Intelligencer issue
 ```
+
+Or regenerate only the dimensions you name — by number or by name:
+
+```
+generate this week's issue with only dimensions 1,3
+只重新生成 智能工厂 这个板块
+```
+
+Dimension numbers are simply the 1-based order in `config/dimensions.yaml`
+(1 Frontier AI Research Labs · 2 The Intelligent Factory · 3 Rewriting Cross-Border Branding · 4 Trending Social Video & Images).
+A partial run merges into the existing issue — untouched sections keep their content.
 </details>
 
 <details>
@@ -84,7 +94,7 @@ uv run intelligencer fetch --date 2026-06-28  # …or pin a specific past week
 uv run intelligencer render --open            # manifest → dist/<date>.html
 ```
 
-`--only <name>` narrows fetch/render to one dimension. With an all-`feed` + all-`raw` config this produces a complete issue with **zero** Claude tokens.
+`--only` narrows fetch/render to selected dimensions — comma-separated 1-based indices and/or name substrings (`--only 2`, `--only 1,3`, `--only "labs,Cross-Border"`). `fetch --only` merges into the existing manifest instead of replacing it. With an all-`feed` + all-`raw` config this produces a complete issue with **zero** Claude tokens.
 </details>
 
 ---
