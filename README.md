@@ -2,6 +2,12 @@
 
 **A weekly digest of AI industry news, featuring updates on frontier labs, AI's rollout across industry, and the latest trending AI-generated images and video.**
 
+[![Languages: English · 中文](https://img.shields.io/badge/languages-English%20%C2%B7%20%E4%B8%AD%E6%96%87-8b0000?style=flat-square)](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-05.html)
+![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-555?style=flat-square)](LICENSE)
+
+*Every issue ships bilingual — 中文 by default, with an in-page language toggle in the masthead.*
+
 ## Preview
 ![Scrolling through a sample issue](samples/sample-scroll.gif)
 
