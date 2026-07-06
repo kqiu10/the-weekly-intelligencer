@@ -47,15 +47,13 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     assert factory.within_days == 7
     assert factory.trends is False  # SPEC §10.4: not a visual-context beat, no 🔥 signal
 
-    # all-feed candidate pools — no search (SPEC §10.4): Manufacturing Dive's technology
-    # topic feed, a recency-scoped (when:7d) Google News proxy, and The Batch via the
-    # private RSSHub instance (${RSSHUB_BASE} expands from .env); Claude prunes + regroups
-    assert [s.type for s in factory.sources] == ["feed", "feed", "feed"]
+    # all-feed candidate pools — no search, and no Google proxies (dropped per ck's review
+    # 2026-07-06, direct sources only): Manufacturing Dive's technology topic feed + The
+    # Batch via the private RSSHub instance (${RSSHUB_BASE} expands from .env)
+    assert [s.type for s in factory.sources] == ["feed", "feed"]
     assert any("manufacturingdive.com/feeds/topic" in (s.url or "") for s in factory.sources)
-    assert any(
-        "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in factory.sources
-    )
     assert any("/deeplearning/the-batch" in (s.url or "") for s in factory.sources)
+    assert not any("news.google.com" in (s.url or "") for s in factory.sources)
     # candidate-pool feeds are unlabeled — Claude regroups each kept item to its company
     assert all(s.label is None for s in factory.sources)
 
@@ -85,20 +83,14 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
     assert brand.within_days == 7
     assert brand.trends is False  # SPEC §10.5: announcement-driven text, no 🔥 signal
 
-    # all feed/site candidate pools — no search (SPEC §10.5): two 中文 when:7d proxies
-    # (generic + site-scoped 出海板块 for 36氪出海/钛媒体/界面), three routes via the
-    # private RSSHub instance (白鲸/36氪快讯/钛媒体最新 — ${RSSHUB_BASE} expands from
-    # .env), and 雨果跨境 scraped first-party; Claude prunes + regroups to the brand
-    assert [s.type for s in brand.sources] == ["feed", "feed", "feed", "feed", "feed", "site"]
+    # feed/site candidate pools — no search, and no Google proxies (dropped per ck's
+    # review 2026-07-06, direct sources only): 白鲸/36氪快讯/钛媒体最新 via the private
+    # RSSHub instance (${RSSHUB_BASE} from .env) + 雨果跨境 scraped first-party
+    assert [s.type for s in brand.sources] == ["feed", "feed", "feed", "site"]
     assert any("/baijing/article" in (s.url or "") for s in brand.sources)
     assert any("/36kr/newsflashes" in (s.url or "") for s in brand.sources)
     assert any("/tmtpost/new" in (s.url or "") for s in brand.sources)
-    assert (
-        sum(
-            "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in brand.sources
-        )
-        == 2
-    )
+    assert not any("news.google.com" in (s.url or "") for s in brand.sources)
     yuguo = brand.sources[-1]
     assert yuguo.type == "site" and "cifnews.com" in (yuguo.url or "")
     assert yuguo.link_contains == "/article/"  # article links share this path on the index

@@ -40,9 +40,8 @@ dimensions:
     max_items: 7                   # ceiling, not a target
     within_days: 7                 # only the past 7 days
     sources:                       # feed candidate pools only (Claude prunes + regroups to the company); no search
-      - { type: feed, url: "https://www.manufacturingdive.com/feeds/topic/technology/" }                                                        # Manufacturing Dive's tech/AI-in-manufacturing 板块
-      - { type: feed, url: "https://news.google.com/rss/search?q=manufacturer+AI+deployment+OR+partnership+when:7d&hl=en-US&gl=US&ceid=US:en" }  # recency proxy — also covers Smart Industry/VentureBeat/CB Insights beats (no usable RSS of their own)
-      - { type: feed, url: "${RSSHUB_BASE}/deeplearning/the-batch" }                                                                             # The Batch weekly (Andrew Ng) via private RSSHub — RSSHUB_BASE in .env
+      - { type: feed, url: "https://www.manufacturingdive.com/feeds/topic/technology/" }                                                        # Manufacturing Dive's tech/AI-in-manufacturing
+      - { type: feed, url: "${RSSHUB_BASE}/deeplearning/the-batch" }                                                                             # The Batch weekly
 
   - name: "Rewriting Cross-Border Branding"
     blurb: "How AI is reshaping the way Chinese cross-border brands market and build themselves overseas"
@@ -53,8 +52,6 @@ dimensions:
     max_items: 7                   # ceiling, not a target
     within_days: 7                 # only the past 7 days
     sources:                       # feed candidate pools only (Claude prunes + regroups to the brand); no search
-      - { type: feed, url: "https://news.google.com/rss/search?q=%E4%B8%AD%E5%9B%BD%E5%93%81%E7%89%8C+%E5%87%BA%E6%B5%B7+AI+when:7d&hl=zh-CN&gl=CN&ceid=CN:zh-Hans" }                                                          # 中文 recency proxy — 品牌×出海×AI
-      - { type: feed, url: "https://news.google.com/rss/search?q=%28site%3Acifnews.com%20OR%20site%3Aletschuhai.com%20OR%20site%3Atmtpost.com%20OR%20site%3Ajiemian.com%29%20%E5%87%BA%E6%B5%B7%20when:7d&hl=zh-CN&gl=CN&ceid=CN:zh-Hans" }  # 雨果跨境/36氪出海/钛媒体/界面 的出海板块 (via site-scoped proxy; none has usable native RSS)
       - { type: feed, url: "${RSSHUB_BASE}/baijing/article" }                                                                                     # 白鲸出海 via private RSSHub (fresh same-day; replaced baijing.cn/feed which lagged ~2wks)
       - { type: feed, url: "${RSSHUB_BASE}/36kr/newsflashes" }                                                                                    # 36氪 7×24 快讯 via private RSSHub (mixed firehose; Claude prunes)
       - { type: feed, url: "${RSSHUB_BASE}/tmtpost/new" }                                                                                         # 钛媒体最新 via private RSSHub (/tmtpost/lists doesn't exist; /new is the real route)
