@@ -85,6 +85,9 @@ Simple Icons SVG — never invent path data — extending the logo test), else t
 rail is fine.
 
 ## 3. Write summaries per the dimension's `summary` mode
+**Write each summary in the item's source language — never translate**: a Chinese-language
+source (白鲸, 雨果, 36氪, 钛媒体…) gets a 中文 summary; an English source gets English. The
+issue-level TL;DR stays in English (masthead register).
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
 - **`rewrite`** — write a faithful 1–2 sentence NYT-style summary for each item.
 - **`synthesize`** — write one combined 2–4 sentence editorial paragraph for the
