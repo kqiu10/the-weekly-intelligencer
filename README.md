@@ -37,9 +37,12 @@ Frontier AI landing in industry — named manufacturers adopting AI for their ow
 | Manufacturing Dive | `feed` | Technology-topic RSS of the manufacturing trade press |
 | DeepLearning.AI | `feed` | Andrew Ng's *The Batch* weekly, via a self-hosted RSSHub instance |
 
+  
+
 **Rewriting Cross-Border Branding** 
 
 How AI is reshaping the way Chinese cross-border brands market and build themselves overseas — brand × AI stories, major brand milestones, and platform-AI features affecting Chinese sellers.
+
 | Source | Type | Description |
 |---|---|---|
 | 白鲸出海 | `feed` | Cross-border tech vertical, via self-hosted RSSHub |
