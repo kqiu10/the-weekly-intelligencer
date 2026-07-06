@@ -68,6 +68,81 @@ def test_cache_image_downloads_and_failsofts(tmp_path):
     assert cache_image("file:///nonexistent/none.png", tmp_path, "2026-06-26") is None
 
 
+def _png_bytes(w, h):
+    import io
+
+    from PIL import Image
+
+    buf = io.BytesIO()
+    Image.new("RGB", (w, h), (200, 30, 30)).save(buf, "PNG")
+    return buf.getvalue()
+
+
+def test_shrink_image_downsizes_oversized_preserving_format():
+    """A 2880px publisher og:image serves a 132×88 slot — shrink to ≤600px longest side,
+    same format (cached filenames keep their extension)."""
+    import io
+
+    from PIL import Image
+
+    from intelligencer.images import shrink_image
+
+    out = shrink_image(_png_bytes(1200, 800))
+    img = Image.open(io.BytesIO(out))
+    assert img.format == "PNG"
+    assert img.size == (600, 400)  # ≤600 longest side, aspect preserved
+    assert len(out) < len(_png_bytes(1200, 800))
+
+
+def test_shrink_image_flattens_animated_gif_to_first_frame():
+    """A 10.8 MB 203-frame GIF in a thumbnail slot → static, resized first frame."""
+    import io
+
+    from PIL import Image
+
+    from intelligencer.images import shrink_image
+
+    frames = [Image.new("RGB", (900, 500), c) for c in ((255, 0, 0), (0, 255, 0))]
+    buf = io.BytesIO()
+    frames[0].save(buf, "GIF", save_all=True, append_images=frames[1:])
+    out = shrink_image(buf.getvalue())
+    img = Image.open(io.BytesIO(out))
+    assert img.format == "GIF"
+    assert getattr(img, "n_frames", 1) == 1  # static now
+    assert max(img.size) <= 600
+
+
+def test_shrink_image_strips_jpeg_metadata():
+    import io
+
+    from PIL import Image
+
+    from intelligencer.images import shrink_image
+
+    exif = Image.Exif()
+    exif[0x0110] = "TestCam 9000"  # Model tag
+    buf = io.BytesIO()
+    Image.new("RGB", (400, 300), (10, 20, 30)).save(buf, "JPEG", exif=exif)
+    out = shrink_image(buf.getvalue())
+    img = Image.open(io.BytesIO(out))
+    assert img.format == "JPEG"
+    assert not img.getexif()  # metadata gone
+
+
+def test_shrink_image_leaves_small_static_images_untouched():
+    from intelligencer.images import shrink_image
+
+    data = _png_bytes(100, 80)
+    assert shrink_image(data) == data  # no churn when nothing to fix
+
+
+def test_shrink_image_failsofts_on_garbage_bytes():
+    from intelligencer.images import shrink_image
+
+    junk = b"not an image at all"
+    assert shrink_image(junk) == junk
+
+
 def test_og_fetch_403_is_quiet(monkeypatch, caplog):
     """A scraper block (403) returns None quietly (debug, not warning)."""
     images = _stub_httpx_status(monkeypatch, 403)

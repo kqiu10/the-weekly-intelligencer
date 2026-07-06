@@ -19,6 +19,51 @@ logger = logging.getLogger(__name__)
 
 _IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
+# Cached preview images render in small fixed slots (132×88 thumbnails, 9:16 tiles), so
+# 600px on the longest side is a generous 2x budget — publishers routinely ship 2880px
+# og:images and multi-MB animated GIFs into those slots (2026-07-06 perf audit).
+MAX_IMAGE_PX = 600
+
+
+def shrink_image(data: bytes) -> bytes:
+    """Post-process a downloaded preview image for the page's thumbnail slots:
+    resize to ≤``MAX_IMAGE_PX`` on the longest side, flatten animated images to their
+    first frame, and strip metadata (fresh encode drops EXIF). **Format-preserving** —
+    the cached filename keeps its extension, so manifest paths never churn. Returns the
+    original bytes untouched when there is nothing to fix, or on any decode failure
+    (fail-soft, like every other stage)."""
+    import io
+
+    from PIL import Image
+
+    try:
+        img = Image.open(io.BytesIO(data))
+        fmt = img.format
+        if fmt not in ("JPEG", "PNG", "GIF", "WEBP"):
+            return data
+        animated = getattr(img, "is_animated", False)
+        oversized = max(img.size) > MAX_IMAGE_PX
+        has_exif = fmt == "JPEG" and bool(img.getexif())
+        if not (animated or oversized or has_exif):
+            return data
+        if animated:
+            img.seek(0)  # first frame only
+        if oversized:
+            img.thumbnail((MAX_IMAGE_PX, MAX_IMAGE_PX))
+        out = io.BytesIO()
+        if fmt == "JPEG":
+            img.convert("RGB").save(out, "JPEG", quality=82, optimize=True)
+        elif fmt == "PNG":
+            img.save(out, "PNG", optimize=True)
+        elif fmt == "GIF":
+            img.convert("RGB").save(out, "GIF")
+        else:  # WEBP
+            img.save(out, "WEBP", quality=82)
+        return out.getvalue()
+    except Exception as exc:  # noqa: BLE001 - a bad image never blocks the issue
+        logger.debug("shrink_image skipped (undecodable): %s", exc)
+        return data
+
 # Company logos ship with the package as brand-colored SVGs, keyed by slug
 # (assets/logos/<slug>.svg). They are copied into each issue's dist/ so the
 # rendered HTML stays self-contained and portable.
@@ -444,5 +489,5 @@ def cache_image(
     rel = f"assets/{date}/{name}"
     dest = Path(output_dir) / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_bytes(data)
+    dest.write_bytes(shrink_image(data))
     return rel
