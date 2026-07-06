@@ -8,8 +8,8 @@
 *Every issue ships bilingual — 中文 by default, with an in-page language toggle in the masthead.*
 
 ## Preview
-![Scrolling through a sample issue](samples/sample-scroll.gif)
-
+![Scrolling through a sample issue](samples/sample-scroll.gif)  
+**[Read the full issue →](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-05.html)**
 
 ## Dimensions
 Four sections per issue: frontier AI labs, industrial AI adoption, Chinese cross-border brands × AI, and trending AI-generated media. All sources are **direct feeds and first-party scrapes** — no web search, no news aggregators; the deterministic scripts gather candidate pools and Claude only prunes them against each section's editorial bar.
