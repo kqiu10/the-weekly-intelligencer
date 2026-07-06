@@ -26,8 +26,11 @@ def test_shipped_config_has_valid_social_video_dimension():
     assert [(s.type, s.label, s.logo) for s in social.sources] == [
         ("civitai", "Civitai", None),  # 本周最火 AI images, safe-rated only
         ("feed", None, None),
+        ("feed", None, None),
     ]
     assert any("lastweekin.ai/feed" in (s.url or "") for s in social.sources)
+    # native first-party Reddit RSS — deliberately a single reddit feed (429-limiter safety)
+    assert any("old.reddit.com/r/aivideo/top" in (s.url or "") for s in social.sources)
     assert not any(s.type in ("search", "youtube") for s in social.sources)
 
 

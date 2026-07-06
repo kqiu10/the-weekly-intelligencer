@@ -67,4 +67,5 @@ dimensions:
     sources:                       # Civitai via its first-party API (CIVITAI_API_KEY; skips without) + weekly visual-trend newsletter — candidate pools, Claude prunes
       - { type: civitai, label: "Civitai" }                                                     # 本周最火 AI images — most-reacted this week, safe-rated only
       - { type: feed, url: "https://lastweekin.ai/feed" }                                       # Last Week in AI — weekly, AI Arts & Culture section (non-www URL; www is SSL-broken)
+      - { type: feed, url: "https://old.reddit.com/r/aivideo/top/.rss?t=week" }                 # r/aivideo weekly top — native first-party RSS; keep to ONE reddit feed (their 429 limiter punishes bursts)
 

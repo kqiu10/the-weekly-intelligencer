@@ -72,8 +72,10 @@ dimension doesn't render; leave `notes` empty.
   few (≤ `max_per_source`), fields as-is. **Last Week in AI** contributes its weekly issue
   when one lands in-window: keep it as a standing recap card (group `"Last Week in AI"`)
   when its AI Arts & Culture section covers the week's viral AI video/art; reject podcast
-  episodes and issues with no visual-culture content. `creator`/`image`/`stats` only when
-  actually present — never invented.
+  episodes and issues with no visual-culture content. **The r/aivideo weekly-top pool** is
+  the beat by construction — keep the strongest posts showcasing a specific AI-generated
+  video (group `"Reddit"`), drop memes/discussion/promo threads; thumbnails arrive from the
+  feed itself. `creator`/`image`/`stats` only when actually present — never invented.
 
 Safety floor everywhere (non-negotiable): no misinformation, violence, gore, or harmful
 deepfakes — and never fabricate a title, link, stat, or image. For kept items: WebFetch to
