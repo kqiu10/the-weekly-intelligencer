@@ -207,6 +207,35 @@ def test_unlabeled_by_source_feed_is_a_candidate_pool_not_capped_per_source():
     assert all(it.group == "" for it in dim.items)  # ungrouped; Claude assigns the company
 
 
+def test_unlabeled_by_source_site_is_a_candidate_pool_too(monkeypatch):
+    """An *unlabeled* by-source `site` source is a candidate pool exactly like an unlabeled
+    feed — not capped to max_per_source, ungrouped for Claude to reassign (e.g. a scraped
+    first-party newsroom/vertical index feeding the Cross-Border pool)."""
+    import intelligencer.gather as gather
+    from intelligencer.config import Config, Dimension, Output, Publication, Source
+
+    monkeypatch.setattr(
+        gather,
+        "list_site_articles",
+        lambda url, pattern, **k: [(f"https://x.com/article/{i}", "2026-07-01") for i in range(5)],
+    )
+    cfg = Config(
+        publication=Publication(title="T"),
+        output=Output(),
+        dimensions=[
+            Dimension(
+                name="Brand",
+                layout="by-source",
+                max_per_source=2,
+                sources=[Source(type="site", url="https://x.com")],  # unlabeled → pool
+            )
+        ],
+    )
+    dim = build_manifest(cfg).dimensions[0]
+    assert len(dim.items) == 5  # NOT capped to 2
+    assert all(it.group == "" for it in dim.items)
+
+
 def test_by_source_caps_each_lab_and_skips_empty():
     """Each source is capped independently; a source with no items is skipped."""
     from pathlib import Path

@@ -55,6 +55,7 @@ dimensions:
       - { type: feed, url: "https://news.google.com/rss/search?q=%E4%B8%AD%E5%9B%BD%E5%93%81%E7%89%8C+%E5%87%BA%E6%B5%B7+AI+when:7d&hl=zh-CN&gl=CN&ceid=CN:zh-Hans" }                                                          # 中文 recency proxy — 品牌×出海×AI
       - { type: feed, url: "https://news.google.com/rss/search?q=%28site%3Acifnews.com%20OR%20site%3Aletschuhai.com%20OR%20site%3Atmtpost.com%20OR%20site%3Ajiemian.com%29%20%E5%87%BA%E6%B5%B7%20when:7d&hl=zh-CN&gl=CN&ceid=CN:zh-Hans" }  # 雨果跨境/36氪出海/钛媒体/界面 的出海板块 (via site-scoped proxy; none has usable native RSS)
       - { type: feed, url: "https://www.baijing.cn/feed" }                                                                                        # 白鲸出海 native RSS (lags ~2wks; window filter drops stale)
+      - { type: site, url: "https://www.cifnews.com", link_contains: "/article/" }                                                                # 雨果跨境 first-party (scraped index — its RSS endpoint is dead, 405 even with browser headers)
 
   - name: "Trending Social Video & Images"
     blurb: "The week's most-shared AI-generated videos and images across social platforms"

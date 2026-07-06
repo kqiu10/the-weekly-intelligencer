@@ -24,9 +24,9 @@ from .youtube import fetch_youtube
 
 logger = logging.getLogger(__name__)
 
-# An unlabeled by-source feed is a *candidate pool* (like a youtube source): gather brings
-# in a bounded batch of recent items that Claude prunes to the qualifying few at the write
-# stage. Bounded (not fully uncapped) so enrichment/og-discovery stays cheap.
+# An unlabeled by-source feed/site source is a *candidate pool* (like a youtube source):
+# gather brings in a bounded batch of recent items that Claude prunes to the qualifying few
+# at the write stage. Bounded (not fully uncapped) so enrichment/og-discovery stays cheap.
 CANDIDATE_POOL_CAP = 12
 
 
@@ -187,12 +187,14 @@ def _gather_dimension(
         # the feed's own order (relevance for Google News, recency for RSS).
         if dim.within_days is not None:
             src_items = _select_in_window(src_items, today, dim.within_days)
-        # An *unlabeled* by-source feed (like a youtube source) is a candidate pool: bring in
-        # a bounded batch for Claude to prune at the write stage, left ungrouped (group="") for
-        # Claude to reassign to the company each kept item is about. A *labeled* by-source feed
-        # is a display row capped per source; a youtube source is capped by its own fetch.
-        is_candidate_feed = dim.layout == "by-source" and source.type == "feed" and not source.label
-        if is_candidate_feed:
+        # An *unlabeled* by-source feed/site (like a youtube source) is a candidate pool: bring
+        # in a bounded batch for Claude to prune at the write stage, left ungrouped (group="")
+        # for Claude to reassign to the company each kept item is about. A *labeled* by-source
+        # source is a display row capped per source; a youtube source is capped by its own fetch.
+        is_candidate_pool = (
+            dim.layout == "by-source" and source.type in ("feed", "site") and not source.label
+        )
+        if is_candidate_pool:
             src_items = src_items[:CANDIDATE_POOL_CAP]
         elif dim.max_per_source is not None and source.type != "youtube":
             src_items = src_items[: dim.max_per_source]

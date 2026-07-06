@@ -83,18 +83,21 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
     assert brand.within_days == 7
     assert brand.trends is False  # SPEC §10.5: announcement-driven text, no 🔥 signal
 
-    # all-feed candidate pools — no search (SPEC §10.5): a generic 中文 when:7d proxy, a
-    # site-scoped proxy for the 出海板块 of 雨果/36氪出海/钛媒体/界面 (no usable native RSS),
-    # and 白鲸出海's own feed; Claude prunes + regroups to the brand
-    assert [s.type for s in brand.sources] == ["feed", "feed", "feed"]
+    # all feed/site candidate pools — no search (SPEC §10.5): a generic 中文 when:7d proxy,
+    # a site-scoped proxy for the 出海板块 of 36氪出海/钛媒体/界面 (no scrapeable pattern /
+    # whole-site RSS only), 白鲸出海's own feed, and 雨果跨境 scraped first-party (its RSS
+    # endpoint is dead); Claude prunes + regroups to the brand
+    assert [s.type for s in brand.sources] == ["feed", "feed", "feed", "site"]
     assert any("baijing.cn" in (s.url or "") for s in brand.sources)
-    assert any("cifnews.com" in (s.url or "") for s in brand.sources)  # the site-scoped proxy
     assert (
         sum(
             "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in brand.sources
         )
         == 2
     )
+    yuguo = brand.sources[-1]
+    assert yuguo.type == "site" and "cifnews.com" in (yuguo.url or "")
+    assert yuguo.link_contains == "/article/"  # article links share this path on the index
     assert all(s.label is None for s in brand.sources)
 
     # SPEC §10.5: positioned after The Intelligent Factory, before Trending Social Video & Images
