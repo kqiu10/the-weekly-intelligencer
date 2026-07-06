@@ -18,7 +18,9 @@ def test_skeleton_feed_to_html(tmp_path):
     assert items[0].title == "First Headline"
     assert items[0].url == "http://example.com/first"
 
-    out = render_issue(manifest, tmp_path)
+    # explicit hotlink: this e2e is zero-network by contract (cache mode would try to
+    # download the fixture's remote image URL); render_issue's default is cache now
+    out = render_issue(manifest, tmp_path, images="hotlink")
     assert out.exists()
     html = out.read_text(encoding="utf-8")
 
