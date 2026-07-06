@@ -3,7 +3,6 @@
 **A weekly digest of AI industry news, featuring updates on frontier labs, AI's rollout across industry, and the latest trending AI-generated images and video.**
 
 [![Languages: English · 中文](https://img.shields.io/badge/languages-English%20%C2%B7%20%E4%B8%AD%E6%96%87-8b0000?style=flat-square)](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-05.html)
-![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-555?style=flat-square)](LICENSE)
 
 *Every issue ships bilingual — 中文 by default, with an in-page language toggle in the masthead.*
@@ -13,10 +12,13 @@
 
 
 ## Dimensions
-Currently tracked AI research labs, industrial AI adoption, and social media platforms.  
+Four sections per issue: frontier AI labs, industrial AI adoption, Chinese cross-border brands × AI, and trending AI-generated media. All sources are **direct feeds and first-party scrapes** — no web search, no news aggregators; the deterministic scripts gather candidate pools and Claude only prunes them against each section's editorial bar.
+
 **Frontier AI Research Labs**
 
-| AI Lab | Search type | Description |
+The week's models, money, and announcements from the leading AI labs.
+
+| AI Lab | Type | Source |
 |---|---|---|
 | Anthropic | `site` | Official newsroom |
 | Google DeepMind | `feed` | Official RSS |
@@ -28,29 +30,31 @@ Currently tracked AI research labs, industrial AI adoption, and social media pla
 
 **The Intelligent Factory**
 
-Frontier AI landing in industry — a named manufacturer adopting a named AI vendor's technology for its own operations.
+Frontier AI landing in industry — named manufacturers adopting AI for their own operations, plus substantive industrial-AI trade coverage (cobots, digital twins, robotics in production).
 
-| Company | Search type | Sector |
+| Source | Type | Description |
 |---|---|---|
-| HP | `search` | Electronics/hardware |
-| Foxconn | `search` | Electronics/hardware |
-| Siemens | `search` | Industrial/automation |
-| ABB | `search` | Industrial/automation |
-| Schneider Electric | `search` | Industrial/automation |
-| Toyota | `search` | Automotive |
-| Hyundai | `search` | Automotive |
-| Caterpillar | `search` | Heavy industry |
-| Boeing | `search` | Aerospace |
-| Unilever | `search` | Consumer goods |
+| Manufacturing Dive | `feed` | Technology-topic RSS of the manufacturing trade press |
+| DeepLearning.AI | `feed` | Andrew Ng's *The Batch* weekly, via a self-hosted RSSHub instance |
+
+**Rewriting Cross-Border Branding** · 重塑跨境品牌
+
+How AI is reshaping the way Chinese cross-border brands market and build themselves overseas — brand × AI stories, major brand milestones, and platform-AI features affecting Chinese sellers. Chinese-language sources, summarized in 中文.
+
+| Source | Type | Description |
+|---|---|---|
+| 白鲸出海 | `feed` | Cross-border tech vertical, via self-hosted RSSHub |
+| 36氪快讯 | `feed` | 7×24 tech newsflashes, via self-hosted RSSHub |
+| 钛媒体 | `feed` | TMTPost latest, via self-hosted RSSHub |
+| 雨果跨境 | `site` | First-party scrape of the cross-border e-commerce vertical |
 
 **Trending Social Video & Images**
 
-| Social media | Search type | Description |
+The week's most-shared AI-generated videos and images.
+
+| Source | Type | Description |
 |---|---|---|
-| YouTube Shorts | `youtube` | Official Youtube shorts |
-| TikTok | `search` | Web Search |
-| Instagram | `search` | Web Search |
-| Facebook | `search` | Web Search |
+| r/aivideo | `feed` | Reddit's weekly-top AI videos, native first-party RSS |
 
 
 ## Quick Start
