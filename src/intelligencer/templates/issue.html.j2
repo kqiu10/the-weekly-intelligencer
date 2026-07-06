@@ -12,6 +12,17 @@
 {%- set d = image_dims.get(path) -%}
 {%- if d %} width="{{ d[0] }}" height="{{ d[1] }}"{% endif -%}
 {%- endmacro -%}
+{%- macro title_bi(item) -%}
+{{ bi(item.i18n.get("zh", {}).get("title"), item.i18n.get("en", {}).get("title"), item.title) }}
+{%- endmacro -%}
+{%- macro blurb_p(item, cls="item-summary") -%}
+{%- set izh = item.i18n.get("zh", {}) -%}
+{%- set ien = item.i18n.get("en", {}) -%}
+{%- set b_zh = izh.get("summary") or izh.get("raw_text") -%}
+{%- set b_en = ien.get("summary") or ien.get("raw_text") -%}
+{%- set fallback = item | blurb -%}
+{%- if (b_zh and b_en) or fallback %}<p class="{{ cls }}">{{ bi(b_zh, b_en, fallback) }}</p>{% endif -%}
+{%- endmacro -%}
 <!DOCTYPE html>
 <html lang="zh-Hans">
 <head>
@@ -44,14 +55,11 @@
 
   {% set lead = dimensions[0].items[0] if dimensions and dimensions[0].items and dimensions[0].layout != "by-source" else None %}
   {% if lead %}
-  {% set lzh = lead.i18n.get("zh", {}) %}{% set len_ = lead.i18n.get("en", {}) %}
   <article class="lead">
     <p class="kicker">{{ bi(dimensions[0].name_i18n.get("zh"), dimensions[0].name_i18n.get("en"), dimensions[0].name) }}</p>
     {% if lead.image %}<img class="lead-image" src="{{ lead.image }}" fetchpriority="high" decoding="async"{{ wh(lead.image) }} alt="">{% endif %}
-    <h2 class="lead-title"><a href="{{ lead.url }}">{{ bi(lzh.get("title"), len_.get("title"), lead.title) }}</a></h2>
-    {% set b_zh = lzh.get("summary") or lzh.get("raw_text") %}{% set b_en = len_.get("summary") or len_.get("raw_text") %}
-    {% set lead_blurb = lead | blurb %}
-    {% if (b_zh and b_en) or lead_blurb %}<p class="lead-summary">{{ bi(b_zh, b_en, lead_blurb) }}</p>{% endif %}
+    <h2 class="lead-title"><a href="{{ lead.url }}">{{ title_bi(lead) }}</a></h2>
+    {{ blurb_p(lead, cls="lead-summary") }}
     {% if lead.source %}<p class="item-source">{{ lead.source }}</p>{% endif %}
   </article>
   {% endif %}
@@ -83,22 +91,16 @@
                 {% if item.creator %}<span class="media-cap"><span class="media-creator">{{ item.creator }}</span></span>{% endif %}
               </a>
               <div class="media-body">
-                {% set izh = item.i18n.get("zh", {}) %}{% set ien = item.i18n.get("en", {}) %}
-                <h5 class="item-title"><a href="{{ item.url }}">{{ bi(izh.get("title"), ien.get("title"), item.title) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
-                {% set b_zh = izh.get("summary") or izh.get("raw_text") %}{% set b_en = ien.get("summary") or ien.get("raw_text") %}
-                {% set item_blurb = item | blurb %}
-                {% if (b_zh and b_en) or item_blurb %}<p class="item-summary">{{ bi(b_zh, b_en, item_blurb) }}</p>{% endif %}
+                <h5 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
+                {{ blurb_p(item) }}
                 <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
               </div>
             </article>
             {% else %}
             <article class="item">
-              {% set izh = item.i18n.get("zh", {}) %}{% set ien = item.i18n.get("en", {}) %}
               {% if item.image %}<img class="item-image" src="{{ item.image }}" loading="lazy" decoding="async"{{ wh(item.image) }} alt="">{% endif %}
-              <h5 class="item-title"><a href="{{ item.url }}">{{ bi(izh.get("title"), ien.get("title"), item.title) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
-              {% set b_zh = izh.get("summary") or izh.get("raw_text") %}{% set b_en = ien.get("summary") or ien.get("raw_text") %}
-              {% set item_blurb = item | blurb %}
-              {% if (b_zh and b_en) or item_blurb %}<p class="item-summary">{{ bi(b_zh, b_en, item_blurb) }}</p>{% endif %}
+              <h5 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h5>
+              {{ blurb_p(item) }}
               <p class="item-link"><a href="{{ item.url }}">{{ item.source or item.url }}</a>{% if item.published %} · <span class="item-date">{{ item.published }}</span>{% endif %}</p>
             </article>
             {% endif %}
@@ -112,12 +114,9 @@
         {% for item in dim.items %}
         {% if not (outer.first and loop.first) %}
         <article class="item">
-          {% set izh = item.i18n.get("zh", {}) %}{% set ien = item.i18n.get("en", {}) %}
           {% if item.image %}<img class="item-image" src="{{ item.image }}" loading="lazy" decoding="async"{{ wh(item.image) }} alt="">{% endif %}
-          <h4 class="item-title"><a href="{{ item.url }}">{{ bi(izh.get("title"), ien.get("title"), item.title) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
-          {% set b_zh = izh.get("summary") or izh.get("raw_text") %}{% set b_en = ien.get("summary") or ien.get("raw_text") %}
-          {% set item_blurb = item | blurb %}
-          {% if (b_zh and b_en) or item_blurb %}<p class="item-summary">{{ bi(b_zh, b_en, item_blurb) }}</p>{% endif %}
+          <h4 class="item-title"><a href="{{ item.url }}">{{ title_bi(item) }}</a>{% if item.heat_tier %}<img class="flame" src="assets/flame.png" alt="trending" title="Trending">{% endif %}</h4>{% if item.stats %}{{ stat_row(item.stats) }}{% endif %}
+          {{ blurb_p(item) }}
           {% if item.source %}<p class="item-source">{{ item.source }}</p>{% endif %}
         </article>
         {% endif %}
