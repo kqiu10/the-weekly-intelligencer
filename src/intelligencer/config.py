@@ -50,6 +50,10 @@ class Publication:
     title: str
     subtitle: str = ""
     first_issue_date: str | None = None
+    # SPEC §10.9: translated brand strings, e.g. {zh: "周悉智能"} — English side is the
+    # title/subtitle themselves
+    title_i18n: dict = field(default_factory=dict)
+    subtitle_i18n: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -92,6 +96,8 @@ def load_config(path: str | Path) -> Config:
         title=pub.get("title", "Untitled"),
         subtitle=pub.get("subtitle", ""),
         first_issue_date=pub.get("first_issue_date"),
+        title_i18n=pub.get("title_i18n", {}) or {},
+        subtitle_i18n=pub.get("subtitle_i18n", {}) or {},
     )
 
     out = data.get("output", {}) or {}

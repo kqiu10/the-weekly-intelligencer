@@ -45,12 +45,22 @@ def test_i18n_fields_round_trip_and_default_empty():
         blurb_i18n={"zh": "AI 如何重塑品牌出海", "en": "How AI reshapes brands abroad"},
         items=[item],
     )
-    issue = Issue(date="2026-07-05", title="T", tldr="week", tldr_i18n={"zh": "本周", "en": "week"})
+    issue = Issue(
+        date="2026-07-05",
+        title="The Weekly Intelligencer",
+        title_i18n={"zh": "周悉智能"},
+        subtitle="A weekly briefing",
+        subtitle_i18n={"zh": "每周简报"},
+        tldr="week",
+        tldr_i18n={"zh": "本周", "en": "week"},
+    )
     back = Manifest.from_dict(Manifest(issue=issue, dimensions=[d]).to_dict())
     assert back.dimensions[0].items[0].i18n["zh"]["title"] == "安克登陆港交所"
     assert back.dimensions[0].name_i18n["zh"] == "重塑跨境品牌"
     assert back.dimensions[0].blurb_i18n["en"] == "How AI reshapes brands abroad"
     assert back.issue.tldr_i18n["zh"] == "本周"
+    assert back.issue.title_i18n["zh"] == "周悉智能"
+    assert back.issue.subtitle_i18n["zh"] == "每周简报"
 
     older = {
         "issue": {"date": "2026-07-05", "title": "T"},
@@ -58,6 +68,7 @@ def test_i18n_fields_round_trip_and_default_empty():
     }
     old = Manifest.from_dict(older)
     assert old.issue.tldr_i18n == {}
+    assert old.issue.title_i18n == {} and old.issue.subtitle_i18n == {}
     assert old.dimensions[0].name_i18n == {} and old.dimensions[0].blurb_i18n == {}
     assert old.dimensions[0].items[0].i18n == {}
 

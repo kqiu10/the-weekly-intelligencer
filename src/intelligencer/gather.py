@@ -273,6 +273,8 @@ def build_manifest(
         title=config.publication.title,
         subtitle=config.publication.subtitle,
         week=week,
+        title_i18n=config.publication.title_i18n,
+        subtitle_i18n=config.publication.subtitle_i18n,
     )
     blurb_words = int(config.defaults.get("blurb_words", 50))
     dimensions = [

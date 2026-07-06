@@ -286,7 +286,10 @@ def _bilingual_manifest():
     return Manifest(
         issue=Issue(
             date="2026-07-05",
-            title="T",
+            title="The Weekly Intelligencer",
+            title_i18n={"zh": "周悉智能"},
+            subtitle="A weekly briefing",
+            subtitle_i18n={"zh": "每周简报"},
             week=2,
             tldr="The week.",
             tldr_i18n={"zh": "本周要闻。", "en": "The week."},
@@ -337,6 +340,14 @@ def test_bilingual_manifest_renders_paired_spans_and_toggle():
     assert '<span lang="zh">本周要闻。</span>' in html  # TL;DR pair
     assert '<span lang="zh">安克完成上市。</span>' in html  # summary pair
     assert '[lang="en"] { display: none; }' in html  # zh-default css rule (inlined)
+    # masthead + colophon brand strings translate too (ck 2026-07-06); tab <title> follows
+    # the default language
+    assert (
+        html.count('<span lang="zh">周悉智能</span><span lang="en">The Weekly Intelligencer</span>')
+        == 2
+    )
+    assert '<span lang="zh">每周简报</span>' in html  # subtitle pair
+    assert "<title>周悉智能 — 2026-07-05</title>" in html
 
 
 def test_monolingual_manifest_renders_plain_content():

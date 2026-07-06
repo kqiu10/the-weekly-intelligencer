@@ -55,6 +55,9 @@ class Issue:
     week: int = 1
     tldr: str = ""  # issue-level TL;DR (~100 words), written at the write stage
     tldr_i18n: dict = field(default_factory=dict)  # SPEC §10.9: {"zh": str, "en": str}
+    # SPEC §10.9: masthead brand strings translate too (from config publication.*_i18n)
+    title_i18n: dict = field(default_factory=dict)
+    subtitle_i18n: dict = field(default_factory=dict)
 
 
 @dataclass

@@ -1,6 +1,8 @@
 publication:
   title: "The Weekly Intelligencer"
+  title_i18n: { zh: "周悉智能" }                                       # masthead/colophon 中文 pair (SPEC §10.9)
   subtitle: "A weekly briefing on AI and the work it's reshaping"
+  subtitle_i18n: { zh: "一份关于人工智能及其重塑的工作领域的每周简报" }
   first_issue_date: "2026-06-26"
 
 output:
