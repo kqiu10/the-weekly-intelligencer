@@ -20,14 +20,14 @@ def test_shipped_config_has_valid_social_video_dimension():
     assert social is not None, "the social-video dimension is missing from the shipped config"
     assert social.layout == "by-source"
     assert social.trends is True  # trend tracking is enabled for this dimension
-    # X curator feeds via the private RSSHub instance only (2026-07-06; ck also dropped the
-    # YouTube API source) — unlabeled candidate pools Claude prunes
+    # Civitai first-party API (keyed-optional; skips without CIVITAI_API_KEY) + the Last
+    # Week in AI weekly (X curator feeds removed per review 2026-07-06 — quiet/personal
+    # weeks and login-wall verification made them low-yield) — pools Claude prunes
     assert [(s.type, s.label, s.logo) for s in social.sources] == [
-        ("feed", None, None),
+        ("civitai", "Civitai", None),  # 本周最火 AI images, safe-rated only
         ("feed", None, None),
     ]
-    assert any("/twitter/user/RowanCheung" in (s.url or "") for s in social.sources)
-    assert any("/twitter/user/icreatelife" in (s.url or "") for s in social.sources)
+    assert any("lastweekin.ai/feed" in (s.url or "") for s in social.sources)
     assert not any(s.type in ("search", "youtube") for s in social.sources)
 
 

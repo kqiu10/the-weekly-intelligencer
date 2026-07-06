@@ -47,8 +47,7 @@ can't find one, use `null`.
 
 ### The Intelligent Factory, Rewriting Cross-Border Branding & Trending Social Video & Images
 All three arrive **pre-filled by `fetch`** as ungrouped candidate pools. **Prune** each
-pool to its bar below (rebalanced 2026-07-06 — the middle between the original strict bars
-and none), set each kept item's `group` (company / brand / platform / publication — one
+pool to its bar below, set each kept item's `group` (company / brand / platform / publication — one
 card per group), drop the rest. If more than `max_items` qualify, keep the **newest
 `max_items`** — a mechanical ceiling, no judgment. Zero in a quiet week is fine — an empty
 dimension doesn't render; leave `notes` empty.
@@ -66,12 +65,15 @@ dimension doesn't render; leave `notes` empty.
   morning briefs, ESG/finance notes, trademark/patent warnings, how-to guides,
   domestic-only stories, and a Chinese AI vendor's own overseas expansion (that's
   Frontier AI Research Labs' beat).
-- **Trending Social Video & Images** keeps: a curator tweet **showcasing a specific
-  AI-generated work** (media attached or a link to one) — virality **not** required; the
-  curator's pick is the signal. Link the underlying post when the tweet points at one
-  (`group` = the platform it lives on), else the tweet itself (`group: "X"`). `creator`
-  always; `image`/`stats` only when actually visible. Reject: personal/admin posts,
-  milestones, promos, link-less chatter.
+- **Trending Social Video & Images** keeps: items **showcasing or rounding up specific
+  AI-generated works** — virality not required; the curator's pick is the signal. **The
+  Civitai card** is filled by `fetch` (when `CIVITAI_API_KEY` is set) with the week's
+  most-reacted, safe-rated AI images — already on-bar by construction; keep the strongest
+  few (≤ `max_per_source`), fields as-is. **Last Week in AI** contributes its weekly issue
+  when one lands in-window: keep it as a standing recap card (group `"Last Week in AI"`)
+  when its AI Arts & Culture section covers the week's viral AI video/art; reject podcast
+  episodes and issues with no visual-culture content. `creator`/`image`/`stats` only when
+  actually present — never invented.
 
 Safety floor everywhere (non-negotiable): no misinformation, violence, gore, or harmful
 deepfakes — and never fabricate a title, link, stat, or image. For kept items: WebFetch to

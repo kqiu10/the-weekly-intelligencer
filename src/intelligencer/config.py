@@ -9,7 +9,7 @@ from pathlib import Path
 
 import yaml
 
-VALID_SOURCE_TYPES = {"feed", "search", "site", "youtube"}
+VALID_SOURCE_TYPES = {"feed", "search", "site", "youtube", "civitai"}
 VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
 VALID_LAYOUTS = {"grid", "by-source"}
 

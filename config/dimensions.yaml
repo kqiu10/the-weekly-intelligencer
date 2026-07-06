@@ -64,7 +64,7 @@ dimensions:
     max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
     trends: true                   # track context hotness across issues
-    sources:                       # X curator roundups via private RSSHub (candidate pools, Claude prunes) — replaced YouTube API + TikTok/IG/FB web search
-      - { type: feed, url: "${RSSHUB_BASE}/twitter/user/RowanCheung" }                          # @RowanCheung — weekly wildest-AI-videos roundups
-      - { type: feed, url: "${RSSHUB_BASE}/twitter/user/icreatelife" }                          # @icreatelife — AI video/art curation
+    sources:                       # Civitai via its first-party API (CIVITAI_API_KEY; skips without) + weekly visual-trend newsletter — candidate pools, Claude prunes
+      - { type: civitai, label: "Civitai" }                                                     # 本周最火 AI images — most-reacted this week, safe-rated only
+      - { type: feed, url: "https://lastweekin.ai/feed" }                                       # Last Week in AI — weekly, AI Arts & Culture section (non-www URL; www is SSL-broken)
 
