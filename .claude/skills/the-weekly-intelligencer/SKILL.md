@@ -65,17 +65,12 @@ dimension doesn't render; leave `notes` empty.
   morning briefs, ESG/finance notes, trademark/patent warnings, how-to guides,
   domestic-only stories, and a Chinese AI vendor's own overseas expansion (that's
   Frontier AI Research Labs' beat).
-- **Trending Social Video & Images** keeps: items **showcasing or rounding up specific
-  AI-generated works** — virality not required; the curator's pick is the signal. **The
-  Civitai card** is filled by `fetch` (when `CIVITAI_API_KEY` is set) with the week's
-  most-reacted, safe-rated AI images — already on-bar by construction; keep the strongest
-  few (≤ `max_per_source`), fields as-is. **Last Week in AI** contributes its weekly issue
-  when one lands in-window: keep it as a standing recap card (group `"Last Week in AI"`)
-  when its AI Arts & Culture section covers the week's viral AI video/art; reject podcast
-  episodes and issues with no visual-culture content. **The r/aivideo weekly-top pool** is
-  the beat by construction — keep the strongest posts showcasing a specific AI-generated
-  video (group `"Reddit"`), drop memes/discussion/promo threads; thumbnails arrive from the
-  feed itself. `creator`/`image`/`stats` only when actually present — never invented.
+- **Trending Social Video & Images** keeps: items **showcasing a specific AI-generated
+  work**. The **r/aivideo weekly-top pool** is the beat by construction — keep the
+  strongest posts (group `"Reddit"`), drop memes/discussion/promo threads; thumbnails
+  arrive from the feed itself. `creator`/`image`/`stats` only when actually present —
+  never invented. *(Civitai skipped per review 2026-07-06 — Cloudflare-blocked at ck's
+  browser and VPS; the `civitai` module stays dormant, one config line to revive.)*
 
 Safety floor everywhere (non-negotiable): no misinformation, violence, gore, or harmful
 deepfakes — and never fabricate a title, link, stat, or image. For kept items: WebFetch to

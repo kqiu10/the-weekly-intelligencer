@@ -20,16 +20,13 @@ def test_shipped_config_has_valid_social_video_dimension():
     assert social is not None, "the social-video dimension is missing from the shipped config"
     assert social.layout == "by-source"
     assert social.trends is True  # trend tracking is enabled for this dimension
-    # Civitai first-party API (keyed-optional; skips without CIVITAI_API_KEY) + r/aivideo's
-    # native weekly-top RSS (Last Week in AI removed per review 2026-07-06; X curators and
-    # TikTok/IG/FB search removed earlier the same day) — candidate pools Claude prunes
-    assert [(s.type, s.label, s.logo) for s in social.sources] == [
-        ("civitai", "Civitai", None),  # 本周最火 AI images, safe-rated only
-        ("feed", None, None),
-    ]
+    # r/aivideo's native weekly-top RSS only (civitai skipped per review 2026-07-06 —
+    # Cloudflare-blocked at ck's browser + VPS level; the module stays dormant in the
+    # codebase like youtube's, one config line to revive)
+    assert [(s.type, s.label, s.logo) for s in social.sources] == [("feed", None, None)]
     # native first-party Reddit RSS — deliberately a single reddit feed (429-limiter safety)
     assert any("old.reddit.com/r/aivideo/top" in (s.url or "") for s in social.sources)
-    assert not any(s.type in ("search", "youtube") for s in social.sources)
+    assert not any(s.type in ("search", "youtube", "civitai") for s in social.sources)
 
 
 def test_shipped_config_has_valid_intelligent_factory_dimension():
