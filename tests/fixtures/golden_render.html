@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -202,15 +202,36 @@ a { color: inherit; }
   font-size: 0.8rem;
   font-variant: small-caps;
 }
+
+/* --- Bilingual toggle (SPEC §10.9): Chinese default; the masthead icon flips to English. */
+.masthead { position: relative; }
+.lang-switch { position: absolute; left: -9999px; }
+.lang-toggle {
+  position: absolute;
+  top: 0.35rem;
+  right: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.lang-toggle:hover { opacity: 1; }
+.lang-toggle svg { width: 100%; height: 100%; display: block; }
+[lang="en"] { display: none; }
+.lang-switch:checked ~ * [lang="en"] { display: inline; }
+.lang-switch:checked ~ * [lang="zh"] { display: none; }
 </style>
 </head>
 <body>
+  <input type="checkbox" id="lang-en" class="lang-switch" aria-label="English / 中文">
   
   <header class="masthead">
+    <label class="lang-toggle" for="lang-en" title="中文 / English"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286zm1.634-.736L5.5 3.956h-.049l-.679 2.022z"/><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm7.138 9.995q.289.451.63.846c-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6 6 0 0 1-.415-.492 2 2 0 0 1-.94.31"/></svg></label>
     <h1 class="masthead-title">The Weekly Intelligencer</h1>
     <p class="masthead-subtitle">A weekly briefing on AI and the work it&#39;s reshaping</p>
     <div class="masthead-rule">
-      <span>Issue 1</span>
+      <span><span lang="zh">第 1 期</span><span lang="en">Issue 1</span></span>
       <span>Jun 22 – Jun 26, 2026</span>
     </div>
   </header>
@@ -219,10 +240,12 @@ a { color: inherit; }
 
   
   
+  
   <article class="lead">
     <p class="kicker">Frontier Labs</p>
     <img class="lead-image" src="assets/2026-06-26/lead.jpg" alt="">
     <h2 class="lead-title"><a href="https://example.com/a">A New Frontier Model Lands</a></h2>
+    
     
     <p class="lead-summary">The lab unveiled its latest system, claiming gains on reasoning benchmarks and a lower price.</p>
     <p class="item-source">example.com</p>
@@ -244,8 +267,10 @@ a { color: inherit; }
         
         
         <article class="item">
+          
           <img class="item-image" src="assets/2026-06-26/b.jpg" alt="">
           <h4 class="item-title"><a href="https://example.com/b">Open Weights, Open Questions</a></h4>
+          
           
           <p class="item-summary">A rival released model weights, reigniting the openness debate.</p>
           <p class="item-source">example.org</p>
@@ -269,7 +294,9 @@ a { color: inherit; }
         
         <article class="item">
           
+          
           <h4 class="item-title"><a href="https://example.com/c">Capex Climbs Again</a></h4>
+          
           
           <p class="item-summary">Hyperscalers raised capital-expenditure guidance for the year, citing AI demand.</p>
           <p class="item-source">example.net</p>
@@ -301,7 +328,9 @@ a { color: inherit; }
             
             <article class="item">
               
+              
               <h5 class="item-title"><a href="https://openai.com/index/faster-model">OpenAI ships a faster model</a></h5>
+              
               
               <p class="item-summary">OpenAI released a cheaper, faster flagship.</p>
               <p class="item-link"><a href="https://openai.com/index/faster-model">openai.com</a> · <span class="item-date">2026-06-25</span></p>
@@ -311,7 +340,9 @@ a { color: inherit; }
             
             <article class="item">
               
+              
               <h5 class="item-title"><a href="https://openai.com/index/research-preview">OpenAI opens a research preview</a></h5>
+              
               
               <p class="item-summary">A limited preview opened to developers.</p>
               <p class="item-link"><a href="https://openai.com/index/research-preview">openai.com</a> · <span class="item-date">2026-06-24</span></p>
@@ -332,7 +363,9 @@ a { color: inherit; }
             
             <article class="item">
               
+              
               <h5 class="item-title"><a href="https://deepmind.google/blog/new-agent">DeepMind details a new agent</a></h5>
+              
               
               <p class="item-summary">Google DeepMind described an agent that plans over long horizons.</p>
               <p class="item-link"><a href="https://deepmind.google/blog/new-agent">deepmind.google</a> · <span class="item-date">2026-06-23</span></p>
@@ -350,7 +383,7 @@ a { color: inherit; }
   </main>
 
   <footer class="colophon">
-    <p>The Weekly Intelligencer · Issue 1 · Jun 22 – Jun 26, 2026</p>
+    <p>The Weekly Intelligencer · <span lang="zh">第 1 期</span><span lang="en">Issue 1</span> · Jun 22 – Jun 26, 2026</p>
   </footer>
 </body>
 </html>

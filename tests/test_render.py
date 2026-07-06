@@ -174,6 +174,84 @@ def test_intelligent_factory_company_logos_are_packaged():
         assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
 
 
+def _bilingual_manifest():
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+
+    return Manifest(
+        issue=Issue(
+            date="2026-07-05",
+            title="T",
+            week=2,
+            tldr="The week.",
+            tldr_i18n={"zh": "本周要闻。", "en": "The week."},
+        ),
+        dimensions=[
+            DimensionContent(
+                name="Rewriting Cross-Border Branding",
+                name_i18n={"zh": "重塑跨境品牌", "en": "Rewriting Cross-Border Branding"},
+                blurb="How AI reshapes brands abroad",
+                blurb_i18n={"zh": "AI 如何重塑品牌出海", "en": "How AI reshapes brands abroad"},
+                layout="by-source",
+                items=[
+                    Item(
+                        title="Anker lists in HK",
+                        url="http://x",
+                        group="Anker",
+                        summary="Listed.",
+                        i18n={
+                            "zh": {
+                                "title": "安克登陆港交所",
+                                "summary": "安克完成上市。",
+                                "raw_text": "",
+                            },
+                            "en": {
+                                "title": "Anker lists in HK",
+                                "summary": "Anker listed.",
+                                "raw_text": "",
+                            },
+                        },
+                    )
+                ],
+            )
+        ],
+    )
+
+
+def test_bilingual_manifest_renders_paired_spans_and_toggle():
+    """SPEC §10.9: every translated string ships as a zh/en span pair; a hidden checkbox +
+    masthead label flips languages via pure CSS; Chinese is the default view."""
+    from intelligencer.render import render_html
+
+    html = render_html(_bilingual_manifest(), render_tldr=True)
+    assert '<html lang="zh-Hans">' in html  # Chinese default
+    assert '<input type="checkbox" id="lang-en"' in html
+    assert 'class="lang-toggle"' in html  # the translate-icon label
+    assert '<span lang="zh">安克登陆港交所</span><span lang="en">Anker lists in HK</span>' in html
+    assert '<span lang="zh">重塑跨境品牌</span>' in html  # dimension name pair
+    assert '<span lang="zh">本周要闻。</span>' in html  # TL;DR pair
+    assert '<span lang="zh">安克完成上市。</span>' in html  # summary pair
+    assert '[lang="en"] { display: none; }' in html  # zh-default css rule (inlined)
+
+
+def test_monolingual_manifest_renders_plain_content():
+    """A manifest without i18n renders its content as plain strings — no span pairs on
+    titles/summaries/names. (Static template chrome like the masthead issue label is
+    always bilingual by design.)"""
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+    from intelligencer.render import render_html
+
+    m = Manifest(
+        issue=Issue(date="2026-07-05", title="T", week=2),
+        dimensions=[
+            DimensionContent(name="D", items=[Item(title="Plain", url="http://x", summary="Text.")])
+        ],
+    )
+    html = render_html(m)
+    assert '<a href="http://x">Plain</a>' in html  # no spans inside the title anchor
+    assert ">Text.</p>" in html  # summary paragraph plain
+    assert '<h3 class="dimension-name">D</h3>' in html  # dimension name plain
+
+
 def test_by_source_renders_labeled_rows_with_source_and_date():
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
 
