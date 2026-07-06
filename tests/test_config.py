@@ -47,16 +47,15 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     assert factory.within_days == 7
     assert factory.trends is False  # SPEC §10.4: not a visual-context beat, no 🔥 signal
 
-    # feed candidate pools (Manufacturing Dive + a recency-scoped Google News proxy) that
-    # Claude prunes + regroups to the company, plus a search supplement (SPEC §10.4)
-    assert [s.type for s in factory.sources] == ["feed", "feed", "search"]
-    assert any("manufacturingdive.com" in (s.url or "") for s in factory.sources)
+    # all-feed candidate pools — no search (SPEC §10.4): Manufacturing Dive's technology
+    # topic feed + a recency-scoped (when:7d) Google News proxy; Claude prunes + regroups
+    assert [s.type for s in factory.sources] == ["feed", "feed"]
+    assert any("manufacturingdive.com/feeds/topic" in (s.url or "") for s in factory.sources)
     assert any(
         "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in factory.sources
     )
     # candidate-pool feeds are unlabeled — Claude regroups each kept item to its company
-    assert all(s.label is None for s in factory.sources if s.type == "feed")
-    assert factory.sources[-1].type == "search" and factory.sources[-1].query
+    assert all(s.label is None for s in factory.sources)
 
     # SPEC §10.4: positioned after Frontier AI Research Labs; Rewriting Cross-Border Branding
     # (SPEC §10.5) now sits immediately after it, before Trending Social Video & Images.
@@ -84,15 +83,19 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
     assert brand.within_days == 7
     assert brand.trends is False  # SPEC §10.5: announcement-driven text, no 🔥 signal
 
-    # feed candidate pools (中文 Google News proxy + 白鲸出海) that Claude prunes + regroups
-    # to the brand, plus a search supplement (SPEC §10.5)
-    assert [s.type for s in brand.sources] == ["feed", "feed", "search"]
+    # all-feed candidate pools — no search (SPEC §10.5): a generic 中文 when:7d proxy, a
+    # site-scoped proxy for the 出海板块 of 雨果/36氪出海/钛媒体/界面 (no usable native RSS),
+    # and 白鲸出海's own feed; Claude prunes + regroups to the brand
+    assert [s.type for s in brand.sources] == ["feed", "feed", "feed"]
     assert any("baijing.cn" in (s.url or "") for s in brand.sources)
-    assert any(
-        "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in brand.sources
+    assert any("cifnews.com" in (s.url or "") for s in brand.sources)  # the site-scoped proxy
+    assert (
+        sum(
+            "news.google.com" in (s.url or "") and "when:7d" in (s.url or "") for s in brand.sources
+        )
+        == 2
     )
-    assert all(s.label is None for s in brand.sources if s.type == "feed")
-    assert brand.sources[-1].type == "search" and brand.sources[-1].query
+    assert all(s.label is None for s in brand.sources)
 
     # SPEC §10.5: positioned after The Intelligent Factory, before Trending Social Video & Images
     names = [d.name for d in cfg.dimensions]
