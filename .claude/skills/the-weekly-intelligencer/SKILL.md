@@ -45,153 +45,34 @@ publisher, date, or preview image. Each item you add must have this exact shape:
 Only use an `image` URL that is the article's real preview image (`og:image`). If you
 can't find one, use `null`.
 
-### The "Intelligent Factory" dimension
-A named manufacturer adopting a **named** AI vendor's tech for its own operations — not
-the AI industry's own hardware/infrastructure news. Find up to `max_items` qualifying
-stories this week, never pad to reach it — zero in a quiet week is correct, not a failure.
+### The "Intelligent Factory" and "Rewriting Cross-Border Branding" dimensions
+Both arrive **pre-filled by `fetch`** as ungrouped candidate pools from their configured
+feeds (`group: ""`) — no searching. Your only job is to **prune**: keep the few items that
+pass the dimension's bar, drop the rest from the manifest, and set each kept item's `group`
+to the company/brand it is about (`by-source` renders one card per group). Zero kept in a
+quiet week is correct — an empty dimension simply doesn't render; leave `notes` empty.
 
-**This dimension is feed-sourced now — `fetch` already handed you a candidate pool.** Its
-two `feed` sources (Manufacturing Dive's RSS + a recency-scoped `when:7d` Google News
-proxy) land in this dimension's `items` as an ungrouped, deterministically gathered batch
-(`group: ""`). **Your job is to *filter*, not to search from scratch:** read that pool and
-keep only the entries that pass the qualify bar below, dropping the rest. (This replaced
-the old search-only design: a keyword feed alone can't judge direction/recency, but a feed
-*plus your judgment as the filter* can — the same split that already works for YouTube.)
+- **The Intelligent Factory** keeps: a **named manufacturer/industrial company adopting a
+  named AI vendor's technology for its own operations** (HP × OpenAI's "Frontier"
+  partnership; Takeda × Insilico's Pharma.AI deal). Reject: an AI vendor's own
+  chip/data-center/infrastructure news (wrong direction — e.g. Anthropic sourcing Samsung
+  chips, NVIDIA "AI Factory" campuses), "AI-powered" claims naming no vendor, and
+  opinion/forecast/conference PR.
+- **Rewriting Cross-Border Branding** keeps: a **named Chinese cross-border/going-global
+  brand whose story materially involves AI** — adopting AI to market/localize/sell
+  overseas, shipping an AI product for overseas markets, or a platform's AI enabling a
+  named brand's push. Reject: a Chinese AI vendor's own overseas expansion with no other
+  named brand involved (DeepSeek/Qwen/Kimi going global — that's Frontier AI Research
+  Labs' beat, and the most common false positive), domestic-only stories, factory-floor
+  stories (that's The Intelligent Factory), and trend analysis / summit PR with no
+  discrete brand event.
 
-**Step 0 — also scan the labs' own already-fetched feeds (free).** Frontier AI Research
-Labs' `feed`/`site` sources are capped at `max_per_source: 2` for *that* dimension; re-pull
-each (`fetch_feed(url)`) and scan the *uncapped* list for a customer/partnership headline
-the cap dropped. This is how a 2026-07-03 run missed HP × OpenAI (item #6 in OpenAI's RSS).
-
-**The `search` supplement is the long tail.** After filtering the feed pool, if it's thin,
-run the dimension's `search` source — a generic query plus combined watchlist×vendor
-queries (`(HP OR Foxconn OR …) (OpenAI OR Microsoft OR NVIDIA) AI partnership this week`)
-and vendor customer-story hubs (`openai.com/stories`, Microsoft/NVIDIA newsrooms). If the
-feed pool already yields enough qualifying stories, you can skip it.
-
-**Known AI-active manufacturers — a search aid, not a qualify restriction.** Any named
-manufacturer still qualifies (per the rule above); this list exists to make queries sharper
-and cheaper. Cross a few of these with the vendor list in a *single* combined query per
-sector rather than one query per company — e.g. `(HP OR Foxconn OR Dell OR Lenovo OR
-Samsung) (OpenAI OR Anthropic OR Microsoft OR NVIDIA) AI partnership this week` — a
-named-pair match like this is sharper than either side alone, and is what should have
-caught HP × OpenAI directly.
-- **Electronics/hardware:** HP, Foxconn, Dell, Lenovo, Samsung
-- **Industrial/automation:** Siemens, ABB, Schneider Electric, Honeywell, Rockwell
-  Automation, Bosch
-- **Automotive:** Toyota, Volkswagen, Hyundai, Ford, BMW
-- **Heavy industry/aerospace:** Caterpillar, John Deere, Boeing, Airbus
-- **Consumer goods:** Unilever, Mattel, Procter & Gamble
-
-Grow this list over time — add a company here once a real, verified story about it is
-found (mirroring how `data/trends.json` accumulates topics), so future searches start
-sharper than this week's did.
-
-**Qualify — needs a named AI vendor AND a named manufacturer applying it:**
-- ✅ HP × OpenAI — "Frontier" partnership for customer experience and internal operations
-  (hp.com press release + openai.com confirmation + independent trade press — the reference
-  example; verified real, not hypothetical)
-- ❌ "Siemens deploys a generative-AI copilot" — no vendor named
-- ❌ "Toyota uses AI-powered computer vision for quality control" — no vendor named
-- ❌ "Anthropic in talks with Samsung to manufacture a custom AI chip" — wrong direction,
-  the AI vendor is the customer, not the industry adopting its AI
-- ❌ NVIDIA "AI Factory" data-center campus — marketing term for a GPU data center
-- ❌ opinion pieces, market forecasts, conference PR, unconfirmed "sources say" reports
-
-AI vendor = OpenAI, Anthropic, Google DeepMind, xAI, Meta, DeepSeek, Qwen, Microsoft,
-NVIDIA, or another major AI vendor — broader than the Frontier AI Research Labs roster
-above; this beat is frontier AI landing in the wider economy, not that dimension's list.
-
-**Freshness — re-check every kept item's real date.** The `when:7d` proxy and
-`within_days: 7` already drop stale items, but confirm each kept story's *actual* published
-date is inside this issue's week before adding it — don't trust the feed's recency setting
-alone (a `when:7d` query is the belt, the parsed-date check is the suspenders).
-
-- **Verify with WebFetch** before adding: confirm the named companies, that the date is
-  inside the issue window, and that the link resolves to the real article, not a
-  redirect/paywall stub. (Feed-pool items arrive with a title but often no image/lede —
-  fetch the ones you keep to fill `image`/`raw_text`; Google News proxy links resolve to
-  the real publisher on fetch.)
-- **Dedup** against this issue's Frontier AI Research Labs dimension — if the same
-  announcement already appears there (e.g. the lab's own newsroom post), don't add it
-  again here; this dimension is for the industry-adoption angle, usually reported by
-  business/trade press or the customer company, not the lab's own blog.
-- **Silently** skip when nothing verifiable qualifies — leave `notes` empty, same as the
-  social platforms below.
-- **Set `group`** to the manufacturer's name (e.g. `"HP"`) on every kept item — the feed
-  left it `""`; you reassign it so `by-source` renders one card per company (like the labs).
-- **Logo, if you can add one:** run `ls src/intelligencer/assets/logos/` — if a
-  `<slug>.svg` already matches the company (lowercased name, e.g. `hp.svg`), set
-  `dim.logos[group] = "assets/logos/<slug>.svg"`. If none exists yet, either add one
-  (matching the existing style exactly: Simple Icons format — `<svg fill="#<official brand
-  hex>" role="img" viewBox="0 0 24 24" ...><title>Name</title><path d="..."/></svg>` —
-  fetch the real path data, e.g. from
-  `raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/<slug>.svg`, and the
-  brand hex from their `data/simple-icons.json`; never invent path data) or leave the card
-  logo-less — a missing `logo` entry always renders a safe label-only rail, never a broken
-  `<img>`. This library only grows on confirmed, real companies (mirrors `data/trends.json`
-  — small, accumulates over time); extend `tests/test_render.py`'s
-  `test_intelligent_factory_company_logos_are_packaged` with the new slug when you add one.
-
-### The "Rewriting Cross-Border Branding" dimension
-Any real news tying a **named Chinese cross-border / going-global brand** to **AI** — how AI
-is reshaping the way these brands market, localize, sell, and build themselves overseas.
-Search-only; find up to `max_items` (7) qualifying stories this week, never pad — zero in a
-quiet week is correct. **The qualify bar is deliberately broad** (any real brand × AI story,
-not only a signed tool-adoption deal — unlike The Intelligent Factory's stricter
-named-vendor-named-adopter bar); the discipline here is the **reject** list, which keeps it
-from collapsing into "any China-AI news."
-
-**Feed-sourced, same as The Intelligent Factory — `fetch` gave you a candidate pool.** Its
-two `feed` sources — a 中文 `when:7d` Google News proxy (which aggregates 白鲸出海, 雨果跨境,
-36氪出海, AMZ123 and the rest) plus 白鲸出海's own RSS — land here ungrouped (`group: ""`).
-**Filter the pool** to the entries passing the qualify bar; this China-first beat breaks
-first in Chinese-media coverage, which English/US search misses. AI vendor can be **any**
-major AI company, Chinese or Western — Alibaba/Qwen, ByteDance/Doubao, Baidu/ERNIE, DeepSeek,
-Zhipu/GLM, Moonshot/Kimi, Tencent, OpenAI, Anthropic, Microsoft, NVIDIA — broader than the
-Frontier AI Research Labs roster (don't re-narrow it to the 7 labs).
-
-**Step 0** — also scan the labs' own already-fetched uncapped feeds for a cross-border-brand
-angle. **The `search` supplement** catches the long tail if the feed pool is thin (skip it
-if the pool already yields enough). **Re-check each kept item's real published date** is
-inside this week — don't trust the `when:7d` setting alone. **Set `group`** to the brand's
-name on every kept item (the feed left it `""`), so `by-source` renders one card per brand.
-
-**Watchlist — a search aid, not a qualify restriction (grows over time from verified finds):**
-- **E-commerce/platforms:** SHEIN, Temu (PDD), AliExpress/Alibaba.com, TikTok Shop, DHgate
-- **Consumer electronics/smart home:** Anker (Eufy, Soundcore), Ecovacs, Roborock, DJI, Insta360, UBTECH, Xiaomi
-- **Home appliances:** TCL, Hisense, Midea
-- **EV/auto:** BYD, NIO, XPeng
-- **Gaming/entertainment:** miHoYo/HoYoverse, Tencent (global titles)
-
-**Qualify — a named cross-border/going-global brand whose story materially involves AI:**
-- ✅ A brand adopting an AI tool/platform capability to go global — marketing, localization,
-  customer service, demand forecasting, logistics. *Real, verifiable examples of this
-  tooling: Alibaba International's **Aidge** multilingual localization/marketing AI suite and
-  its **Marco** merchant AI agents (openly announced, cross-border-seller-facing) — a named
-  brand using these to expand overseas qualifies.*
-- ✅ A named brand shipping an AI-powered product built for overseas markets (e.g. Anker's
-  AI-driven smart-home line sold internationally).
-- ✅ A cross-border platform's AI capability explicitly enabling a **named** brand's
-  international push ("[platform]'s AI helped [named brand] reach $X in [overseas market]").
-
-**Reject — the guardrails that keep this dimension distinct:**
-- ❌ A Chinese **AI vendor's own** product/model gaining overseas *users*, with no other
-  named brand involved (DeepSeek/Qwen/Kimi/Kling expanding abroad) — that's the vendor's own
-  market expansion, already Frontier AI Research Labs' beat, not a *brand* using AI to go
-  global. **This is the most common false positive — watch for it.**
-- ❌ Domestic-only stories with no cross-border/international angle.
-- ❌ A pure factory-floor / production AI deployment with no brand-facing or go-to-market
-  angle — that's The Intelligent Factory (§10.4); dedup against it.
-- ❌ Opinion pieces, market forecasts, conference PR, unconfirmed "sources say" reports.
-
-**Verify / Dedup / Silently skip / Set `group` / Logo — identical mechanics to The
-Intelligent Factory above:** WebFetch to confirm the named brand, the AI angle, the date is
-inside the window, and the link resolves; dedup against the other dimensions this issue;
-leave `notes` empty when nothing qualifies; set `group` to the brand's name (`by-source`
-layout, one card per brand); add a real Simple-Icons logo for a newly-confirmed brand only if
-one doesn't exist yet (never invent path data), else a safe label-only rail — and extend
-`tests/test_render.py`'s logo test with any slug you add.
+For each kept item: **WebFetch the article** to confirm the companies and fill `image`
+(the real og:image, else null) and `raw_text`; **dedup** against the other dimensions this
+issue. **Logo:** if `src/intelligencer/assets/logos/<slug>.svg` exists for the company, set
+`dim.logos[group]`; else either add a real Simple Icons SVG (fetch the real path data and
+official brand hex — never invent path data — and extend the logo test in
+`tests/test_render.py`) or leave it — a missing logo renders a safe label-only rail.
 
 ### The "Trending Social Video & Images" dimension
 Surface the **1–2 most-shared AI-generated** videos/images **per platform** this week — the ones
