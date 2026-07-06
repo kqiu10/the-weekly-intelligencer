@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -59,6 +61,16 @@ class Config:
     path: Path | None = None
 
 
+# ${VAR} placeholders in source URLs, e.g. "${RSSHUB_BASE}/36kr/newsflashes" — lets a
+# private instance host live in gitignored .env instead of the committed config (the repo
+# is public). An unset var stays literal: validate warns, and the fetch fails soft.
+_ENV_VAR_RE = re.compile(r"\$\{([A-Z][A-Z0-9_]*)\}")
+
+
+def _expand_env_vars(url: str) -> str:
+    return _ENV_VAR_RE.sub(lambda m: os.environ.get(m.group(1), m.group(0)), url)
+
+
 def _resolve_file_url(url: str, base_dir: Path) -> str:
     """Make a relative ``file://`` URL absolute, relative to the config's directory."""
     if not url.startswith("file://"):
@@ -100,7 +112,7 @@ def load_config(path: str | Path) -> Config:
         for s in d.get("sources", []) or []:
             url = s.get("url")
             if url:
-                url = _resolve_file_url(url, base_dir)
+                url = _resolve_file_url(_expand_env_vars(url), base_dir)
             sources.append(
                 Source(
                     type=s.get("type", "feed"),
@@ -166,6 +178,11 @@ def validate_config(config: Config) -> tuple[list[str], list[str]]:
                 errors.append(f"dimension {dim.name!r}: unknown source type {src.type!r}")
             if src.type in ("feed", "site") and not src.url:
                 errors.append(f"dimension {dim.name!r}: a {src.type} source has no url")
+            for var in _ENV_VAR_RE.findall(src.url or ""):
+                warnings.append(
+                    f"dimension {dim.name!r}: source url references unset env var {var}; "
+                    "the source will be skipped at fetch"
+                )
             if src.type == "youtube" and not src.query:
                 errors.append(f"dimension {dim.name!r}: a youtube source has no query")
             # An unlabeled by-source feed is intentional — a candidate pool Claude prunes and

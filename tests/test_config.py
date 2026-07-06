@@ -138,6 +138,33 @@ def test_valid_config_has_no_errors(tmp_path):
     assert errors == []
 
 
+ENV_URL = """
+publication: {title: T}
+dimensions:
+  - {name: A, sources: [{type: feed, url: "${RSSHUB_BASE}/36kr/newsflashes"}]}
+"""
+
+
+def test_env_var_in_source_url_is_expanded(tmp_path, monkeypatch):
+    """${VAR} in a source URL expands from the environment at load time — so a private
+    instance host (e.g. RSSHUB_BASE) lives in gitignored .env, never in the committed
+    config of a public repo."""
+    monkeypatch.setenv("RSSHUB_BASE", "http://rss.example:1200")
+    cfg = load_config(_write(tmp_path, ENV_URL))
+    assert cfg.dimensions[0].sources[0].url == "http://rss.example:1200/36kr/newsflashes"
+    assert validate_config(cfg)[1] == []  # no warnings when the var resolves
+
+
+def test_unset_env_var_in_source_url_warns_and_fails_soft(tmp_path, monkeypatch):
+    """An unset ${VAR} stays literal (the fetch later fails soft → skipped source) and
+    validate points at the missing variable by name."""
+    monkeypatch.delenv("RSSHUB_BASE", raising=False)
+    cfg = load_config(_write(tmp_path, ENV_URL))
+    assert cfg.dimensions[0].sources[0].url == "${RSSHUB_BASE}/36kr/newsflashes"
+    _errors, warnings = validate_config(cfg)
+    assert any("RSSHUB_BASE" in w for w in warnings)
+
+
 @pytest.mark.parametrize(
     "expected, yaml_text",
     [
