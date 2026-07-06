@@ -195,9 +195,7 @@ def test_item_images_lazy_load_and_lead_stays_eager():
             DimensionContent(
                 name="Labs",
                 layout="by-source",
-                items=[
-                    Item(title="Row", url="u2", group="G", image="assets/d/b.png", summary="s")
-                ],
+                items=[Item(title="Row", url="u2", group="G", image="assets/d/b.png", summary="s")],
             ),
         ],
     )
@@ -408,7 +406,10 @@ def test_by_source_renders_company_logo_when_present():
     )
     html = render_html(manifest)
     assert '<div class="lab-rail">' in html
-    assert '<img class="lab-logo" src="assets/logos/openai.svg" alt="OpenAI logo">' in html
+    assert (
+        '<img class="lab-logo" src="assets/logos/openai.svg" '
+        'loading="lazy" decoding="async" alt="OpenAI logo">' in html
+    )
     # exactly one logo image — the logo-less group stays name-only
     assert html.count('class="lab-logo"') == 1
     assert ">xAI<" in html
