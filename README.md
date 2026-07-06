@@ -93,7 +93,7 @@ Most AI news tools force a choice: paraphrase everything through an LLM (expensi
 | Issue | Date | Link |
 |---|---|---|
 | Issue 1 | 6/22-6/28 | [`Issue 1`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-06-28.html) |
-| Issue 2 | 6/29-7/3 | [`Issue 2`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-03.html) |
+| Issue 2 | 6/29-7/5 | [`Issue 2`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-05.html) |
 
 ## License
 
