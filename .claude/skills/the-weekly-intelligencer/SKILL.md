@@ -83,16 +83,18 @@ the image (like the native app); the text beside it is the editorial `summary` o
   matching "AI generated" — each a `youtube.com/shorts/` link with an `i.ytimg` thumbnail, `creator`
   (channel name), and `stats` = {views, likes, comments}. **Prune** to the genuinely **AI-generated**
   ones (drop the rest, down to `max_per_source`); leave the fields as-is.
-- **TikTok, Instagram, Facebook** (`type: search`) — find each platform's 1–2 **AI-generated
-  entertainment** posts going viral this week (funny / creative / artful clips or images — **not**
-  misinformation, violence, gore, or harmful deepfakes). The live pages are login-gated, so when you
-  can, take the **thumbnail from the post's *coverage*** (a roundup/write-up that embeds a still) and
-  set `image` to that article's `og:image`/still (`cache` downloads it). But a thumbnail is
-  **optional** — if a genuinely popular AI post has no usable image, **still include it** (it renders
-  in the standard by-source card, no portrait tile). For each set the post permalink (`url`),
-  `creator` (@handle), `group` = platform, a short `summary` (mention its reach), and `stats`
-  (likes / comments) only if stated. **Silently** skip a platform with no verifiable AI-gen
-  entertainment hit — leave `notes` empty; never add a note explaining the absence.
+- **X curator pool** (`feed` via the private RSSHub instance — replaced the old TikTok/IG/FB
+  web search) — @RowanCheung and @icreatelife curate the week's hottest AI videos/images;
+  their tweets arrive as an **ungrouped candidate pool** (like the Factory/Cross-Border
+  feeds). Prune to posts showcasing a **specific, genuinely viral AI-generated** piece of
+  entertainment (funny / creative / artful — **not** misinformation, violence, gore, or
+  harmful deepfakes); drop link-less commentary, promo, and anything not AI-generated. When
+  the tweet points at the underlying post, use **that** permalink and set `group` to the
+  platform it lives on (TikTok / Instagram / X / …); otherwise link the tweet itself with
+  `group: "X"`. Set `dim.logos[group]` when a packaged slug exists (`tiktok`, `instagram`,
+  `facebook` are packaged; add others per the logo rules above). `creator` (@handle) always;
+  `image` and `stats` (likes/views) **only when actually visible** — never invented. A quiet
+  curator week yields nothing from that feed — **silently** skip; leave `notes` empty.
 
 ## 3. Write summaries per the dimension's `summary` mode
 - **`raw`** — leave `summary` empty (the feed/snippet text is shown as-is).
