@@ -217,6 +217,44 @@ def test_item_images_lazy_load_and_lead_stays_eager():
     assert 'src="assets/d/b.png" loading="lazy" decoding="async" width="132" height="88"' in html
 
 
+def test_render_issue_prunes_stale_issue_assets(tmp_path):
+    """Perf audit 2026-07-06: sha1-named leftovers from re-gathered runs accumulate in
+    assets/<date>/ (5.6 MB of orphans in one real issue). render_issue now deletes files
+    in the issue's asset dir that the manifest doesn't reference."""
+    from PIL import Image
+
+    from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
+    from intelligencer.render import render_issue
+
+    issue_dir = tmp_path / "assets" / "2026-07-05"
+    issue_dir.mkdir(parents=True)
+    Image.new("RGB", (10, 10)).save(issue_dir / "keep.png")
+    Image.new("RGB", (10, 10)).save(issue_dir / "stale.png")
+    (issue_dir / ".DS_Store").write_bytes(b"junk")
+    m = Manifest(
+        issue=Issue(date="2026-07-05", title="T"),
+        dimensions=[
+            DimensionContent(
+                name="D",
+                items=[Item(title="a", url="u", image="assets/2026-07-05/keep.png", summary="s")],
+            )
+        ],
+    )
+    render_issue(m, tmp_path, images="hotlink")  # hotlink: no network, prune still runs
+    assert (issue_dir / "keep.png").exists()
+    assert not (issue_dir / "stale.png").exists()
+    assert not (issue_dir / ".DS_Store").exists()
+
+
+def test_render_issue_defaults_to_cache_mode():
+    import inspect
+
+    from intelligencer.render import render_issue
+
+    # perf audit: hotlink-by-omission would silently break self-containment
+    assert inspect.signature(render_issue).parameters["images"].default == "cache"
+
+
 def test_collect_image_dims_reads_local_cached_files(tmp_path):
     from PIL import Image
 

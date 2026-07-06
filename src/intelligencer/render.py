@@ -137,17 +137,32 @@ def _copy_flame(manifest: Manifest, output_dir: Path) -> None:
         copy_logo("assets/flame.png", output_dir)
 
 
+def _prune_issue_assets(manifest: Manifest, output_dir: Path) -> None:
+    """Delete files in ``assets/<date>/`` that the manifest doesn't reference (perf audit
+    2026-07-06: sha1-named leftovers from re-gathered runs accumulate in the deploy
+    artifact — one real issue carried 5.6 MB of orphans). Only the issue's own asset
+    directory is touched."""
+    issue_dir = Path(output_dir) / "assets" / manifest.issue.date
+    if not issue_dir.is_dir():
+        return
+    referenced = {it.image for dim in manifest.dimensions for it in dim.items if it.image}
+    for f in issue_dir.iterdir():
+        if f.is_file() and f"assets/{manifest.issue.date}/{f.name}" not in referenced:
+            f.unlink()
+
+
 def render_issue(
     manifest: Manifest,
     output_dir: str | Path,
     *,
-    images: str = "hotlink",
+    images: str = "cache",  # cache by default — hotlink-by-omission would break self-containment
     render_tldr: bool = True,
 ) -> Path:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     if images == "cache":
         _cache_images(manifest, output_dir)
+    _prune_issue_assets(manifest, output_dir)
     _copy_logos(manifest, output_dir)
     _copy_flame(manifest, output_dir)
     image_dims = _collect_image_dims(manifest, output_dir)
