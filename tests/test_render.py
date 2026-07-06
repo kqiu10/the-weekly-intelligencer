@@ -167,9 +167,20 @@ def test_intelligent_factory_company_logos_are_packaged():
     # new company is confirmed. Grows over time; extend this list alongside the SVGs.
     from intelligencer.images import LOGO_DIR, logo_asset_path
 
-    for slug in ("hp", "unilever"):
+    for slug in ("hp", "unilever", "manufacturingdive"):
         assert logo_asset_path(slug) == f"assets/logos/{slug}.svg"
         assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
+
+
+def test_png_logo_fallback_resolves_and_is_packaged():
+    """A brand with no authoritative SVG anywhere can ship a real raster mark supplied by
+    the user (never an invented vector): logo_asset_path falls back to .png when no .svg
+    exists for the slug. First entry: The Batch (2026-07-06)."""
+    from intelligencer.images import LOGO_DIR, logo_asset_path
+
+    assert logo_asset_path("thebatch") == "assets/logos/thebatch.png"
+    data = (LOGO_DIR / "thebatch.png").read_bytes()
+    assert data[:8] == b"\x89PNG\r\n\x1a\n"  # real PNG magic
 
 
 def test_by_source_renders_labeled_rows_with_source_and_date():
