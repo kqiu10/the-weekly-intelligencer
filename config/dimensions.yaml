@@ -32,16 +32,16 @@ dimensions:
       - { type: feed, label: "Alibaba Qwen",    logo: "qwen",      url: "https://news.google.com/rss/search?q=Qwen%20Alibaba%20AI&hl=en-US&gl=US&ceid=US:en" }   # Google News
 
   - name: "The Intelligent Factory"
-    blurb: "The week's partnerships, deployments, and industrial rollouts from lab to factory floor"
+    blurb: "The week's partnerships, deployments, and industrial rollouts from AI lab to factory floor"
     summary: rewrite
     layout: by-source              # one card per company found this week; groupby_order is dynamic —
                                     # no fixed roster or logo needed, label-only rail when ungrouped
     max_per_source: 2              # at most 2 stories per company card
     max_items: 7                   # ceiling, not a target
     within_days: 7                 # only the past 7 days
-    sources:                       # feed candidate pools only (Claude prunes + regroups to the company); no search
+    sources:                       # feed candidate pools only (Claude prunes + regroups to the company) 
       - { type: feed, url: "https://www.manufacturingdive.com/feeds/topic/technology/" }                                                        # Manufacturing Dive's tech/AI-in-manufacturing
-      - { type: feed, url: "${RSSHUB_BASE}/deeplearning/the-batch" }                                                                             # The Batch weekly (card: DeepLearning.AI)
+      - { type: feed, url: "${RSSHUB_BASE}/deeplearning/the-batch" }                                                                            # The DeepLearning.AI
 
   - name: "Rewriting Cross-Border Branding"
     blurb: "How AI is reshaping the way Chinese cross-border brands market and build themselves overseas"
@@ -51,7 +51,7 @@ dimensions:
     max_per_source: 2              # at most 2 stories per brand card
     max_items: 7                   # ceiling, not a target
     within_days: 7                 # only the past 7 days
-    sources:                       # feed candidate pools only (Claude prunes + regroups to the brand); no search
+    sources:                       # feed candidate pools only (Claude prunes + regroups to the brand)
       - { type: feed, url: "${RSSHUB_BASE}/baijing/article" }                                                                                     # 白鲸出海 via private RSSHub (fresh same-day; replaced baijing.cn/feed which lagged ~2wks)
       - { type: feed, url: "${RSSHUB_BASE}/36kr/newsflashes" }                                                                                    # 36氪 7×24 快讯 via private RSSHub (mixed firehose; Claude prunes)
       - { type: feed, url: "${RSSHUB_BASE}/tmtpost/new" }                                                                                         # 钛媒体最新 via private RSSHub (/tmtpost/lists doesn't exist; /new is the real route)
@@ -64,6 +64,5 @@ dimensions:
     max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
     trends: true                   # track context hotness across issues
-    sources:                       # r/aivideo native weekly-top — candidate pool, Claude prunes (civitai skipped per review: Cloudflare-blocked at browser + VPS level)
-      - { type: feed, url: "https://old.reddit.com/r/aivideo/top/.rss?t=week" }                 # r/aivideo weekly top — native first-party RSS; keep to ONE reddit feed (their 429 limiter punishes bursts)
-
+    sources:                       
+      - { type: feed, url: "https://old.reddit.com/r/aivideo/top/.rss?t=week" }                 # r/aivideo weekly top — native first-party RSS

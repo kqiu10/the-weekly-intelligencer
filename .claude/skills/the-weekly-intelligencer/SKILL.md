@@ -69,8 +69,7 @@ dimension doesn't render; leave `notes` empty.
   work**. The **r/aivideo weekly-top pool** is the beat by construction — keep the
   strongest posts (group `"Reddit"`), drop memes/discussion/promo threads; thumbnails
   arrive from the feed itself. `creator`/`image`/`stats` only when actually present —
-  never invented. *(Civitai skipped per review 2026-07-06 — Cloudflare-blocked at ck's
-  browser and VPS; the `civitai` module stays dormant, one config line to revive.)*
+  never invented.
 
 Safety floor everywhere (non-negotiable): no misinformation, violence, gore, or harmful
 deepfakes — and never fabricate a title, link, stat, or image. For kept items: WebFetch to

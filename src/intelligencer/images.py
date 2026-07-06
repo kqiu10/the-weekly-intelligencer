@@ -64,6 +64,7 @@ def shrink_image(data: bytes) -> bytes:
         logger.debug("shrink_image skipped (undecodable): %s", exc)
         return data
 
+
 # Company logos ship with the package as brand-colored SVGs, keyed by slug
 # (assets/logos/<slug>.svg). They are copied into each issue's dist/ so the
 # rendered HTML stays self-contained and portable.
