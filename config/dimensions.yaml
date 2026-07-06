@@ -64,8 +64,7 @@ dimensions:
     max_per_source: 2              # the top one or two per platform
     within_days: 7                 # only the past 7 days
     trends: true                   # track context hotness across issues
-    sources:                       # Civitai via its first-party API (CIVITAI_API_KEY; skips without) + weekly visual-trend newsletter — candidate pools, Claude prunes
-      - { type: civitai, label: "Civitai" }                                                     # 本周最火 AI images — most-reacted this week, safe-rated only
-      - { type: feed, url: "https://lastweekin.ai/feed" }                                       # Last Week in AI — weekly, AI Arts & Culture section (non-www URL; www is SSL-broken)
+    sources:                       # Civitai via its first-party API (CIVITAI_API_KEY; skips without) + r/aivideo native weekly-top — candidate pools, Claude prunes
+      - { type: civitai, label: "Civitai" }                                                     # most-reacted this week, safe-rated only
       - { type: feed, url: "https://old.reddit.com/r/aivideo/top/.rss?t=week" }                 # r/aivideo weekly top — native first-party RSS; keep to ONE reddit feed (their 429 limiter punishes bursts)
 

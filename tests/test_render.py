@@ -156,7 +156,7 @@ def test_media_dimension_imageless_item_falls_back_to_normal_card():
 def test_social_platform_logos_are_packaged():
     from intelligencer.images import LOGO_DIR, logo_asset_path
 
-    for slug in ("youtube", "tiktok", "instagram", "facebook"):
+    for slug in ("youtube", "tiktok", "instagram", "facebook", "reddit"):
         assert logo_asset_path(slug) == f"assets/logos/{slug}.svg"
         assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
 
