@@ -23,7 +23,7 @@ class Item:
     # {"views": .., "likes": .., "comments": .., "saves": .., "shares": ..} — rendered as a
     # metrics row instead of a preview image; only the keys a platform exposes are set.
     stats: dict = field(default_factory=dict)
-    # SPEC §10.9 bilingual issue: {"zh": {title, summary, raw_text}, "en": {...}} — the
+    # Bilingual issue: {"zh": {title, summary, raw_text}, "en": {...}} — the
     # source-language entry is the original, the other its translation; empty = monolingual.
     i18n: dict = field(default_factory=dict)
 
@@ -38,7 +38,7 @@ class DimensionContent:
     notes: list[str] = field(default_factory=list)
     # by-source layout: group label -> dist-relative logo path (assets/logos/<slug>.svg)
     logos: dict[str, str] = field(default_factory=dict)
-    # SPEC §10.9: {"zh": str, "en": str} pairs for the section heading and blurb
+    # {"zh": str, "en": str} pairs for the section heading and blurb
     name_i18n: dict = field(default_factory=dict)
     blurb_i18n: dict = field(default_factory=dict)
 
@@ -50,8 +50,8 @@ class Issue:
     subtitle: str = ""
     week: int = 1
     tldr: str = ""  # issue-level TL;DR (~100 words), written at the write stage
-    tldr_i18n: dict = field(default_factory=dict)  # SPEC §10.9: {"zh": str, "en": str}
-    # SPEC §10.9: masthead brand strings translate too (from config publication.*_i18n)
+    tldr_i18n: dict = field(default_factory=dict)  # {"zh": str, "en": str}
+    # Masthead brand strings translate too (from config publication.*_i18n)
     title_i18n: dict = field(default_factory=dict)
     subtitle_i18n: dict = field(default_factory=dict)
 
@@ -82,8 +82,8 @@ class Manifest:
 
     @classmethod
     def from_dict(cls, data: dict) -> "Manifest":
-        # Tolerate keys from older schema versions (e.g. the removed heat_tier/trends of
-        # the 2026-07 trend feature) so previously written manifests keep loading.
+        # Tolerate keys from older schema versions (e.g. the removed heat_tier/trends)
+        # so previously written manifests keep loading.
         item_fields = {f.name for f in fields(Item)}
         issue = Issue(**data["issue"])
         dims: list[DimensionContent] = []

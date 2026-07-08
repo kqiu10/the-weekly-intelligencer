@@ -1,6 +1,6 @@
-"""CLI crucial paths: `--only` dimension selection (SPEC §10.6) and the fetch merge that
+"""CLI crucial paths: `--only` dimension selection and the fetch merge that
 guards against the destructive wholesale-replace footgun. Trivial argparse plumbing is
-deliberately untested (SPEC §8: crucial, fiddly, non-obvious logic only)."""
+deliberately untested (crucial, fiddly, non-obvious logic only)."""
 
 from types import SimpleNamespace
 
@@ -14,7 +14,7 @@ def _named(*names):
     return [SimpleNamespace(name=n) for n in names]
 
 
-# Config declared order used by the selection tests (SPEC §10.6).
+# Config declared order used by the selection tests.
 FOUR = _named(
     "Frontier AI Research Labs",  # index 1
     "The Intelligent Factory",  # index 2
@@ -57,7 +57,7 @@ def test_fetch_out_of_range_index_exits_1_without_fetching(capsys):
     assert "out of range" in capsys.readouterr().err
 
 
-# --- fetch --only merge (SPEC §10.6): partial fetch splices into the existing manifest ---
+# --- fetch --only merge: partial fetch splices into the existing manifest ---
 
 
 def _dc(name, marker):

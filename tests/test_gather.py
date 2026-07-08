@@ -1,4 +1,4 @@
-"""B2: issue week number computed from the first-issue date."""
+"""Issue week number computed from the first-issue date."""
 
 import datetime as dt
 

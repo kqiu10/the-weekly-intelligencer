@@ -1,4 +1,4 @@
-"""B3: a dead source is skipped with a visible note, never fatal."""
+"""A dead source is skipped with a visible note, never fatal."""
 
 from intelligencer.config import Config, Dimension, Output, Publication, Source
 from intelligencer.gather import build_manifest

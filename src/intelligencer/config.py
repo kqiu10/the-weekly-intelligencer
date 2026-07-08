@@ -49,7 +49,7 @@ class Publication:
     title: str
     subtitle: str = ""
     first_issue_date: str | None = None
-    # SPEC §10.9: translated brand strings, e.g. {zh: "周悉智能"} — English side is the
+    # Translated brand strings, e.g. {zh: "周悉智能"} — English side is the
     # title/subtitle themselves
     title_i18n: dict = field(default_factory=dict)
     subtitle_i18n: dict = field(default_factory=dict)

@@ -1,4 +1,4 @@
-"""A2 walking skeleton: config → fetch (feed) → manifest → render → HTML, fully offline."""
+"""Walking skeleton: config → fetch (feed) → manifest → render → HTML, fully offline."""
 
 from pathlib import Path
 

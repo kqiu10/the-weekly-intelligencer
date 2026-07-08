@@ -1,4 +1,4 @@
-"""B3: configuration validation."""
+"""Configuration validation."""
 
 from pathlib import Path
 
@@ -43,9 +43,6 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     assert factory.max_items == 7  # a ceiling, not a target
     assert factory.within_days == 7
 
-    # all-feed candidate pools — no search, and no Google proxies (dropped per ck's review
-    # 2026-07-06, direct sources only): Manufacturing Dive's technology topic feed + The
-    # Batch via the private RSSHub instance (${RSSHUB_BASE} expands from .env)
     assert [s.type for s in factory.sources] == ["feed", "feed"]
     assert any("manufacturingdive.com/feeds/topic" in (s.url or "") for s in factory.sources)
     assert any("/deeplearning/the-batch" in (s.url or "") for s in factory.sources)
@@ -53,8 +50,6 @@ def test_shipped_config_has_valid_intelligent_factory_dimension():
     # candidate-pool feeds are unlabeled — Claude regroups each kept item to its company
     assert all(s.label is None for s in factory.sources)
 
-    # SPEC §10.4: positioned after Frontier AI Research Labs; Rewriting Cross-Border Branding
-    # (SPEC §10.5) now sits immediately after it, before Trending Social Video & Images.
     names = [d.name for d in cfg.dimensions]
     assert names.index("The Intelligent Factory") == names.index("Frontier AI Research Labs") + 1
     assert (
@@ -75,12 +70,9 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
         brand.layout == "by-source"
     )  # one card per brand found this week (groupby_order is dynamic)
     assert brand.max_per_source == 2
-    assert brand.max_items == 7  # a ceiling, not a target (SPEC §10.5)
+    assert brand.max_items == 7  # a ceiling, not a target
     assert brand.within_days == 7
 
-    # feed/site candidate pools — no search, and no Google proxies (dropped per ck's
-    # review 2026-07-06, direct sources only): 白鲸/36氪快讯/钛媒体最新 via the private
-    # RSSHub instance (${RSSHUB_BASE} from .env) + 雨果跨境 scraped first-party
     assert [s.type for s in brand.sources] == ["feed", "feed", "feed", "site"]
     assert any("/baijing/article" in (s.url or "") for s in brand.sources)
     assert any("/36kr/newsflashes" in (s.url or "") for s in brand.sources)
@@ -91,7 +83,7 @@ def test_shipped_config_has_valid_cross_border_branding_dimension():
     assert yuguo.link_contains == "/article/"  # article links share this path on the index
     assert all(s.label is None for s in brand.sources)
 
-    # SPEC §10.5: positioned after The Intelligent Factory, before Trending Social Video & Images
+    # positioned after The Intelligent Factory, before Trending Social Video & Images
     names = [d.name for d in cfg.dimensions]
     assert (
         names.index("Rewriting Cross-Border Branding") == names.index("The Intelligent Factory") + 1

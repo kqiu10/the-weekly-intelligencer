@@ -85,9 +85,9 @@ def render_html(
 
 
 def _collect_image_dims(manifest: Manifest, output_dir: Path) -> dict[str, tuple[int, int]]:
-    """Measure intrinsic width/height of locally cached item images (perf audit
-    2026-07-06: emitting the attributes lets the browser reserve layout space — no CLS
-    when a lead/grid image loads). Hotlinked URLs and missing files are skipped."""
+    """Measure intrinsic width/height of locally cached item images (emitting the
+    attributes lets the browser reserve layout space — no CLS when a lead/grid image
+    loads). Hotlinked URLs and missing files are skipped."""
     from PIL import Image
 
     dims: dict[str, tuple[int, int]] = {}
@@ -129,9 +129,9 @@ def _copy_logos(manifest: Manifest, output_dir: Path) -> None:
 
 
 def _prune_issue_assets(manifest: Manifest, output_dir: Path) -> None:
-    """Delete files in ``assets/<date>/`` that the manifest doesn't reference (perf audit
-    2026-07-06: sha1-named leftovers from re-gathered runs accumulate in the deploy
-    artifact — one real issue carried 5.6 MB of orphans). Only the issue's own asset
+    """Delete files in ``assets/<date>/`` that the manifest doesn't reference —
+    sha1-named leftovers from re-gathered runs accumulate in the deploy artifact
+    (one real issue carried 5.6 MB of orphans). Only the issue's own asset
     directory is touched."""
     issue_dir = Path(output_dir) / "assets" / manifest.issue.date
     if not issue_dir.is_dir():

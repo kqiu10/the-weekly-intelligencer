@@ -51,7 +51,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _select_dimensions(dimensions: list, only: str | None) -> list:
-    """Select a subset of dimensions for a partial fetch/render run (SPEC §10.6).
+    """Select a subset of dimensions for a partial fetch/render run.
 
     ``only`` is a comma-separated list of tokens; each token is either a **1-based index**
     into the config's declared dimension order, or a **case-insensitive name substring**.
@@ -77,7 +77,7 @@ def _select_dimensions(dimensions: list, only: str | None) -> list:
 
 
 def _merge_dimensions(base_dims: list, fresh_dims: list, order_names: list[str]) -> list:
-    """Splice freshly-fetched dimensions into the ones already in the manifest (SPEC §10.6).
+    """Splice freshly-fetched dimensions into the ones already in the manifest.
 
     Walks ``order_names`` (the config's full declared order) and, for each, prefers the
     freshly-fetched version, falling back to the existing manifest's version — so a partial

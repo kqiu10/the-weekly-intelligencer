@@ -1,5 +1,5 @@
 """Manifest schema (de)serialization — one round-trip covering every optional field,
-plus backwards-compat defaults for older manifests (SPEC §8: consolidated, not one test
+plus backwards-compat defaults for older manifests (consolidated, not one test
 per field)."""
 
 from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
@@ -43,8 +43,8 @@ def test_manifest_round_trips_all_fields_and_defaults_for_older_dicts():
     assert back.issue.subtitle_i18n["zh"] == "每周简报"
 
     # An older manifest dict still loads: missing optional fields get defaults, and stale
-    # keys from removed schema versions (heat_tier/trends, the 2026-07 trend feature) are
-    # tolerated rather than crashing Item(**...).
+    # keys from removed schema versions (heat_tier/trends) are tolerated rather than
+    # crashing Item(**...).
     older = {
         "issue": {"date": "2026-07-05", "title": "T"},
         "dimensions": [

@@ -1,4 +1,4 @@
-"""B1: og:image extraction, feed-embedded images, lede/title parsing, and caching."""
+"""og:image extraction, feed-embedded images, lede/title parsing, and caching."""
 
 import json
 import logging

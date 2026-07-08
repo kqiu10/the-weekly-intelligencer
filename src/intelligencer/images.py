@@ -21,7 +21,7 @@ _IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
 # Cached preview images render in small fixed slots (132×88 thumbnails, 9:16 tiles), so
 # 600px on the longest side is a generous 2x budget — publishers routinely ship 2880px
-# og:images and multi-MB animated GIFs into those slots (2026-07-06 perf audit).
+# og:images and multi-MB animated GIFs into those slots.
 MAX_IMAGE_PX = 600
 
 

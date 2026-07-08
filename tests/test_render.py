@@ -1,4 +1,4 @@
-"""B2: the rendered HTML matches the committed golden sample (deterministic)."""
+"""The rendered HTML matches the committed golden sample (deterministic)."""
 
 from pathlib import Path
 
@@ -143,7 +143,7 @@ def test_social_platform_logos_are_packaged():
 
 
 def test_intelligent_factory_company_logos_are_packaged():
-    # SPEC §10.4: unlike the labs/platforms above, these aren't pre-declared config
+    # Unlike the labs/platforms above, these aren't pre-declared config
     # sources — Claude adds one here (and a matching assets/logos/<slug>.svg) each time a
     # new company is confirmed. Grows over time; extend this list alongside the SVGs.
     from intelligencer.images import LOGO_DIR, logo_asset_path
@@ -156,9 +156,9 @@ def test_intelligent_factory_company_logos_are_packaged():
 
 
 def test_item_images_lazy_load_and_lead_stays_eager():
-    """Perf audit 2026-07-06: thumbnails get loading=lazy decoding=async (+ intrinsic
-    width/height when known); the lead image — the LCP candidate — stays eager with
-    fetchpriority=high instead."""
+    """Thumbnails get loading=lazy decoding=async (+ intrinsic width/height when
+    known); the lead image — the LCP candidate — stays eager with fetchpriority=high
+    instead."""
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
     from intelligencer.render import render_html
 
@@ -199,9 +199,9 @@ def test_item_images_lazy_load_and_lead_stays_eager():
 
 
 def test_render_issue_prunes_stale_issue_assets(tmp_path):
-    """Perf audit 2026-07-06: sha1-named leftovers from re-gathered runs accumulate in
-    assets/<date>/ (5.6 MB of orphans in one real issue). render_issue now deletes files
-    in the issue's asset dir that the manifest doesn't reference."""
+    """sha1-named leftovers from re-gathered runs accumulate in assets/<date>/
+    (5.6 MB of orphans in one real issue). render_issue deletes files in the
+    issue's asset dir that the manifest doesn't reference."""
     from PIL import Image
 
     from intelligencer.manifest import DimensionContent, Issue, Item, Manifest
@@ -299,7 +299,7 @@ def _bilingual_manifest():
 
 
 def test_bilingual_manifest_renders_paired_spans_and_toggle():
-    """SPEC §10.9: every translated string ships as a zh/en span pair; a hidden checkbox +
+    """Every translated string ships as a zh/en span pair; a hidden checkbox +
     masthead label flips languages via pure CSS; Chinese is the default view."""
     from intelligencer.render import render_html
 
@@ -312,7 +312,7 @@ def test_bilingual_manifest_renders_paired_spans_and_toggle():
     assert '<span lang="zh">本周要闻。</span>' in html  # TL;DR pair
     assert '<span lang="zh">安克完成上市。</span>' in html  # summary pair
     assert '[lang="en"] { display: none; }' in html  # zh-default css rule (inlined)
-    # masthead + colophon brand strings translate too (ck 2026-07-06); tab <title> follows
+    # masthead + colophon brand strings translate too; tab <title> follows
     # the default language
     assert (
         html.count('<span lang="zh">周悉智能</span><span lang="en">The Weekly Intelligencer</span>')
