@@ -9,14 +9,14 @@ from pathlib import Path
 
 import yaml
 
-VALID_SOURCE_TYPES = {"feed", "search", "site", "civitai"}
+VALID_SOURCE_TYPES = {"feed", "search", "site"}
 VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
 VALID_LAYOUTS = {"grid", "by-source"}
 
 
 @dataclass
 class Source:
-    type: str  # feed | search | site | civitai
+    type: str  # feed | search | site
     url: str | None = None
     query: str | None = None
     label: str | None = None  # by-source layout: the row heading (e.g. a lab name)

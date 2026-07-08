@@ -103,7 +103,7 @@ def test_og_discovery_only_probes_kept_items(monkeypatch):
 
 
 def test_unlabeled_by_source_feed_is_a_candidate_pool_not_capped_per_source():
-    """An *unlabeled* by-source feed is a candidate pool (like civitai): gather does NOT cap
+    """An *unlabeled* by-source feed is a candidate pool: gather does NOT cap
     it to max_per_source — Claude prunes it at the write stage — and leaves group empty for
     Claude to set to the company each kept item is about. (A *labeled* by-source feed stays a
     display row, capped per source — see test_by_source_caps_each_lab_and_skips_empty.)"""

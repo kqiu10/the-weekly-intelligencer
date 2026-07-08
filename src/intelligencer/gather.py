@@ -11,10 +11,8 @@ from __future__ import annotations
 
 import datetime as _dt
 import logging
-import os
 from urllib.parse import urlparse
 
-from .civitai import fetch_civitai
 from .config import Config, Dimension
 from .feeds import fetch_feed
 from .images import fetch_article_preview, logo_asset_path, resolve_google_news_url
@@ -24,9 +22,9 @@ from .manifest import DimensionContent, Issue, Item, Manifest
 
 logger = logging.getLogger(__name__)
 
-# An unlabeled by-source feed/site source is a *candidate pool* (like a civitai source):
-# gather brings in a bounded batch of recent items that Claude prunes to the qualifying few
-# at the write stage. Bounded (not fully uncapped) so enrichment/og-discovery stays cheap.
+# An unlabeled by-source feed/site source is a *candidate pool*: gather brings in a
+# bounded batch of recent items that Claude prunes to the qualifying few at the write
+# stage. Bounded (not fully uncapped) so enrichment/og-discovery stays cheap.
 CANDIDATE_POOL_CAP = 12
 
 
@@ -167,32 +165,22 @@ def _gather_dimension(
                         group=label,
                     )
                 )
-        elif source.type == "civitai":
-            # First-party Civitai images API (deterministic): the week's most-reacted,
-            # safe-rated AI images as a candidate pool Claude prunes at the write stage.
-            # No CIVITAI_API_KEY → fetch_civitai returns [] (graceful skip).
-            cap = dim.max_per_source or dim.max_items or 5
-            src_items = fetch_civitai(
-                max_results=min(max(cap * 2, 10), 30),
-                api_key=os.environ.get("CIVITAI_API_KEY"),
-                group=label or "Civitai",
-            )
         # search sources are filled by the SKILL.md orchestrator
 
         # Keep only items inside the recency window (e.g. past 7 days), preserving
         # the feed's own order (relevance for Google News, recency for RSS).
         if dim.within_days is not None:
             src_items = _select_in_window(src_items, today, dim.within_days)
-        # An *unlabeled* by-source feed/site (like a civitai source) is a candidate pool: bring
-        # in a bounded batch for Claude to prune at the write stage, left ungrouped (group="")
-        # for Claude to reassign to the company each kept item is about. A *labeled* by-source
-        # source is a display row capped per source; a civitai source is capped by its own fetch.
+        # An *unlabeled* by-source feed/site is a candidate pool: bring in a bounded batch
+        # for Claude to prune at the write stage, left ungrouped (group="") for Claude to
+        # reassign to the company each kept item is about. A *labeled* by-source source is
+        # a display row capped per source.
         is_candidate_pool = (
             dim.layout == "by-source" and source.type in ("feed", "site") and not source.label
         )
         if is_candidate_pool:
             src_items = src_items[:CANDIDATE_POOL_CAP]
-        elif dim.max_per_source is not None and source.type != "civitai":
+        elif dim.max_per_source is not None:
             src_items = src_items[: dim.max_per_source]
         items.extend(src_items)
 
