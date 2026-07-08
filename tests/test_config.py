@@ -21,11 +21,11 @@ def test_shipped_config_has_valid_social_video_dimension():
     assert social.layout == "by-source"
     # r/aivideo's native weekly-top RSS only (civitai skipped per review 2026-07-06 —
     # Cloudflare-blocked at ck's browser + VPS level; the module stays dormant in the
-    # codebase like youtube's, one config line to revive)
+    # codebase, one config line to revive)
     assert [(s.type, s.label, s.logo) for s in social.sources] == [("feed", None, None)]
     # native first-party Reddit RSS — deliberately a single reddit feed (429-limiter safety)
     assert any("old.reddit.com/r/aivideo/top" in (s.url or "") for s in social.sources)
-    assert not any(s.type in ("search", "youtube", "civitai") for s in social.sources)
+    assert not any(s.type in ("search", "civitai") for s in social.sources)
 
 
 def test_shipped_config_has_valid_intelligent_factory_dimension():
@@ -156,14 +156,6 @@ dimensions:
 publication: {title: T}
 dimensions:
   - {name: A, sources: [{type: bogus, url: "http://x"}]}
-""",
-        ),
-        (
-            "no query",
-            """
-publication: {title: T}
-dimensions:
-  - {name: A, sources: [{type: youtube, label: X, logo: youtube}]}
 """,
         ),
         (

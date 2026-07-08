@@ -21,11 +21,10 @@ from .images import fetch_article_preview, logo_asset_path, resolve_google_news_
 from .sites import default_link_pattern, list_site_articles
 from .text import item_blurb
 from .manifest import DimensionContent, Issue, Item, Manifest
-from .youtube import fetch_youtube
 
 logger = logging.getLogger(__name__)
 
-# An unlabeled by-source feed/site source is a *candidate pool* (like a youtube source):
+# An unlabeled by-source feed/site source is a *candidate pool* (like a civitai source):
 # gather brings in a bounded batch of recent items that Claude prunes to the qualifying few
 # at the write stage. Bounded (not fully uncapped) so enrichment/og-discovery stays cheap.
 CANDIDATE_POOL_CAP = 12
@@ -168,20 +167,6 @@ def _gather_dimension(
                         group=label,
                     )
                 )
-        elif source.type == "youtube":
-            # First-party YouTube Data API (deterministic). Fetch a candidate pool of the
-            # most-viewed short videos in the window; Claude prunes it to the genuinely
-            # AI-generated ones at the write stage. No key → fetch_youtube returns [].
-            within = dim.within_days if dim.within_days is not None else 7
-            since = _window_start(today, within)
-            cap = dim.max_per_source or dim.max_items or 5
-            src_items = fetch_youtube(
-                source.query or "",
-                published_after=f"{since.isoformat()}T00:00:00Z",
-                max_results=min(max(cap * 2, 4), 50),
-                api_key=os.environ.get("YOUTUBE_API_KEY"),
-                group=label or "YouTube Shorts",
-            )
         elif source.type == "civitai":
             # First-party Civitai images API (deterministic): the week's most-reacted,
             # safe-rated AI images as a candidate pool Claude prunes at the write stage.
@@ -198,16 +183,16 @@ def _gather_dimension(
         # the feed's own order (relevance for Google News, recency for RSS).
         if dim.within_days is not None:
             src_items = _select_in_window(src_items, today, dim.within_days)
-        # An *unlabeled* by-source feed/site (like a youtube source) is a candidate pool: bring
+        # An *unlabeled* by-source feed/site (like a civitai source) is a candidate pool: bring
         # in a bounded batch for Claude to prune at the write stage, left ungrouped (group="")
         # for Claude to reassign to the company each kept item is about. A *labeled* by-source
-        # source is a display row capped per source; a youtube source is capped by its own fetch.
+        # source is a display row capped per source; a civitai source is capped by its own fetch.
         is_candidate_pool = (
             dim.layout == "by-source" and source.type in ("feed", "site") and not source.label
         )
         if is_candidate_pool:
             src_items = src_items[:CANDIDATE_POOL_CAP]
-        elif dim.max_per_source is not None and source.type not in ("youtube", "civitai"):
+        elif dim.max_per_source is not None and source.type != "civitai":
             src_items = src_items[: dim.max_per_source]
         items.extend(src_items)
 

@@ -16,7 +16,7 @@ class Item:
     image: str | None = None
     raw_text: str = ""
     summary: str = ""
-    origin: str = "feed"  # feed | site | search | youtube
+    origin: str = "feed"  # feed | site | search | civitai
     group: str = ""  # by-source layout: which source/lab this item belongs to
     creator: str = ""  # social-video: the post's @handle / channel name, overlaid on the tile
     # per-platform engagement counts for the social-video dimension, e.g.

@@ -9,14 +9,14 @@ from pathlib import Path
 
 import yaml
 
-VALID_SOURCE_TYPES = {"feed", "search", "site", "youtube", "civitai"}
+VALID_SOURCE_TYPES = {"feed", "search", "site", "civitai"}
 VALID_SUMMARY_MODES = {"raw", "rewrite", "synthesize"}
 VALID_LAYOUTS = {"grid", "by-source"}
 
 
 @dataclass
 class Source:
-    type: str  # feed | search | site | youtube
+    type: str  # feed | search | site | civitai
     url: str | None = None
     query: str | None = None
     label: str | None = None  # by-source layout: the row heading (e.g. a lab name)
@@ -187,8 +187,6 @@ def validate_config(config: Config) -> tuple[list[str], list[str]]:
                     f"dimension {dim.name!r}: source url references unset env var {var}; "
                     "the source will be skipped at fetch"
                 )
-            if src.type == "youtube" and not src.query:
-                errors.append(f"dimension {dim.name!r}: a youtube source has no query")
             # An unlabeled by-source feed is intentional — a candidate pool Claude prunes and
             # regroups to the company each kept item is about (see gather.CANDIDATE_POOL_CAP),
             # so it is not warned about here.

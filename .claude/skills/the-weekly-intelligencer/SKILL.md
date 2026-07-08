@@ -25,8 +25,7 @@ steps in order.
 
 ## 1. Gather deterministic sources (no tokens)
 Run `uv run intelligencer fetch`. This writes `out/manifest.json` with the issue metadata
-and the items already gathered from `feed`, `site` (scraped official newsrooms), and
-`youtube` (the YouTube Data API — the YouTube Shorts card, when `YOUTUBE_API_KEY` is set)
+and the items already gathered from `feed` and `site` (scraped official newsrooms)
 sources. (A `search`-type source would be filled by you via WebSearch on its `query` —
 none is configured today; see git history for the full drill if one returns.)
 

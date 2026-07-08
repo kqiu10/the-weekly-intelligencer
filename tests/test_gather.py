@@ -102,64 +102,8 @@ def test_og_discovery_only_probes_kept_items(monkeypatch):
     assert len(calls) <= 2
 
 
-def _youtube_cfg():
-    from intelligencer.config import Config, Dimension, Output, Publication, Source
-
-    return Config(
-        publication=Publication(title="T"),
-        output=Output(),
-        dimensions=[
-            Dimension(
-                name="Social",
-                layout="by-source",
-                max_per_source=2,
-                within_days=7,
-                sources=[Source(type="youtube", label="YouTube Shorts", query="AI video")],
-            )
-        ],
-    )
-
-
-def test_youtube_source_without_key_yields_empty_dimension(monkeypatch):
-    """No YOUTUBE_API_KEY → the youtube source is a graceful no-op (no network, no error)."""
-    monkeypatch.delenv("YOUTUBE_API_KEY", raising=False)
-    dim = build_manifest(_youtube_cfg(), date="2026-07-01").dimensions[0]
-    assert dim.name == "Social" and dim.items == []  # build succeeds, card just empty
-
-
-def test_youtube_candidates_land_uncapped_for_claude_to_prune(monkeypatch):
-    """With a key, API candidates flow into the manifest — a pool Claude prunes later, so
-    they are NOT truncated to max_per_source here — and the window drives publishedAfter."""
-    import intelligencer.gather as gather
-
-    captured = {}
-
-    def fake_fetch(query, *, published_after, max_results, api_key, group, timeout=10.0):
-        captured.update(published_after=published_after, max_results=max_results, group=group)
-        return [
-            Item(
-                title=f"AI clip {i}",
-                url=f"https://www.youtube.com/watch?v=v{i}",
-                source="youtube.com",
-                published="2026-06-30",
-                image=f"https://i.ytimg.com/vi/v{i}/hqdefault.jpg",
-                origin="youtube",
-                group=group,
-            )
-            for i in range(4)
-        ]
-
-    monkeypatch.setenv("YOUTUBE_API_KEY", "test-key")
-    monkeypatch.setattr(gather, "fetch_youtube", fake_fetch)
-    dim = build_manifest(_youtube_cfg(), date="2026-07-01").dimensions[0]
-    assert [it.origin for it in dim.items] == ["youtube"] * 4  # all 4 kept, not capped to 2
-    assert all(it.group == "YouTube Shorts" for it in dim.items)
-    assert captured["published_after"] == "2026-06-29T00:00:00Z"  # capped at the issue-week Monday
-    assert captured["max_results"] >= 4
-
-
 def test_unlabeled_by_source_feed_is_a_candidate_pool_not_capped_per_source():
-    """An *unlabeled* by-source feed is a candidate pool (like youtube): gather does NOT cap
+    """An *unlabeled* by-source feed is a candidate pool (like civitai): gather does NOT cap
     it to max_per_source — Claude prunes it at the write stage — and leaves group empty for
     Claude to set to the company each kept item is about. (A *labeled* by-source feed stays a
     display row, capped per source — see test_by_source_caps_each_lab_and_skips_empty.)"""
