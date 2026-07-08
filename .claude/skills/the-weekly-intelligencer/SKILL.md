@@ -1,20 +1,19 @@
 ---
 name: the-weekly-intelligencer
-description: Generate this week's issue of The Weekly Intelligencer — a New York Times–style AI-industry digest rendered as a self-contained HTML page. Use when the user asks to build, generate, or refresh the weekly AI issue. Deterministic feed/site sources are gathered by Python scripts (zero tokens); you fill `search` sources with web search and write the editorial summaries.
+description: Generate this week's issue of The Weekly Intelligencer — a New York Times–style AI-industry digest rendered as a self-contained HTML page. Use when the user asks to build, generate, or refresh the weekly AI issue. Python scripts gather all sources deterministically; you prune the candidate pools, write the editorial summaries, and translate.
 ---
 
 # The Weekly Intelligencer — issue orchestrator
 
 You are producing **one weekly issue**. The deterministic work (RSS `feed` and `site`
 sources) is done by Python scripts and costs no tokens — you only spend effort on
-`search` sources and on writing summaries. Work from the project root and follow these
+pruning, summaries, and translation. Work from the project root and follow these
 steps in order.
 
 ## 0. Preconditions
 - Run `uv run intelligencer validate`. If it reports errors, stop and show them.
 - Read `config/dimensions.yaml`. Note, per dimension: its `summary` mode
-  (`raw` / `rewrite` / `synthesize`), its `max_items`, and any `search` sources (their
-  `query`).
+  (`raw` / `rewrite` / `synthesize`) and its `max_items`.
 - **If the user asks for only certain dimensions** ("just the labs and Cross-Border
   Branding", "only do 1 and 2", "skip the social one"), resolve their request against the
   config's **declared order** (1-based: the first dimension is `1`) and pass it to `--only`
@@ -22,31 +21,18 @@ steps in order.
   substrings, e.g. `--only 1,3` or `--only "labs,Cross-Border"`. Default (no such request):
   process **all** dimensions, as normal. Note `fetch --only` now *merges* into any existing
   `out/manifest.json` (it no longer wipes the untouched dimensions), so a partial refresh is
-  safe — but a search-only dimension still has its items re-filled by you in step 2.
+  safe — a refetched pool dimension arrives raw again, so you re-prune it in step 2.
 
 ## 1. Gather deterministic sources (no tokens)
 Run `uv run intelligencer fetch`. This writes `out/manifest.json` with the issue metadata
 and the items already gathered from `feed`, `site` (scraped official newsrooms), and
 `youtube` (the YouTube Data API — the YouTube Shorts card, when `YOUTUBE_API_KEY` is set)
-sources. `search` sources contribute nothing yet — you fill them next.
+sources. (A `search`-type source would be filled by you via WebSearch on its `query` —
+none is configured today; see git history for the full drill if one returns.)
 
-## 2. Fill `search` sources (web search)
-For each dimension that has a `search` source, use the **WebSearch** tool with that
-source's `query`, scoped to the past week. Choose the most relevant items, up to the
-dimension's `max_items`. Use **WebFetch** when you need to confirm the headline, link,
-publisher, date, or preview image. Each item you add must have this exact shape:
-
-```json
-{"title": "...", "url": "https://...", "source": "domain.com",
- "published": "YYYY-MM-DD", "image": "https://... or null",
- "raw_text": "", "summary": "", "origin": "search", "group": ""}
-```
-
-Only use an `image` URL that is the article's real preview image (`og:image`). If you
-can't find one, use `null`.
-
-### The Intelligent Factory, Rewriting Cross-Border Branding & Trending Social Video & Images
-All three arrive **pre-filled by `fetch`** as ungrouped candidate pools. **Prune** each
+## 2. Prune the candidate pools
+**The Intelligent Factory, Rewriting Cross-Border Branding & Trending Social Video &
+Images** arrive **pre-filled by `fetch`** as ungrouped candidate pools. **Prune** each
 pool to its bar below, set each kept item's `group` (company / brand / platform / publication — one
 card per group), drop the rest. If more than `max_items` qualify, keep the **newest
 `max_items`** — a mechanical ceiling, no judgment. Zero in a quiet week is fine — an empty
@@ -90,8 +76,8 @@ issue-level TL;DR stays in English (masthead register).
 Apply the same mode to the deterministic (`feed`/`site`) items already in the manifest.
 
 ## 4. Patch the manifest
-Rewrite `out/manifest.json` with the **Write** tool. Keep `issue` and every existing
-item; add your `search` items into their dimensions; fill in summaries. Also:
+Rewrite `out/manifest.json` with the **Write** tool. Keep `issue` and every item that
+survived the prune; fill in summaries. Also:
 
 - **Issue TL;DR** — write `issue.tldr`: a one-paragraph, ~`defaults.tldr_words` (≈100-word)
   executive summary of the whole issue across all dimensions (NYT briefing register). It may
