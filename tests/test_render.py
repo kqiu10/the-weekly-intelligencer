@@ -150,7 +150,15 @@ def test_intelligent_factory_company_logos_are_packaged():
 
     # deeplearningai.svg wraps the brand's official 300px raster as a data URI —
     # SVG-only resolver, no invented vector paths
-    for slug in ("hp", "unilever", "manufacturingdive", "deeplearningai"):
+    for slug in (
+        "hp",
+        "unilever",
+        "manufacturingdive",
+        "deeplearningai",
+        "kimi",
+        "3m",
+        "rockwellautomation",
+    ):
         assert logo_asset_path(slug) == f"assets/logos/{slug}.svg"
         assert (LOGO_DIR / f"{slug}.svg").read_text().lstrip().startswith("<svg")
 
