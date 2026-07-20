@@ -188,3 +188,41 @@ def test_by_source_caps_each_lab_and_skips_empty():
     groups = [it.group for it in dim.items]
     assert groups == ["LabA", "LabA"]  # capped at 2, and LabB skipped entirely
     assert "LabB" not in groups
+
+
+def test_uncapped_by_source_keeps_every_item_and_a_source_can_recap_itself():
+    """max_per_source=None (config `all`) renders every item a source yields — the
+    dimension's overall max_items must not chop a by-source dimension — while a
+    single source can still cap its own row via Source.max_items."""
+    from pathlib import Path
+
+    from intelligencer.config import Config, Dimension, Output, Publication, Source
+
+    fixtures = Path(__file__).parent / "fixtures"
+    cfg = Config(
+        publication=Publication(title="T"),
+        output=Output(),
+        dimensions=[
+            Dimension(
+                name="Labs",
+                layout="by-source",
+                max_per_source=None,
+                max_items=2,  # grid-only ceiling; must not apply here
+                sources=[
+                    # feed_many.xml has 5 entries → all 5 render
+                    Source(type="feed", url=f"file://{fixtures / 'feed_many.xml'}", label="LabA"),
+                    # same feed, but this row keeps itself curated
+                    Source(
+                        type="feed",
+                        url=f"file://{fixtures / 'feed_many.xml'}",
+                        label="LabB",
+                        max_items=1,
+                    ),
+                ],
+            )
+        ],
+    )
+    dim = build_manifest(cfg).dimensions[0]
+    groups = [it.group for it in dim.items]
+    assert groups.count("LabA") == 5  # uncapped row keeps the lab's whole week
+    assert groups.count("LabB") == 1  # per-source override caps just this row

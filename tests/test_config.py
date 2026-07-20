@@ -195,3 +195,24 @@ dimensions:
     assert dim.max_per_source == 3  # explicit value parses
     assert dim.sources[0].label == "OpenAI"
     assert validate_config(cfg)[0] == []
+
+
+def test_max_per_source_all_lifts_the_cap_and_sources_can_recap_themselves(tmp_path):
+    """`max_per_source: all` means an uncapped row per source; a source that is a
+    third-party proxy (e.g. a Google News search) can keep its own max_items cap."""
+    text = """
+publication: {title: T}
+dimensions:
+  - name: Labs
+    layout: by-source
+    max_per_source: all
+    sources:
+      - {type: feed, label: OpenAI, url: "http://x"}
+      - {type: feed, label: DeepSeek, url: "http://y", max_items: 2}
+"""
+    cfg = load_config(_write(tmp_path, text))
+    dim = cfg.dimensions[0]
+    assert dim.max_per_source is None  # uncapped
+    assert dim.sources[0].max_items is None  # inherits the uncapped dimension
+    assert dim.sources[1].max_items == 2  # per-source override stays curated
+    assert validate_config(cfg)[0] == []

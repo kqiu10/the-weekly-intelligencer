@@ -22,6 +22,7 @@ class Source:
     label: str | None = None  # by-source layout: the row heading (e.g. a lab name)
     logo: str | None = None  # by-source layout: packaged logo slug (e.g. "openai")
     link_contains: str | None = None  # site: only follow links whose href holds this
+    max_items: int | None = None  # by-source: per-source cap overriding the dimension's max_per_source
 
 
 @dataclass
@@ -31,7 +32,7 @@ class Dimension:
     summary: str = "rewrite"  # raw | rewrite | synthesize
     max_items: int = 5
     layout: str = "grid"  # grid | by-source
-    max_per_source: int | None = None  # by-source: cap items shown per source
+    max_per_source: int | None = None  # by-source: cap items shown per source; None = uncapped
     within_days: int | None = None  # keep only items published within N days
     sources: list[Source] = field(default_factory=list)
 
@@ -118,6 +119,7 @@ def load_config(path: str | Path) -> Config:
             url = s.get("url")
             if url:
                 url = _resolve_file_url(_expand_env_vars(url), base_dir)
+            raw_smi = s.get("max_items")
             sources.append(
                 Source(
                     type=s.get("type", "feed"),
@@ -126,14 +128,20 @@ def load_config(path: str | Path) -> Config:
                     label=s.get("label"),
                     logo=s.get("logo"),
                     link_contains=s.get("link_contains"),
+                    max_items=int(raw_smi) if raw_smi is not None else None,
                 )
             )
         layout = d.get("layout", "grid")
         raw_mps = d.get("max_per_source")
-        # by-source defaults to 2 items per source unless told otherwise.
-        max_per_source = (
-            int(raw_mps) if raw_mps is not None else (2 if layout == "by-source" else None)
-        )
+        # by-source defaults to 2 items per source unless told otherwise; the literal
+        # `all` lifts the cap, so every in-window item from each source renders
+        # (individual sources can still cap themselves via their own max_items).
+        if raw_mps == "all":
+            max_per_source = None
+        elif raw_mps is not None:
+            max_per_source = int(raw_mps)
+        else:
+            max_per_source = 2 if layout == "by-source" else None
         raw_wd = d.get("within_days")
         within_days = int(raw_wd) if raw_wd is not None else None
         dimensions.append(

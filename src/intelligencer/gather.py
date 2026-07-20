@@ -174,18 +174,22 @@ def _gather_dimension(
         # An *unlabeled* by-source feed/site is a candidate pool: bring in a bounded batch
         # for Claude to prune at the write stage, left ungrouped (group="") for Claude to
         # reassign to the company each kept item is about. A *labeled* by-source source is
-        # a display row capped per source.
+        # a display row capped per source — its own max_items wins over the dimension's
+        # max_per_source, and an uncapped dimension (`all`) renders every in-window item.
         is_candidate_pool = (
             dim.layout == "by-source" and source.type in ("feed", "site") and not source.label
         )
         if is_candidate_pool:
             src_items = src_items[:CANDIDATE_POOL_CAP]
-        elif dim.max_per_source is not None:
-            src_items = src_items[: dim.max_per_source]
+        else:
+            cap = source.max_items if source.max_items is not None else dim.max_per_source
+            if cap is not None:
+                src_items = src_items[:cap]
         items.extend(src_items)
 
-    # Overall cap only applies when there is no per-source cap.
-    if dim.max_per_source is None:
+    # Overall cap only applies to grid dimensions with no per-source cap; a by-source
+    # dimension is bounded per row (or deliberately uncapped).
+    if dim.layout != "by-source" and dim.max_per_source is None:
         items = items[: dim.max_items]
 
     # Only touch the network for the items we keep — never probe a whole feed archive.
