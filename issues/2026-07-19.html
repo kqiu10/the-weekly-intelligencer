@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>周悉智能 — 2026-07-19</title>
+  <style>:root {
+  --ink: #111;
+  --muted: #666;
+  --rule: #222;
+  --hair: #ddd;
+  --accent: #8b0000;
+  --paper: #fafaf8;
+  /* Latin faces first — fonts cascade per glyph, so English keeps Georgia/Arial while CJK
+     falls to the named 宋体 (broadsheet serif) / 黑体 (UI sans) classes, not the OS default. */
+  --font-serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", SimSun, serif;
+  --font-sans: Arial, Helvetica, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: var(--font-serif);
+  color: var(--ink);
+  background: var(--paper);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  line-height: 1.55;
+}
+a { color: inherit; }
+
+.masthead {
+  text-align: center;
+  border-bottom: 4px double var(--rule);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+.masthead-title {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.masthead-subtitle { font-style: italic; color: var(--muted); margin: 0.25rem 0 0.5rem; }
+.masthead-rule {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--hair);
+  padding-top: 0.4rem;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: var(--accent);
+  font-family: var(--font-sans);
+  margin: 0 0 0.35rem;
+}
+
+/* issue-level TL;DR: a short executive summary above the first section */
+.tldr { border-bottom: 1px solid var(--hair); padding-bottom: 1.1rem; margin-bottom: 1.25rem; }
+.tldr-body { font-size: 1.15rem; line-height: 1.5; margin: 0.25rem 0 0; }
+
+
+/* Social-video engagement metrics (shown instead of a thumbnail) */
+.stats { list-style: none; display: flex; flex-wrap: wrap; gap: 0.9rem; margin: 0.3rem 0 0; padding: 0; color: var(--muted); font-size: 0.8rem; }
+.stat { display: inline-flex; align-items: center; gap: 0.25rem; font-variant-numeric: tabular-nums; }
+.stat-ic { width: 0.85rem; height: 0.85rem; flex-shrink: 0; opacity: 0.7; }
+
+.lead { border-bottom: 1px solid var(--hair); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+.lead-image { width: 100%; height: auto; display: block; margin-bottom: 0.75rem; }
+.lead-title { font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; margin: 0.25rem 0 0.5rem; }
+.lead-title a { text-decoration: none; }
+.lead-title a:hover { text-decoration: underline; }
+.lead-summary { font-size: 1.1rem; margin: 0.5rem 0; }
+
+.dimension { border-top: 2px solid var(--rule); padding-top: 0.75rem; margin-top: 1.5rem; }
+/* When the first section sits directly under the masthead, drop it in that case only. */
+.masthead + .sections .dimension:first-child { border-top: none; padding-top: 0; }
+.dimension-name { font-size: 1.4rem; margin: 0; }
+.dimension-blurb { color: var(--muted); font-style: italic; margin: 0.2rem 0 0.75rem; }
+.dimension-note { color: var(--accent); font-style: italic; font-size: 0.85rem; margin: 0.2rem 0; }
+.items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.25rem;
+}
+.item { border-top: 1px solid var(--hair); padding-top: 0.6rem; }
+.item-image { width: 100%; height: auto; display: block; margin-bottom: 0.4rem; }
+.item-title { font-size: 1.1rem; margin: 0.1rem 0 0.3rem; line-height: 1.2; }
+.item-title a { text-decoration: none; }
+.item-title a:hover { text-decoration: underline; }
+.item-summary { margin: 0.25rem 0; font-size: 0.95rem; }
+.item-source {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0.3rem 0 0;
+}
+
+/* by-source ("lab roundup") layout: one bordered card per company */
+.labs {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.lab {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 1.1rem;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+/* left rail: company name over its logo, divided from the content by a hairline rule */
+.lab-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  align-self: stretch;
+  border-right: 1px solid var(--hair);
+  padding-right: 1rem;
+}
+.lab-logo {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  display: block;
+}
+.lab-name {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  color: var(--accent);
+}
+.lab-items {
+  display: flex;
+  flex-direction: column;      /* each company's items stack vertically */
+  gap: 0.9rem;
+}
+.lab-items .item:first-child { border-top: none; padding-top: 0; }
+/* news image: a small thumbnail floated left so the text wraps beside it */
+.lab-items .item-image {
+  float: left;
+  width: 132px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0.15rem 0.9rem 0.35rem 0;
+}
+/* social/video cards: a native-style portrait tile with creator/title/metrics over the frame */
+.media-item { display: grid; grid-template-columns: 168px 1fr; gap: 1.1rem; align-items: start; }
+.media-tile { position: relative; display: block; width: 168px; aspect-ratio: 9 / 16; border-radius: 12px; overflow: hidden; background: #000; }
+.media-thumb { width: 100%; height: 100%; object-fit: cover; display: block; }
+.media-metrics { position: absolute; right: 8px; bottom: 46px; display: flex; flex-direction: column; gap: 10px; color: #fff; font-size: 0.72rem; font-weight: 700; }
+.media-metrics .mm { display: flex; flex-direction: column; align-items: center; gap: 2px; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.media-metrics .mm-ic { width: 1.4rem; height: 1.4rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,.55)); }
+.media-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 1.6rem 0.55rem 0.5rem; background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.82)); color: #fff; }
+.media-creator { display: block; font-weight: 700; font-size: 0.74rem; }
+.media-body { align-self: start; }
+.media-body .item-title { margin: 0 0 0.3rem; font-size: 1.05rem; }
+.media-body .item-summary { margin-top: 0; }
+.lab-items .item::after { content: ""; display: block; clear: both; }
+.lab-items .item-title { margin-top: 0; }
+
+.item-link {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  margin: 0.35rem 0 0;
+  word-break: break-all;            /* long Google News URLs wrap, never overflow */
+}
+.item-link a { color: var(--accent); text-decoration: none; }
+.item-link a:hover { text-decoration: underline; }
+.item-date { color: var(--muted); }
+@media (max-width: 640px) {
+  .lab { grid-template-columns: 1fr; gap: 0.7rem; padding: 0.85rem 1rem; }
+  .lab-rail {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    border-right: none;
+    border-bottom: 1px solid var(--hair);
+    padding-right: 0;
+    padding-bottom: 0.6rem;
+  }
+  .lab-logo { width: 30px; height: 30px; }
+}
+
+.colophon {
+  border-top: 4px double var(--rule);
+  margin-top: 2rem;
+  padding-top: 0.5rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant: small-caps;
+}
+
+/* --- Bilingual toggle (SPEC §10.9): Chinese default; the masthead icon flips to English. */
+.masthead { position: relative; }
+.lang-switch { position: absolute; left: -9999px; }
+.lang-toggle {
+  position: absolute;
+  top: 0.35rem;
+  right: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.lang-toggle:hover { opacity: 1; }
+.lang-toggle svg { width: 100%; height: 100%; display: block; }
+[lang="en"] { display: none; }
+.lang-switch:checked ~ * [lang="en"] { display: inline; }
+.lang-switch:checked ~ * [lang="zh"] { display: none; }
+/* CJK micro-typography: 中文 lines breathe with more leading + a hair of tracking. */
+[lang="zh"] { line-height: 1.75; letter-spacing: 0.015em; }
+</style>
+</head>
+<body>
+  <input type="checkbox" id="lang-en" class="lang-switch" aria-label="English / 中文">
+  
+  <header class="masthead">
+    <label class="lang-toggle" for="lang-en" title="中文 / English"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286zm1.634-.736L5.5 3.956h-.049l-.679 2.022z"/><path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm7.138 9.995q.289.451.63.846c-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6 6 0 0 1-.415-.492 2 2 0 0 1-.94.31"/></svg></label>
+    <h1 class="masthead-title"><span lang="zh">周悉智能</span><span lang="en">The Weekly Intelligencer</span></h1>
+    <p class="masthead-subtitle"><span lang="zh">一份关于人工智能及其重塑的工作领域的每周简报</span><span lang="en">A weekly briefing on AI and the work it&#39;s reshaping</span></p>
+    <div class="masthead-rule">
+      <span><span lang="zh">第 4 期</span><span lang="en">Issue 4</span></span>
+      <span>Jul 13 – Jul 19, 2026</span>
+    </div>
+  </header>
+
+  
+
+  
+  
+
+  <main class="sections">
+    
+    
+    
+    <section class="dimension">
+      <h3 class="dimension-name"><span lang="zh">前沿 AI 实验室</span><span lang="en">Frontier AI Research Labs</span></h3>
+      <p class="dimension-blurb"><span lang="zh">本周全球顶尖 AI 实验室的模型、资金与重要发布</span><span lang="en">The week&#39;s models, money, and announcements from the world&#39;s leading AI labs</span></p>
+      
+      
+      <div class="labs">
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Anthropic</div>
+            <img class="lab-logo" src="assets/logos/anthropic.svg" loading="lazy" decoding="async" alt="Anthropic logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/2f17e0698516a533.jpg" loading="lazy" decoding="async" width="600" height="315" alt="">
+              <h5 class="item-title"><a href="https://www.anthropic.com/news/claude-for-teachers"><span lang="zh">Claude for Teachers 正式推出</span><span lang="en">Introducing Claude for Teachers</span></a></h5>
+              <p class="item-summary"><span lang="zh">Anthropic 推出 Claude for Teachers，为美国通过认证的 K-12 教师免费提供高级 Claude 功能、教学技能库，以及对应全美 50 个州学术标准的循证课程资源。</span><span lang="en">Anthropic introduced Claude for Teachers, giving verified K-12 educators in the US free access to premium Claude capabilities, a library of teaching skills, and evidence-based curricula mapped to academic standards in all 50 states.</span></p>
+              <p class="item-link"><a href="https://www.anthropic.com/news/claude-for-teachers">anthropic.com</a> · <span class="item-date">2026-07-14</span></p>
+            </article>
+            
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/5872ee753a4c2141.png" loading="lazy" decoding="async" width="600" height="316" alt="">
+              <h5 class="item-title"><a href="https://www.anthropic.com/news/canadian-ai-research"><span lang="zh">Anthropic 向加拿大 AI 研究投入 1000 万美元</span><span lang="en">Anthropic commits $10 million to Canadian AI research</span></a></h5>
+              <p class="item-summary"><span lang="zh">Anthropic 宣布向加拿大 AI 研究投入 1000 万美元，致意多伦多大学、蒙特利尔大学等在神经网络研究备受质疑的年代坚持孵化这一方向的机构。</span><span lang="en">Anthropic is committing $10 million to Canadian AI research, a nod to institutions like the University of Toronto and the Université de Montréal that incubated neural-network research through years of broad skepticism.</span></p>
+              <p class="item-link"><a href="https://www.anthropic.com/news/canadian-ai-research">anthropic.com</a> · <span class="item-date">2026-07-14</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Google DeepMind</div>
+            <img class="lab-logo" src="assets/logos/deepmind.svg" loading="lazy" decoding="async" alt="Google DeepMind logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/0bdbece44e9e8814.webp" loading="lazy" decoding="async" width="600" height="315" alt="">
+              <h5 class="item-title"><a href="https://deepmind.google/blog/our-approach-to-bioresilience/"><span lang="zh">生物韧性：我们的路径</span><span lang="en">Our approach to bioresilience</span></a></h5>
+              <p class="item-summary"><span lang="zh">Google DeepMind 与 Isomorphic Labs 阐述其生物韧性路线：用 AI 模型加强对生物威胁的预防、检测与响应。</span><span lang="en">Google DeepMind and Isomorphic Labs laid out their approach to bioresilience — using AI models to strengthen the prevention, detection and response side of biological threats.</span></p>
+              <p class="item-link"><a href="https://deepmind.google/blog/our-approach-to-bioresilience/">deepmind.google</a> · <span class="item-date">2026-07-16</span></p>
+            </article>
+            
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/8ec2016452d4c449.webp" loading="lazy" decoding="async" width="600" height="315" alt="">
+              <h5 class="item-title"><a href="https://deepmind.google/blog/empowering-indias-next-generation-of-innovators-with-atl-saathi/"><span lang="zh">以 ATL Saathi 赋能印度新一代创新者</span><span lang="en">Empowering India’s next generation of innovators with ATL Saathi</span></a></h5>
+              <p class="item-summary"><span lang="zh">印度阿塔尔创新使命署推出由 Gemini 驱动的 AI 助手 ATL Saathi，帮助全国创客实验室的教师培养下一代创新者。</span><span lang="en">India&#39;s Atal Innovation Mission launched ATL Saathi, a Gemini-powered AI assistant that helps educators in the country&#39;s tinkering labs nurture the next generation of innovators.</span></p>
+              <p class="item-link"><a href="https://deepmind.google/blog/empowering-indias-next-generation-of-innovators-with-atl-saathi/">deepmind.google</a> · <span class="item-date">2026-07-13</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">OpenAI</div>
+            <img class="lab-logo" src="assets/logos/openai.svg" loading="lazy" decoding="async" alt="OpenAI logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://openai.com/index/a-scorecard-for-the-ai-age"><span lang="zh">AI 时代的记分卡</span><span lang="en">A scorecard for the AI age</span></a></h5>
+              <p class="item-summary"><span lang="zh">OpenAI 首席财务官 Sarah Friar 提出一套面向 AI 时代的实用记分卡，以有效工作量、每个成功任务的成本、可靠性和算力回报来衡量投资回报。</span><span lang="en">OpenAI CFO Sarah Friar proposed a practical scorecard for the AI age, measuring return on investment through useful work delivered, cost per successful task, dependability, and return on compute.</span></p>
+              <p class="item-link"><a href="https://openai.com/index/a-scorecard-for-the-ai-age">openai.com</a> · <span class="item-date">2026-07-17</span></p>
+            </article>
+            
+            
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://openai.com/index/why-teens-deserve-access-safe-ai"><span lang="zh">为什么青少年应该拥有安全的 AI</span><span lang="en">Why teens deserve access to safe AI</span></a></h5>
+              <p class="item-summary"><span lang="zh">OpenAI 阐述为何青少年应当获得安全的 AI，介绍 ChatGPT 中的年龄适配保护、学习工具、家长控制及专家合作。</span><span lang="en">OpenAI made its case for why teens deserve access to safe AI, outlining age-appropriate protections, learning tools, parental controls, and expert partnerships in ChatGPT.</span></p>
+              <p class="item-link"><a href="https://openai.com/index/why-teens-deserve-access-safe-ai">openai.com</a> · <span class="item-date">2026-07-16</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">xAI</div>
+            <img class="lab-logo" src="assets/logos/xai.svg" loading="lazy" decoding="async" alt="xAI logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/88cd0d0ba6f29509.jpg" loading="lazy" decoding="async" width="600" height="315" alt="">
+              <h5 class="item-title"><a href="https://x.ai/news/grok-automations"><span lang="zh">Grok 推出自动化任务 Automations</span><span lang="en">Automations in Grok</span></a></h5>
+              <p class="item-summary"><span lang="zh">xAI 推出 Automations：只需描述一次任务并设定触发条件——按日程或在邮件到达时——Grok 便会自动执行并汇报结果。</span><span lang="en">xAI introduced Automations — jobs Grok runs on its own: describe the work once, choose when it runs, on a schedule or when an email arrives, and Grok reports back with the results.</span></p>
+              <p class="item-link"><a href="https://x.ai/news/grok-automations">x.ai</a> · <span class="item-date">2026-07-16</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Moonshot AI</div>
+            <img class="lab-logo" src="assets/logos/kimi.svg" loading="lazy" decoding="async" alt="Moonshot AI logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/ae1ade66713fa7a5.jpg" loading="lazy" decoding="async" width="600" height="300" alt="">
+              <h5 class="item-title"><a href="https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/"><span lang="zh">市场或刚经历第二次 DeepSeek 冲击，这次来自一家以 Pink Floyd 专辑命名的中国 AI 实验室</span><span lang="en">Markets may have just experienced their second DeepSeek shock, this time thanks to a Chinese AI lab named after a Pink Floyd album</span></a></h5>
+              <p class="item-summary"><span lang="zh">北京 AI 初创公司月之暗面发布 Kimi K3，宣称以远低得多的成本逼近 Anthropic Fable 5 的性能——《财富》称市场因此经历了第二次 DeepSeek 式冲击。</span><span lang="en">Beijing-based Moonshot AI unveiled Kimi K3, promising performance close to Anthropic&#39;s Fable 5 at a fraction of the cost — a debut Fortune likens to a second DeepSeek shock for markets.</span></p>
+              <p class="item-link"><a href="https://fortune.com/2026/07/17/china-moonshot-kimi-k3-markets-china-ai/">fortune.com</a> · <span class="item-date">2026-07-17</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Alibaba Qwen</div>
+            <img class="lab-logo" src="assets/logos/qwen.svg" loading="lazy" decoding="async" alt="Alibaba Qwen logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://mlq.ai/news/alibaba-launches-qwen-38-with-24-trillion-parameters-claims-near-frontier-performance/"><span lang="zh">阿里发布 2.4 万亿参数 Qwen 3.8，宣称性能接近最前沿</span><span lang="en">Alibaba Launches Qwen 3.8 With 2.4 Trillion Parameters, Claims Near-Frontier Performance</span></a></h5>
+              <p class="item-summary"><span lang="zh">阿里 Qwen 团队发布 Qwen 3.8——2.4 万亿参数的多模态模型，自称在全球前沿系统中“仅次于 Fable 5”。</span><span lang="en">Alibaba&#39;s Qwen team unveiled Qwen 3.8, a 2.4-trillion-parameter multimodal model it describes as &#34;second only to Fable 5&#34; among the world&#39;s frontier systems.</span></p>
+              <p class="item-link"><a href="https://mlq.ai/news/alibaba-launches-qwen-38-with-24-trillion-parameters-claims-near-frontier-performance/">mlq.ai</a> · <span class="item-date">2026-07-19</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+      </div>
+      
+    </section>
+    
+    
+    
+    
+    <section class="dimension">
+      <h3 class="dimension-name"><span lang="zh">智能工厂</span><span lang="en">The Intelligent Factory</span></h3>
+      <p class="dimension-blurb"><span lang="zh">本周从实验室到工厂车间的合作、部署与产业落地</span><span lang="en">The week&#39;s partnerships, deployments, and industrial rollouts from AI lab to factory floor</span></p>
+      
+      
+      <div class="labs">
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">TSMC</div>
+            
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/832b86b4e876bb02.webp" loading="lazy" decoding="async" width="600" height="400" alt="">
+              <h5 class="item-title"><a href="https://www.manufacturingdive.com/news/tsmc-100B-US-semiconductor-investment-supply-chain/825509/"><span lang="zh">台积电再向美国投资 1000 亿美元</span><span lang="en">TSMC makes another $100B US investment</span></a></h5>
+              <p class="item-summary"><span lang="zh">白宫与美国商务部宣布，台积电将再增投 1000 亿美元用于亚利桑那州的先进芯片制造与封装设施，使其 2024–2026 年承诺的在美投资总额达到 2650 亿美元、共 12 座设施。</span><span lang="en">TSMC will invest an incremental $100 billion in advanced semiconductor manufacturing and packaging facilities in Arizona, the White House and Commerce Department announced — bringing its pledged U.S. investment across 2024–2026 to $265 billion and a dozen facilities.</span></p>
+              <p class="item-link"><a href="https://www.manufacturingdive.com/news/tsmc-100B-US-semiconductor-investment-supply-chain/825509/">manufacturingdive.com</a> · <span class="item-date">2026-07-17</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">3M</div>
+            <img class="lab-logo" src="assets/logos/3m.svg" loading="lazy" decoding="async" alt="3M logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/119854f87f960278.webp" loading="lazy" decoding="async" width="600" height="336" alt="">
+              <h5 class="item-title"><a href="https://www.manufacturingdive.com/news/microsoft-3m-ai-fiber-optic-partnership-data-center/825323/"><span lang="zh">微软与 3M 达成 AI 数据中心研发合作</span><span lang="en">Microsoft, 3M form AI, data center R&amp;D partnership</span></a></h5>
+              <p class="item-summary"><span lang="zh">3M 与微软围绕 AI 数据中心基础设施达成研发合作：Azure 将在其数据中心部署 3M 的扩束光缆连接器系统，3M 则在自身运营中引入微软的 AI 与数字化平台。</span><span lang="en">3M and Microsoft formed an R&amp;D partnership around AI data-center infrastructure: Azure will deploy 3M&#39;s expanded-beam optical cable connectors across its data centers, while 3M adopts Microsoft&#39;s AI and digital platforms to streamline its own operations.</span></p>
+              <p class="item-link"><a href="https://www.manufacturingdive.com/news/microsoft-3m-ai-fiber-optic-partnership-data-center/825323/">manufacturingdive.com</a> · <span class="item-date">2026-07-16</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Lite-On</div>
+            
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/66b4f84de290daa5.webp" loading="lazy" decoding="async" width="600" height="400" alt="">
+              <h5 class="item-title"><a href="https://www.manufacturingdive.com/news/lite-on-electronics-r-d-manufacturing-919-million-mckinney-texas/825250/"><span lang="zh">光宝科技将在得州建设 9.19 亿美元制造园区</span><span lang="en">Lite-On Technology to establish $919M manufacturing campus in Texas</span></a></h5>
+              <p class="item-summary"><span lang="zh">台湾光宝科技将斥资至多 9.19 亿美元在得克萨斯州麦金尼建设制造与研发园区，为 AI 基础设施与能源市场客户生产电源管理等电子元件，预计创造逾 600 个岗位，2030 年全面投产。</span><span lang="en">Taiwan&#39;s Lite-On Technology will spend up to $919 million on a manufacturing and R&amp;D campus in McKinney, Texas — making power-management components for the AI-infrastructure and energy markets, with more than 600 jobs and full operation expected by 2030.</span></p>
+              <p class="item-link"><a href="https://www.manufacturingdive.com/news/lite-on-electronics-r-d-manufacturing-919-million-mckinney-texas/825250/">manufacturingdive.com</a> · <span class="item-date">2026-07-15</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Rockwell Automation</div>
+            <img class="lab-logo" src="assets/logos/rockwellautomation.svg" loading="lazy" decoding="async" alt="Rockwell Automation logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/19c507a519d76e79.webp" loading="lazy" decoding="async" width="600" height="338" alt="">
+              <h5 class="item-title"><a href="https://www.manufacturingdive.com/news/majority-manufacturers-struggle-scale-mes-rockwell-automation/825278/"><span lang="zh">罗克韦尔调研：多数制造商难以规模化推广 MES</span><span lang="en">Majority of manufacturers struggle to scale execution systems: Rockwell</span></a></h5>
+              <p class="item-summary"><span lang="zh">罗克韦尔自动化对 17 个国家 1560 名制造业从业者的调研显示，93% 的企业已在至少一处工厂使用制造执行系统（MES），但仅 23% 实现全站点部署——报告称在 AI 时代，系统集成已成为行业最大挑战。</span><span lang="en">Rockwell Automation&#39;s survey of 1,560 industrial professionals in 17 countries found 93% run manufacturing execution systems somewhere, but only 23% have them fully deployed across sites — an integration gap the report calls the industry&#39;s biggest challenge in the era of AI.</span></p>
+              <p class="item-link"><a href="https://www.manufacturingdive.com/news/majority-manufacturers-struggle-scale-mes-rockwell-automation/825278/">manufacturingdive.com</a> · <span class="item-date">2026-07-15</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">DeepLearning.AI</div>
+            <img class="lab-logo" src="assets/logos/deeplearningai.svg" loading="lazy" decoding="async" alt="DeepLearning.AI logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/d31d94e84aa34a5f.webp" loading="lazy" decoding="async" width="600" height="338" alt="">
+              <h5 class="item-title"><a href="https://www.deeplearning.ai/the-batch/issue-362"><span lang="zh">AI Overviews 令谷歌陷入麻烦，GPT-Live 将推理转入后台，如何辨别你的模型是否在操纵你</span><span lang="en">AI Overviews Land Google In Hot Water, GPT-Live Puts Reasoning in the Background, How to Tell If Your Model is Manipulative</span></a></h5>
+              <p class="item-summary"><span lang="zh">本期 The Batch 开篇谈 AI 自动化编程如何让开发者腾出手来承担技术架构、需求界定等资深工程师的工作，并关注 AI Overviews 令谷歌陷入麻烦、GPT-Live 将推理转入后台，以及如何判断你的模型是否在操纵你。</span><span lang="en">This week&#39;s issue of The Batch opens on how AI-automated coding frees developers for senior-engineer work like architecture and scoping — alongside AI Overviews landing Google in hot water, GPT-Live putting reasoning in the background, and how to tell if your model is manipulative.</span></p>
+              <p class="item-link"><a href="https://www.deeplearning.ai/the-batch/issue-362">deeplearning.ai</a> · <span class="item-date">2026-07-17</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+      </div>
+      
+    </section>
+    
+    
+    
+    
+    <section class="dimension">
+      <h3 class="dimension-name"><span lang="zh">重塑跨境品牌</span><span lang="en">Rewriting Cross-Border Branding</span></h3>
+      <p class="dimension-blurb"><span lang="zh">AI 如何重塑中国跨境品牌的海外营销与品牌打造</span><span lang="en">How AI is reshaping the way Chinese cross-border brands market and build themselves overseas</span></p>
+      
+      
+      <div class="labs">
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">realme</div>
+            
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/45e46ad93a398058.png" loading="lazy" decoding="async" width="600" height="347" alt="">
+              <h5 class="item-title"><a href="https://www.cifnews.com/article/187616"><span lang="zh">卷不动！又一品牌退出中国All in海外</span><span lang="en">Another Brand Exits China to Go All In Overseas</span></a></h5>
+              <p class="item-summary"><span lang="zh">7 月 16 日，realme 副总裁兼中国区总裁徐起发布公开信，宣布暂停中国市场业务、集中资源深耕海外，中国区产品销售与售后转由 OPPO 保障——这家 OPPO 孵化的品牌自创立起便以海外为第一战场。</span><span lang="en">On July 16, realme vice president and China president Xu Qi announced in an open letter that the brand will pause its China business and concentrate on overseas markets, with OPPO taking over domestic sales and after-sales — a full return to the first battlefield this OPPO-incubated brand was built on.</span></p>
+              <p class="item-link"><a href="https://www.cifnews.com/article/187616">cifnews.com</a> · <span class="item-date">2026-07-18</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Anker</div>
+            
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://www.baijing.cn/article/56045"><span lang="zh">拿下全类目增速第一，安克闷声造了个母婴爆款</span><span lang="en">Anker Quietly Built a Mother-and-Baby Bestseller — Its Fastest-Growing Category Yet</span></a></h5>
+              <p class="item-summary"><span lang="zh">安克旗下 eufy 杀入智能吸奶器类目不到一年便稳居头部：可穿戴吸奶器 2025 年营收同比暴涨 736%，夺得安克全线产品增速第一，长期霸榜亚马逊 Best Seller，母婴业务成为其又一增长引擎。</span><span lang="en">Anker&#39;s eufy brand cracked the smart breast-pump category within a year: its wearable pump grew revenue 736% in 2025 — the fastest of any Anker product line — and sits atop Amazon&#39;s Best Sellers, making mother-and-baby gear the company&#39;s newest growth engine.</span></p>
+              <p class="item-link"><a href="https://www.baijing.cn/article/56045">baijing.cn</a> · <span class="item-date">2026-07-17</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">DeerRun</div>
+            
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/3365a2b9fff6b7fd.png" loading="lazy" decoding="async" width="600" height="347" alt="">
+              <h5 class="item-title"><a href="https://www.cifnews.com/article/187617"><span lang="zh">中国跨境品牌，排队去休斯顿开店</span><span lang="en">Chinese Cross-Border Brands Are Lining Up to Open Stores in Houston</span></a></h5>
+              <p class="item-summary"><span lang="zh">7 月 1 日，家庭健身品牌 DeerRun 在休斯顿开出北美首家零售店。这家 2021 年成立于杭州的品牌以“硬件+软件”重塑家用健身器械，全球用户超 200 万、年营收超 2 亿美元，是中国跨境品牌从线上走向线下的最新一例。</span><span lang="en">On July 1, home-fitness brand DeerRun opened its first North American retail store in Houston. Founded in Hangzhou in 2021, the &#34;hardware + software&#34; treadmill maker counts over 2 million users and $200 million in annual revenue — the latest Chinese cross-border brand to step offline.</span></p>
+              <p class="item-link"><a href="https://www.cifnews.com/article/187617">cifnews.com</a> · <span class="item-date">2026-07-18</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">GameSir</div>
+            
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              
+              <h5 class="item-title"><a href="https://www.baijing.cn/article/56046"><span lang="zh">年销10亿，一款手柄如何征服全球玩家？ | 对话一线</span><span lang="en">¥1 Billion a Year: How One Controller Maker Won Over the World&#39;s Gamers | Frontline Dialogue</span></a></h5>
+              <p class="item-summary"><span lang="zh">广州厂商盖世小鸡（GameSir）以游戏软件起家，如今全球用户超 3000 万、年销售额突破 10 亿元，2025 年巴西市场营收增幅接近 200%；其 COO 赵伟林在亚马逊媒体会上复盘了这条从模拟器社群走出的游戏外设出海之路。</span><span lang="en">Guangzhou-based GameSir started out in game software and now counts over 30 million users worldwide with annual sales past ¥1 billion — Brazil revenue alone grew nearly 200% in 2025. COO Zhao Weilin retraced the controller maker&#39;s community-driven road overseas at an Amazon media event.</span></p>
+              <p class="item-link"><a href="https://www.baijing.cn/article/56046">baijing.cn</a> · <span class="item-date">2026-07-17</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+      </div>
+      
+    </section>
+    
+    
+    
+    
+    <section class="dimension">
+      <h3 class="dimension-name"><span lang="zh">热门社媒视频与图片</span><span lang="en">Trending Social Video &amp; Images</span></h3>
+      <p class="dimension-blurb"><span lang="zh">本周社交平台上传播最广的 AI 生成视频与图片</span><span lang="en">The week&#39;s most-shared AI-generated videos and images across social platforms</span></p>
+      
+      
+      <div class="labs">
+        
+        
+        <div class="lab">
+          <div class="lab-rail">
+            <div class="lab-name">Reddit</div>
+            <img class="lab-logo" src="assets/logos/reddit.svg" loading="lazy" decoding="async" alt="Reddit logo">
+          </div>
+          <div class="lab-items">
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/9dc06cc10a582440.png" loading="lazy" decoding="async" width="600" height="338" alt="">
+              <h5 class="item-title"><a href="https://old.reddit.com/r/aivideo/comments/1v04834/grand_theft_auto_india/"><span lang="zh">侠盗猎车手：印度</span><span lang="en">Grand Theft Auto : India</span></a></h5>
+              <p class="item-summary"><span lang="zh">本周 r/aivideo 榜首是一部以印度为舞台的《侠盗猎车手》AI 恶搞之作——画面配有中文任务界面“恒河速递”，要求外卖骑手把外卖送过恒河，一路避开挂满乘客的火车与摩托车叠罗汉。</span><span lang="en">The week&#39;s top post on r/aivideo is a pitch-perfect AI spoof of Grand Theft Auto set in India — complete with a Chinese-language mission HUD tasking a delivery rider with getting takeout across the Ganges, past packed trains and motorbike pyramids.</span></p>
+              <p class="item-link"><a href="https://old.reddit.com/r/aivideo/comments/1v04834/grand_theft_auto_india/">old.reddit.com</a> · <span class="item-date">2026-07-18</span></p>
+            </article>
+            
+            
+            
+            <article class="item">
+              <img class="item-image" src="assets/2026-07-19/b36f3ac9a72acfc3.png" loading="lazy" decoding="async" width="338" height="600" alt="">
+              <h5 class="item-title"><a href="https://old.reddit.com/r/aivideo/comments/1uyrn95/riding_a_wiener/"><span lang="zh">骑腊肠狗</span><span lang="en">Riding a wiener</span></a></h5>
+              <p class="item-summary"><span lang="zh">亚军作品：一段荒诞短片——男子淡定地把一只腊肠犬当滑板，沿人行道一路滑行。</span><span lang="en">Runner-up: an absurdist clip of a man serenely riding a dachshund down a city sidewalk like a skateboard.</span></p>
+              <p class="item-link"><a href="https://old.reddit.com/r/aivideo/comments/1uyrn95/riding_a_wiener/">old.reddit.com</a> · <span class="item-date">2026-07-17</span></p>
+            </article>
+            
+            
+          </div>
+        </div>
+        
+      </div>
+      
+    </section>
+    
+    
+  </main>
+
+  <footer class="colophon">
+    <p><span lang="zh">周悉智能</span><span lang="en">The Weekly Intelligencer</span> · <span lang="zh">第 4 期</span><span lang="en">Issue 4</span> · Jul 13 – Jul 19, 2026</p>
+  </footer>
+</body>
+</html>
