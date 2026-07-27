@@ -43,15 +43,18 @@ def _parse_date(text: str) -> str | None:
 
 
 def _nearest_date(anchor) -> str | None:
-    """Walk up from a link to find the date shown in its listing row/card."""
+    """Find the date shown in a link's listing row/card: the anchor's own text
+    first (card layouts put the date inside the link), then up through its
+    ancestors — a shared ancestor holds every card's date, so trusting it
+    before the anchor itself would stamp one date across the whole listing."""
     node = anchor
-    for _ in range(5):
-        node = node.parent
+    for _ in range(6):
         if node is None:
             break
         match = _DATE_RE.search(node.get_text(" ", strip=True))
         if match:
             return _parse_date(match.group(0))
+        node = node.parent
     return None
 
 

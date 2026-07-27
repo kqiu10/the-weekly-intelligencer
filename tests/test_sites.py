@@ -24,6 +24,24 @@ def test_parse_listing_extracts_urls_and_dates():
     ]
 
 
+def test_parse_listing_date_inside_anchor_wins_over_siblings():
+    # Card layouts (x.ai/news) put each card's date inside its own <a>; all cards
+    # share one container, so a parent-first search would give every card the
+    # first date on the page.
+    html = """
+    <div class="list">
+      <a href="/news/newest"><h3>Newest</h3><div>Jul 20, 2026</div></a>
+      <a href="/news/older"><h3>Older</h3><div>Jun 16, 2026</div></a>
+      <a href="/news/oldest"><h3>Oldest</h3><div>Nov 3, 2023</div></a>
+    </div>
+    """
+    assert parse_listing(html, "https://x.ai/news", "/news/") == [
+        ("https://x.ai/news/newest", "2026-07-20"),
+        ("https://x.ai/news/older", "2026-06-16"),
+        ("https://x.ai/news/oldest", "2023-11-03"),
+    ]
+
+
 def test_parse_listing_undated_link_kept_with_none():
     html = '<a href="/blog/x">A post with no visible date</a>'
     assert parse_listing(html, "https://ai.meta.com/blog/", "/blog/") == [
