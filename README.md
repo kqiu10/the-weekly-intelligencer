@@ -9,7 +9,7 @@
 
 ## Preview
 ![Scrolling through a sample issue](samples/sample-scroll.gif)  
-**[Read the full issue →](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-19.html)**
+**[Read the full issue →](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-26.html)**
 
 ## Dimensions
 Four sections per issue: frontier AI labs, industrial AI adoption, Chinese cross-border brands × AI, and trending AI-generated media. All sources are **direct feeds and first-party scrapes** — no web search, no news aggregators; the deterministic scripts gather candidate pools and Claude only prunes them against each section's editorial bar.
@@ -119,6 +119,7 @@ Most AI news tools force a choice: paraphrase everything through an LLM (expensi
 | Issue 2 | 6/29-7/5 | [`Issue 2`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-05.html) |
 | Issue 3 | 7/6-7/12 | [`Issue 3`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-12.html) |
 | Issue 4 | 7/13-7/19 | [`Issue 4`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-19.html) |
+| Issue 5 | 7/20-7/26 | [`Issue 5`](https://kqiu10.github.io/the-weekly-intelligencer/issues/2026-07-26.html) |
 
 ## License
 
